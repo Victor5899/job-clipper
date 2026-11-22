@@ -1,0 +1,129 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background-color: var(--color-bg);
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: rgb(198 241 53 / 0.28);
+    color: var(--color-text);
+  }
+
+  /* Native date/time pickers: keep the calendar glyph visible on the dark surface. */
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.85);
+    cursor: pointer;
+  }
+
+  dialog::backdrop {
+    background: rgb(4 5 4 / 0.72);
+    backdrop-filter: blur(6px);
+  }
+}
+
+@layer components {
+  .micro-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.4;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* Elevated panel with a 1px top highlight, as light catching the edge. */
+  .panel-surface {
+    position: relative;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background:
+      linear-gradient(180deg, rgb(242 240 230 / 0.035), transparent 40%), var(--color-elevated);
+    box-shadow: var(--shadow-panel);
+    backdrop-filter: blur(14px);
+  }
+
+  .panel-surface::before {
+    content: "";
+    position: absolute;
+    inset: 0 12% auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgb(242 240 230 / 0.18), transparent);
+    pointer-events: none;
+  }
+
+  /* Hero light: one radial lime source plus a faint "light curtain" of vertical streaks. */
+  .hero-glow {
+    background:
+      radial-gradient(ellipse 55% 45% at 50% 72%, rgb(198 241 53 / 0.22), transparent 70%),
+      radial-gradient(ellipse 30% 60% at 50% 100%, rgb(198 241 53 / 0.12), transparent 70%);
+  }
+
+  .light-curtain {
+    background-image: repeating-linear-gradient(
+      90deg,
+      transparent 0 26px,
+      rgb(198 241 53 / 0.07) 26px 27px,
+      transparent 27px 44px,
+      rgb(242 240 230 / 0.035) 44px 45px
+    );
+    mask-image: radial-gradient(ellipse 48% 62% at 50% 70%, #000 0%, transparent 72%);
+  }
+
+  .glow-focus {
+    box-shadow:
+      var(--shadow-panel),
+      0 0 0 1px rgb(198 241 53 / 0.12),
+      0 -20px 80px -30px rgb(198 241 53 / 0.35);
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

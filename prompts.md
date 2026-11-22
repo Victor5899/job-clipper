@@ -735,3 +735,16 @@ Implement the plan as specified, it is attached for your reference. Do NOT edit 
 
 To-do's from the plan have already been created. Do not create them again. Mark them as in_progress as you work, starting with the first one. Don't stop until you have completed all the to-dos.
 ````
+
+---
+
+## Prompt 4 — Phase 1: Foundation, design system, dashboard shell and manual entry
+
+- **Date:** 2026-11-22
+- **Phase:** 1 (implementation)
+- **Outcome:** Phase 1 implemented: loadable MV3 extension, Northline-inspired dashboard (Overview, Applications, Calendar, Settings), popup with manual entry and session drafts, typed `chrome.storage` repository with live updates, 77 automated tests. Typecheck, ESLint, Prettier, Vitest and the production build pass. Manual browser checks not yet performed. Not committed (left for the author's review).
+- **Verbatim text pending:** the assistant could not retrieve this prompt word for word, so it has not been reconstructed. Paste the original prompt, unchanged, into the block below.
+
+````text
+[PASTE THE EXACT PHASE 1 PROMPT HERE — it begins "# JOB CLIPPER — PHASE 1: FOUNDATION, DESIGN SYSTEM, DASHBOARD SHELL & MANUAL ENTRY" and ends "Stop after Phase 1. Wait for my review and explicit approval before proceeding to Phase 2."]
+````

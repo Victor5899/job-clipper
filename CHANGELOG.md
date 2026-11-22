@@ -6,7 +6,55 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-Phase 1 (extension foundation, design system, dashboard shell and manual job entry) is pending approval.
+Phase 2 (editing saved jobs) is pending approval of Phase 1.
+
+## [0.1.0] — 2026-11-22 — Phase 1: foundation, design system, dashboard shell and manual entry
+
+Automated checks pass. Not yet manually tested in Chrome (see the README checklist).
+
+### Added
+
+- Manifest V3 extension built with Vite 8, React 19, TypeScript 6 (strict) and Tailwind CSS 4.
+  - Module service worker (`background.js`), popup and dashboard pages.
+  - Toolbar shortcut <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd>.
+  - Content security policy `script-src 'self'; object-src 'self'`.
+  - Generated toolbar icons at 16, 32, 48 and 128 px.
+- Design system: Northline-inspired tokens (`src/ui/styles/tokens.css`) and shared components (buttons, text fields, panels, dialog, status pills, empty states, stat numbers). Instrument Serif, Inter and JetBrains Mono are bundled locally.
+- Core model:
+  - The full `JobApplication` and `Settings` types from the specification.
+  - Manual entry validation: required title, company and URL; http/https only; URLs up to 2048 characters; optional date and time.
+  - URL and text normalisation, deadline formatting ("No deadline provided" when absent), and overview statistics.
+- Storage:
+  - Typed `chrome.storage` wrapper.
+  - Job repository with `createJob`, `listJobs` and `subscribeJobs`, using per-job `job:<uuid>` keys and `crypto.randomUUID()` IDs.
+  - Settings initialisation on install that preserves existing data on update.
+  - Per-tab popup drafts in `chrome.storage.session`.
+- Popup (380 px):
+  - Manual entry with URL and title prefilled from the active tab, and a restricted-page notice.
+  - Inline validation with focus on the first error, and draft restore.
+  - Sticky footer with Save to Job Clipper and Open dashboard, plus a success state.
+- Dashboard:
+  - Hash routing for Overview, Applications, Calendar and Settings, with a responsive top navigation and mobile menu.
+  - Overview hero and four real statistics.
+  - Recently saved, Application overview (weekly chart and pipeline) and Upcoming deadlines (14-day timeline) panels, each with an empty state.
+  - Add application dialog.
+  - Live updates via `chrome.storage.onChanged`.
+- Tests: 77 Vitest tests over an in-memory `chrome.*` fake (`tests/fakes/chrome.ts`), covering the repository, validation, drafts, the popup, dashboard statistics, routing and install handling.
+- Tooling: ESLint flat config (bans `dangerouslySetInnerHTML`, `innerHTML` and `outerHTML`), Prettier, and an `npm run check` script.
+
+### Changed
+
+- Permissions: Phase 1 requests only `storage` and `activeTab`. `scripting`, `alarms` and `notifications` from the Phase 0 plan are deferred to Phases 4 and 5, where they are first used. This follows least privilege; adding them later triggers Chrome's permission prompt on update.
+- `text-subtle` design token adjusted to `#82857a` so small labels meet WCAG AA contrast on the darkest surfaces.
+
+### Deferred
+
+- The separate content-script build config (`vite.content.config.ts`) and the notification icon arrive with the phases that need them (Phases 4 and 5).
+- "Explore opportunities" scrolls to the dashboard panels until its full feature exists.
+
+### Known gaps
+
+- `prompts.md` entry 4 (the Phase 1 prompt) has a placeholder where the verbatim text belongs, because the exact wording could not be retrieved. It must be pasted in by the author.
 
 ## [0.0.0] — 2026-11-22 — Phase 0 planning
 

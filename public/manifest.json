@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Job Clipper",
+  "version": "0.1.0",
+  "description": "Clip, track and organise internships and entry-level jobs. Offline-first; your data stays on this device.",
+  "minimum_chrome_version": "120",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Clip this job",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": ["storage", "activeTab"],
+  "commands": {
+    "_execute_action": {
+      "suggested_key": { "default": "Alt+Shift+J" },
+      "description": "Open Job Clipper for the current tab"
+    }
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}

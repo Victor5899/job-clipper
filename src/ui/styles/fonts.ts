@@ -1,0 +1,5 @@
+// Fonts are bundled from @fontsource so the extension renders identically offline.
+import "@fontsource/instrument-serif/400.css";
+import "@fontsource/instrument-serif/400-italic.css";
+import "@fontsource-variable/inter";
+import "@fontsource-variable/jetbrains-mono";

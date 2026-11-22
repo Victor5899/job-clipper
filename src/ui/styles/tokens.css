@@ -1,0 +1,33 @@
+/* Shared design tokens for the popup and dashboard (PROJECT_SPEC section 10). */
+@theme {
+  --color-bg: #080908;
+  --color-surface-1: #0e100e;
+  --color-surface-2: #141714;
+  --color-elevated: rgb(24 27 23 / 0.72);
+  --color-border: rgb(242 240 230 / 0.08);
+  --color-border-strong: #2a2e26;
+
+  --color-text: #f2f0e6;
+  --color-text-muted: #9b9d93;
+  /* Spec value #74776c measured 4.4:1 on surface-2; lightened to stay above 4.5:1 (WCAG AA). */
+  --color-text-subtle: #82857a;
+
+  --color-accent: #c6f135;
+  --color-accent-hover: #d6f86b;
+  --color-accent-ink: #0a0c06;
+  --color-olive: #5e6b25;
+  --color-olive-surface: #1e2410;
+
+  --color-warn: #e9c46a;
+  --color-danger: #e07a6f;
+  --color-info: #a8b5a0;
+
+  --font-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-sans:
+    "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --radius-card: 14px;
+
+  --shadow-panel: 0 30px 80px -40px rgb(0 0 0 / 0.9);
+}
