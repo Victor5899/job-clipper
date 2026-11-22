@@ -46,10 +46,18 @@ export function replaceHash(hash: string): void {
   window.dispatchEvent(new HashChangeEvent("hashchange"));
 }
 
-export function hashForJob(route: RouteName, jobId: string, edit = false): string {
-  const params = new URLSearchParams({ job: jobId });
+export function hashForJob(
+  route: RouteName,
+  jobId: string,
+  edit = false,
+  current?: URLSearchParams,
+): string {
+  const params = new URLSearchParams(current);
+  params.set("job", jobId);
   if (edit) params.set("edit", "1");
-  return `#/${route}?${params.toString()}`;
+  else params.delete("edit");
+  const query = params.toString();
+  return `#/${route}${query ? `?${query}` : ""}`;
 }
 
 function subscribe(onChange: () => void): () => void {

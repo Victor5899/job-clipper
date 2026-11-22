@@ -36,6 +36,37 @@ describe("handleInstalled", () => {
     });
     expect(chromeFake().tabs.create).not.toHaveBeenCalled();
   });
+
+  it("leaves descriptions off when that checkbox was never saved", async () => {
+    await chromeFake().storage.local.set({
+      settings: {
+        reminders: DEFAULT_SETTINGS.reminders,
+        profile: DEFAULT_SETTINGS.profile,
+        csv: { includeDescription: false },
+      },
+      schemaVersion: 1,
+    });
+
+    await handleInstalled({ reason: "update" } as chrome.runtime.InstalledDetails);
+
+    const stored = await chromeFake().storage.local.get("settings");
+    expect(stored.settings).toMatchObject({
+      csv: { includeDescription: false, chosen: true },
+      profile: DEFAULT_SETTINGS.profile,
+    });
+  });
+
+  it("keeps a saved choice to leave descriptions out of the CSV", async () => {
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      csv: { includeDescription: false, chosen: true },
+    };
+    await chromeFake().storage.local.set({ settings, schemaVersion: 1 });
+
+    await handleInstalled({ reason: "update" } as chrome.runtime.InstalledDetails);
+
+    expect((await chromeFake().storage.local.get("settings")).settings).toEqual(settings);
+  });
 });
 
 describe("background entry point", () => {

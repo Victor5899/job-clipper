@@ -68,6 +68,17 @@ class FakeStorageArea {
     await this.remove([...this.data.keys()]);
   }
 
+  /** Approximate byte size of the selected keys. Chrome's own count differs slightly. */
+  async getBytesInUse(keys?: string | string[] | null): Promise<number> {
+    const items = await this.get(keys ?? null);
+    const encoder = new TextEncoder();
+    let bytes = 0;
+    for (const [key, value] of Object.entries(items)) {
+      bytes += encoder.encode(key).length + encoder.encode(JSON.stringify(value)).length;
+    }
+    return bytes;
+  }
+
   /** Test helper: synchronous snapshot of everything stored. */
   snapshot(): Record<string, unknown> {
     return structuredClone(Object.fromEntries(this.data));
@@ -119,7 +130,7 @@ export function createChromeFake() {
     runtime: {
       id: "test-extension-id",
       getURL: (path: string) => `chrome-extension://test-extension-id/${path.replace(/^\//, "")}`,
-      getManifest: () => ({ manifest_version: 3, name: "Job Clipper", version: "0.5.0" }),
+      getManifest: () => ({ manifest_version: 3, name: "Job Clipper", version: "0.6.0" }),
       onInstalled: new FakeEvent<(details: chrome.runtime.InstalledDetails) => void>(),
       onStartup: new FakeEvent<() => void>(),
       onMessage: new FakeEvent<

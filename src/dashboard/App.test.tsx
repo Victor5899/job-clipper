@@ -63,9 +63,10 @@ describe("Dashboard overview", () => {
 
     const deadlines = screen.getByRole("region", { name: /upcoming deadlines/i });
     expect(within(deadlines).getByText("Data Engineer Intern")).toBeInTheDocument();
-    expect(
-      within(deadlines).getByText("2 saved jobs have no deadline provided"),
-    ).toBeInTheDocument();
+    expect(within(deadlines).getByRole("link", { name: /no deadline provided/i })).toHaveAttribute(
+      "href",
+      "#/applications?deadline=none",
+    );
   });
 
   it("updates live when a job is saved from another extension page (the popup)", async () => {

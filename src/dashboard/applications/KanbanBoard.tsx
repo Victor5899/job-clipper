@@ -23,6 +23,7 @@ import {
   InvalidInterviewDateError,
   InvalidStageError,
   applyStageMove,
+  compareForBoard,
   groupByStage,
   stageFromDropId,
 } from "../../core/model/stage";
@@ -42,9 +43,16 @@ interface KanbanBoardProps {
   now: Date;
   onOpen: (id: string) => void;
   onNotice: (message: string) => void;
+  compare?: (a: JobApplication, b: JobApplication) => number;
 }
 
-export function KanbanBoard({ jobs, now, onOpen, onNotice }: KanbanBoardProps) {
+export function KanbanBoard({
+  jobs,
+  now,
+  onOpen,
+  onNotice,
+  compare = compareForBoard,
+}: KanbanBoardProps) {
   const [mobileStage, setMobileStage] = useState<JobStatus>("saved");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overrides, setOverrides] = useState<Map<string, JobApplication>>(() => new Map());
@@ -70,7 +78,7 @@ export function KanbanBoard({ jobs, now, onOpen, onNotice }: KanbanBoardProps) {
       }),
     [jobs, overrides],
   );
-  const groups = useMemo(() => groupByStage(displayed), [displayed]);
+  const groups = useMemo(() => groupByStage(displayed, compare), [displayed, compare]);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 8 } }),

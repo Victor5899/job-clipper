@@ -103,5 +103,13 @@ export interface JobApplication {
 export interface Settings {
   reminders: { enabledByDefault: boolean; leadDays: number; atTime: string };
   profile: { graduationYear: number; countryCode: string };
-  csv: { includeDescription: boolean };
+  csv: {
+    /** When true, the CSV includes the job description column. */
+    includeDescription: boolean;
+    /**
+     * True after the user saves this checkbox, or after the spec default
+     * (leave descriptions out) is recorded. Absent on settings saved before that.
+     */
+    chosen?: boolean;
+  };
 }

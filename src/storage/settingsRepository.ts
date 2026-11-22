@@ -16,8 +16,32 @@ export async function initializeStorage(): Promise<void> {
   if (Object.keys(missing).length > 0) await localStore.set(missing);
 }
 
+/**
+ * Settings saved before the CSV checkbox existed have no `chosen` flag.
+ * The specification default is to leave the description column out. Record that
+ * once so a later choice, including turning the column on, is kept.
+ */
+export async function ensureCsvPreference(): Promise<Settings> {
+  const stored = await localStore.get("settings");
+  if (!stored) return DEFAULT_SETTINGS;
+  if (stored.csv?.chosen === true) return stored;
+  const next: Settings = {
+    ...stored,
+    csv: { includeDescription: false, chosen: true },
+  };
+  await localStore.set({ settings: next });
+  return next;
+}
+
 export async function getSettings(): Promise<Settings> {
-  return (await localStore.get("settings")) ?? DEFAULT_SETTINGS;
+  return ensureCsvPreference();
+}
+
+export async function saveCsvPreference(includeDescription: boolean): Promise<Settings> {
+  const current = await getSettings();
+  const next: Settings = { ...current, csv: { includeDescription, chosen: true } };
+  await saveSettings(next);
+  return next;
 }
 
 export function reminderSettingsError(reminders: Settings["reminders"]): string | null {

@@ -88,7 +88,10 @@ export function compareForBoard(a: JobApplication, b: JobApplication): number {
   return b.savedAt.localeCompare(a.savedAt);
 }
 
-export function groupByStage(jobs: readonly JobApplication[]): Record<JobStatus, JobApplication[]> {
+export function groupByStage(
+  jobs: readonly JobApplication[],
+  compare: (a: JobApplication, b: JobApplication) => number = compareForBoard,
+): Record<JobStatus, JobApplication[]> {
   const groups: Record<JobStatus, JobApplication[]> = {
     saved: [],
     applied: [],
@@ -99,6 +102,6 @@ export function groupByStage(jobs: readonly JobApplication[]): Record<JobStatus,
     if (!isJobStatus(job.status)) continue;
     groups[job.status].push(job);
   }
-  for (const status of JOB_STATUSES) groups[status].sort(compareForBoard);
+  for (const status of JOB_STATUSES) groups[status].sort(compare);
   return groups;
 }

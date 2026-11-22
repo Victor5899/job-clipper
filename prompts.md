@@ -1033,3 +1033,122 @@ Do not start Phase 6. Do not commit or push.
 
 Stop and wait for my review.
 ````
+
+---
+
+## Prompt 9 — Phase 6: CSV export and data management
+
+- **Date:** 2026-11-22
+- **Phase:** 6 (implementation)
+- **Outcome:** CSV export of every saved application, JSON backup and restore, a storage meter, and delete-all with typed confirmation. `npm run check` passed on 2026-11-23: 34 files, 292 tests. The extension was not installed in Chrome. The CSV was not opened in a spreadsheet application. Search and filters are still missing, so there is no filtered export. Not committed.
+
+````text
+# Job Clipper — Phase 6: CSV Export and Data Management
+
+Read `PROJECT_SPEC.md` and inspect the existing codebase. Implement Phase 6 only.
+
+### 1. CSV export
+Implement complete CSV export functionality.
+
+- Export all saved job applications.
+- Include all relevant fields from the existing Job data model.
+- Include status, company, title, URL, deadline, India eligibility, work arrangement, employment type, salary/stipend, experience, skills, description, application date, interview details, result and reminder settings wherever available.
+- Handle commas, quotation marks, line breaks, Unicode and empty values correctly.
+- Ensure the exported CSV opens correctly in Excel and Google Sheets.
+- Use a sensible filename with an export date.
+- Do not silently omit stored fields.
+
+### 2. Data management and backup
+Implement the backup and data-management requirements in `PROJECT_SPEC.md`.
+
+- Provide a complete backup of locally stored application data and settings.
+- Allow users to restore from a valid backup.
+- Validate backup structure and version before importing.
+- Prevent malformed or incompatible backups from corrupting existing data.
+- Clearly explain whether an import replaces existing data or merges it.
+- Ask for confirmation before destructive operations.
+- Preserve reminder consistency after import or restore.
+
+### 3. Settings integration
+Integrate export, backup, restore and data-management controls into the existing Settings page.
+
+Preserve the existing reminder settings and privacy information.
+
+### 4. Reliability and testing
+- Add tests for CSV escaping, Unicode, empty fields, large exports and spreadsheet compatibility.
+- Test backup creation, validation, restoration, invalid files and version mismatches.
+- Test that imported applications retain their data and that reminders are reconciled correctly.
+- Do not break extraction, CRUD, Kanban, calendar or reminders.
+- Keep everything local-first. No backend, login or paid external APIs.
+
+### 5. Documentation and completion
+Update `prompts.md`, README and CHANGELOG.
+
+Run `npm run check` and fix all introduced errors.
+
+Report:
+- Features implemented.
+- CSV fields and export format.
+- Backup and restore behaviour.
+- Data validation and safety measures.
+- Tests and results.
+- Manual Chrome testing instructions.
+- Known limitations.
+
+Review the complete project against the mandatory BSERC requirements and completion criteria in `PROJECT_SPEC.md`. Report any remaining gaps honestly.
+
+Do not start Phase 7. Do not commit or push.
+
+Stop and wait for my review.
+````
+
+---
+
+## Prompt 10 — Phase 6 completion audit
+
+- **Date:** 2026-11-23
+- **Phase:** 6 (completion)
+- **Outcome:** Search, filters, sort, hash persistence, filtered CSV export, description column off by default, and journalled restore deletes. `npm run check` passed: 36 files, 301 tests. The extension was not installed in Chrome. The CSV was not opened in a spreadsheet. No schema older than 1 exists to migrate. Not committed.
+
+````text
+# Job Clipper — Phase 6 Completion Audit
+
+Read `PROJECT_SPEC.md` and inspect the current implementation. Phase 6 is implemented, but the BSERC MVP gate is not yet satisfied.
+
+Implement the remaining requirements without breaking existing functionality.
+
+### 1. Search, filters and sorting
+Implement the original specification:
+- Search across title, company, location, city, country, skills, description and notes.
+- Combined filters for status, result, source, employment type, category, India eligibility, work arrangement, experience level and deadline range.
+- Sorting: recently saved, deadline approaching, recently updated, company A–Z and job title A–Z.
+- Persist filter state in the URL hash query.
+- Show result count and provide Clear all.
+- Ensure deadline-free jobs sort last when sorting by deadline.
+
+### 2. CSV export
+- Support exporting the current filtered results.
+- Use `job-clipper-filtered-YYYY-MM-DD.csv` for filtered exports and `job-clipper-all-YYYY-MM-DD.csv` for full exports.
+- Make Description optional and OFF by default, as specified.
+- Preserve CSV escaping, UTF-8 BOM, formula-injection protection and all other existing fields.
+- Ensure the export uses the exact currently displayed filtered set.
+
+### 3. Backup and restore audit
+- Review compatibility and migration requirements in `PROJECT_SPEC.md`.
+- Implement required older-schema migrations if applicable.
+- Review failure handling during replace and merge operations. Prevent partial writes from silently leaving inconsistent application data or settings.
+- Preserve reminder reconciliation.
+- Keep destructive operations protected by explicit confirmation.
+
+### 4. Tests and regression
+Add tests for search, filters, sorting, URL persistence, filtered exports, migration and failed restore operations.
+
+Run `npm run check` and fix all introduced errors.
+
+### 5. Documentation
+Update README, CHANGELOG and prompts.md.
+
+Report completed requirements, remaining deviations and test results.
+
+Do not start Phase 7. Do not commit or push. Stop for review.
+````

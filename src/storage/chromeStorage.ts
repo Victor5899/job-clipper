@@ -1,6 +1,7 @@
 import type { ClipReview } from "../core/extraction/review";
 import type { ManualEntryValues } from "../core/model/manualEntry";
 import type { JobApplication, Settings } from "../core/model/types";
+import type { StorageJournal } from "./journal";
 
 export type JobKey = `job:${string}`;
 export type DraftKey = `popupDraft:${string}`;
@@ -9,6 +10,8 @@ export type DraftKey = `popupDraft:${string}`;
 export interface LocalSchema {
   schemaVersion: number;
   settings: Settings;
+  /** Present only while an import or delete still owes a second storage call. */
+  importJournal?: StorageJournal;
   [key: JobKey]: JobApplication;
 }
 

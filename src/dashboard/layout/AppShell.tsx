@@ -5,10 +5,11 @@ import { TopNav } from "./TopNav";
 interface AppShellProps {
   route: RouteName;
   onAddApplication: () => void;
+  onNotice: (message: string) => void;
   children: ReactNode;
 }
 
-export function AppShell({ route, onAddApplication, children }: AppShellProps) {
+export function AppShell({ route, onAddApplication, onNotice, children }: AppShellProps) {
   return (
     <div className="flex min-h-dvh flex-col">
       <a
@@ -21,7 +22,7 @@ export function AppShell({ route, onAddApplication, children }: AppShellProps) {
       >
         Skip to content
       </a>
-      <TopNav current={route} onAddApplication={onAddApplication} />
+      <TopNav current={route} onAddApplication={onAddApplication} onNotice={onNotice} />
       <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
         {children}
       </main>

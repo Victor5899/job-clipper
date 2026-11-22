@@ -7,7 +7,7 @@ export const SCHEMA_VERSION = 1;
 export const DEFAULT_SETTINGS: Settings = {
   reminders: { enabledByDefault: true, leadDays: 1, atTime: "09:00" },
   profile: { graduationYear: 2027, countryCode: "IN" },
-  csv: { includeDescription: false },
+  csv: { includeDescription: false, chosen: true },
 };
 
 /**

@@ -1,6 +1,6 @@
 {
   "name": "job-clipper",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "description": "Offline-first Chrome extension for clipping and tracking internships and entry-level jobs.",
   "license": "MIT",

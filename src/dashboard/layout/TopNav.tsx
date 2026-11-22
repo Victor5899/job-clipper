@@ -1,12 +1,14 @@
-import { Menu, Plus, X } from "lucide-react";
+import { Download, Menu, Plus, X } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import { BrandLockup } from "../../ui/components/BrandMark";
 import { Button } from "../../ui/components/Button";
+import { downloadAllJobsCsv } from "../exportCsv";
 import { ROUTE_LABELS, ROUTES, routeHref, type RouteName } from "../router";
 
 interface TopNavProps {
   current: RouteName;
   onAddApplication: () => void;
+  onNotice: (message: string) => void;
 }
 
 function NavLink({
@@ -38,9 +40,22 @@ function NavLink({
   );
 }
 
-export function TopNav({ current, onAddApplication }: TopNavProps) {
+export function TopNav({ current, onAddApplication, onNotice }: TopNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const menuId = useId();
+
+  const exportCsv = async () => {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      onNotice(await downloadAllJobsCsv());
+    } catch {
+      onNotice("Couldn't export a CSV.");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -69,6 +84,16 @@ export function TopNav({ current, onAddApplication }: TopNavProps) {
         </nav>
 
         <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={exporting}
+            onClick={() => void exportCsv()}
+            className="hidden sm:inline-flex"
+          >
+            <Download size={15} aria-hidden="true" />
+            Export CSV
+          </Button>
           <Button
             variant="light"
             size="sm"
@@ -100,6 +125,19 @@ export function TopNav({ current, onAddApplication }: TopNavProps) {
               </li>
             ))}
           </ul>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mt-3 w-full"
+            disabled={exporting}
+            onClick={() => {
+              setMenuOpen(false);
+              void exportCsv();
+            }}
+          >
+            <Download size={15} aria-hidden="true" />
+            Export CSV
+          </Button>
           <Button
             variant="light"
             size="sm"

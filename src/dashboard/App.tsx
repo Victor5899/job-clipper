@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Dialog } from "../ui/components/Dialog";
 import type { JobApplication } from "../core/model/types";
+import { resumeStorageJournal } from "../storage/journal";
 import { useJobs } from "../ui/hooks/useJobs";
 import { AddApplicationDialog } from "./AddApplicationDialog";
 import { ApplicationsPage } from "./applications/ApplicationsPage";
@@ -24,6 +25,10 @@ export function App() {
   }, [route.name]);
 
   useEffect(() => {
+    void resumeStorageJournal().catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
     if (!toast) return;
     const timer = window.setTimeout(() => setToast(null), TOAST_MS);
     return () => window.clearTimeout(timer);
@@ -37,7 +42,7 @@ export function App() {
   const openAdd = () => setAdding(true);
   const openJob = (id: string, edit = false) => {
     setAdding(false);
-    replaceHash(hashForJob(route.name, id, edit));
+    replaceHash(hashForJob(route.name, id, edit, route.params));
   };
   const closeJob = () => {
     const params = new URLSearchParams(route.params);
@@ -52,7 +57,7 @@ export function App() {
   };
 
   return (
-    <AppShell route={route.name} onAddApplication={openAdd}>
+    <AppShell route={route.name} onAddApplication={openAdd} onNotice={setToast}>
       {route.name === "overview" && (
         <OverviewPage jobsState={jobsState} onAddApplication={openAdd} onOpenJob={openJob} />
       )}

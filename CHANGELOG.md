@@ -6,11 +6,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-Search, filters and sorts are not implemented. CSV export has not been started.
+Phase 7 has not started. A later manual check confirmed the Phase 6 workflows named in the README verification log, including a CSV opened in Apple Numbers. The test date, Chrome version and macOS version were not recorded. Google Sheets, LibreOffice, Excel, backup, restore and delete-all were not part of that report. Schema version is still 1, so an older backup shape is not migrated.
+
+## [0.6.0] — 2026-11-23 — Phase 6: CSV export and data management
+
+Automated checks pass (301 tests). That session did not install the extension and did not open a CSV in a spreadsheet. A later manual check confirmed Phases 1–5, and another confirmed the Phase 6 workflows in the README verification log, including search, filters, sorting, filtered and full CSV downloads, and a CSV opened in Apple Numbers with the data and columns displaying correctly. The test date, Chrome version and macOS version were not recorded. Those manual checks are separate from the automated tests. Backup, restore and delete-all were not part of them.
+
+### Added
+
+- Search across title, company, location, city, country, skills, description and notes. Every word must match, ignoring case and accents. Filters for status, result, source, employment, category, India eligibility, work arrangement, experience and deadline. Values inside one filter match with OR. Filters combine with AND. A date range does not include a job that has no deadline.
+- Sort by recently saved, deadline approaching, recently updated, company A–Z or job title A–Z. Deadline approaching is the default, and jobs with no deadline go last only for that sort. The search, filters and sort are stored in the Applications hash. Clear all resets them. `/` or Ctrl/Cmd+K focuses search.
+- CSV export of every saved application from Settings and the top bar, named `job-clipper-all-YYYY-MM-DD.csv`. From Applications, a filtered board downloads `job-clipper-filtered-YYYY-MM-DD.csv` containing the jobs on screen. The file is UTF-8 with a BOM and CRLF rows. A deadline cell is empty when the job has none. Cells that start with `=`, `+`, `-`, `@`, a tab or a return are prefixed with `'`.
+- The specification's columns come first. Further columns carry the remaining stored fields, including the canonical link, compensation parts, status history, reminder settings and extraction evidence. The description column is off unless you turn it on. The page says whether it was included.
+- A JSON backup of every application and the reminder, profile and CSV settings (`job-clipper-backup-YYYY-MM-DD.json`). Restore can merge or replace. Merge keeps applications that exist only on this device, and you choose whether a matching id or link is skipped or overwritten. Replace removes every application on the device and uses the file's settings. Both ask you to confirm. Replace requires the typed word REPLACE.
+- Backup files are checked before anything is written. A file over 5 MB, malformed JSON, an unknown field, a bad URL, a duplicate id, or a schema version other than 1 is refused, and the data already saved stays. New jobs and a journal are written together. Old keys are removed after that. If the removal fails, the journal finishes on the next launch. After a successful import or a full delete, reminder alarms are reconciled with the jobs that remain.
+- A storage meter against the 10 MB local quota, with a warning past 70%. Delete all data requires the typed word DELETE, then clears applications, resets settings and clears unsaved popup drafts.
+
+### Changed
+
+- Extension version is 0.6.0. No permission was added.
+- The description column starts off. A CSV preference that was never saved is recorded as off once. A choice you already saved is kept.
+- The Overview line for jobs with no deadline opens the Applications filter for that case.
+
+### Not in this version
+
+- Google Sheets, LibreOffice and Excel. Apple Numbers was later confirmed in the installed extension: the CSV opened, and the data and columns displayed correctly. The test date, Chrome version and macOS version were not recorded.
+- A reported manual check of backup, restore or delete-all. Those controls are implemented. The manual report confirmed the Settings and data-management interface and did not include those actions.
+- `zod`. Backup checks are written in this project. Schema version is still 1, so an older backup shape does not exist to import. An older-schema migration is not supported and was not verified.
+- Phase 7 job sites.
 
 ## [0.5.0] — 2026-11-22 — Phase 5: deadline reminders and calendar
 
-Automated checks pass (269 tests). The extension was not installed in Chrome, so a notification was not seen and no screenshot is recorded.
+Automated checks pass (269 tests). That session did not install the extension, so it did not show a notification and no screenshot is recorded. A later manual check confirmed deadline reminders and notifications in the installed extension; the test date, Chrome version and macOS version were not recorded.
 
 ### Added
 
@@ -34,12 +61,12 @@ Automated checks pass (269 tests). The extension was not installed in Chrome, so
 
 ### Not in this version
 
-- A confirmed on-screen Chrome notification. That remains a manual check.
+- A notification screenshot. Deadline notifications were later confirmed in the installed extension. The test date, Chrome version and macOS version were not recorded, and no screenshot was provided.
 - Search, filters, sorts and CSV export.
 
 ## [0.4.0] — 2026-11-22 — Phase 4: job listing extraction
 
-Automated checks are in the README verification log. The extension was not installed in Chrome. Internshala, LinkedIn Jobs and Naukri were read from public pages; that is not a Verified status. Fixture tests are not proof of live compatibility.
+Automated checks are in the README verification log. That session did not install the extension. Internshala, LinkedIn Jobs and Naukri were read from public pages. A later manual check confirmed those three extraction workflows in the installed extension. The test date, Chrome version and listing count were not recorded, so the sites are not marked Verified. Fixture tests are not that manual check.
 
 ### Added
 
@@ -62,7 +89,7 @@ Automated checks are in the README verification log. The extension was not insta
 
 ## [0.3.0] — 2026-11-22 — Phase 3: Kanban board
 
-Automated checks pass (123 tests). Not yet manually tested in Chrome.
+Automated checks pass (123 tests). That session did not test the installed extension. A later manual check confirmed the four-stage Kanban board and application management. The test date, Chrome version and macOS version were not recorded. That manual check is separate from these automated tests.
 
 ### Added
 
@@ -86,7 +113,7 @@ Automated checks pass (123 tests). Not yet manually tested in Chrome.
 
 ## [0.2.0] — 2026-11-22 — Phase 2: complete job management
 
-Automated checks pass (101 tests). Not yet manually tested in Chrome.
+Automated checks pass (101 tests). That session did not test the installed extension. A later manual check confirmed editing saved application fields. The test date, Chrome version and macOS version were not recorded. That manual check is separate from these automated tests.
 
 ### Added
 
@@ -107,7 +134,7 @@ Automated checks pass (101 tests). Not yet manually tested in Chrome.
 
 ## [0.1.0] — 2026-11-22 — Phase 1: foundation, design system, dashboard shell and manual entry
 
-Automated checks pass. Not yet manually tested in Chrome (see the README checklist).
+Automated checks pass. That session did not test the installed extension. A later manual check confirmed one-click job saving and the manual-entry fallback. The test date, Chrome version and macOS version were not recorded. See the README verification log. That manual check is separate from these automated tests.
 
 ### Added
 

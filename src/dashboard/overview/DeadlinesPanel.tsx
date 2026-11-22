@@ -95,7 +95,7 @@ export function DeadlinesPanel({
       {stats.noDeadlineCount > 0 && (
         <div className="mt-auto pt-4">
           <p className="border-t border-border pt-3 text-[12.5px] text-text-subtle">
-            <a href="#/calendar" className="hover:text-text hover:underline">
+            <a href="#/applications?deadline=none" className="hover:text-text hover:underline">
               {stats.noDeadlineCount} saved {stats.noDeadlineCount === 1 ? "job has" : "jobs have"}{" "}
               no deadline provided
             </a>

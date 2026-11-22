@@ -1,6 +1,7 @@
-import { HardDrive, Info, ShieldCheck } from "lucide-react";
+import { Info, ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
 import { PageHeader } from "../PageHeader";
+import { DataManagement } from "./DataManagement";
 import { ReminderSettings } from "./ReminderSettings";
 
 function SettingsSection({
@@ -34,21 +35,17 @@ export function SettingsPage({ jobCount }: { jobCount: number }) {
   return (
     <div className="mx-auto max-w-3xl px-5 py-14 sm:px-8">
       <PageHeader eyebrow="Preferences" title={<>Settings</>}>
-        Reminder timing for deadlines. Export and backup arrive in Phase 6.
+        Reminder timing, spreadsheet export, and a backup you can restore on this device.
       </PageHeader>
 
       <div className="flex flex-col gap-4">
         <ReminderSettings />
-        <SettingsSection icon={<HardDrive size={16} />} title="Your data">
-          <p>
-            {jobCount} {jobCount === 1 ? "application is" : "applications are"} stored in this
-            browser's extension storage.
-          </p>
-        </SettingsSection>
+        <DataManagement jobCount={jobCount} />
         <SettingsSection icon={<ShieldCheck size={16} />} title="Privacy">
           <p>
             Job Clipper has no account, server or analytics. Nothing you save leaves this device.
-            Uninstalling the extension deletes its data.
+            Uninstalling the extension deletes its data. Download a JSON backup first if you want to
+            keep it.
           </p>
         </SettingsSection>
         <SettingsSection icon={<Info size={16} />} title="About">
