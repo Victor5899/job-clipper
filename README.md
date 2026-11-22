@@ -4,14 +4,28 @@ An offline-first Chrome extension for clipping, tracking and getting reminded ab
 
 Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship — Week 2, Project 10.
 
-> **Current status: Phase 0 (planning) complete. No application code exists yet.**
-> Every feature below is **Planned**. Nothing in this README claims implemented or tested functionality. This file is updated at the end of each phase with real results only.
+> **Current status: Phase 1 (foundation, design system, dashboard shell and manual entry) implemented, awaiting review.**
+> Automated checks pass (type checking, ESLint, Prettier, 77 Vitest tests, production build). The extension has **not yet been manually tested in Chrome**; see the [manual verification checklist](#manual-verification-checklist-phase-1). Features from later phases are still **Planned**. This file is updated at the end of each phase with real results only.
 
 ## Documents
 
 - [`PROJECT_SPEC.md`](PROJECT_SPEC.md): full product requirements, architecture, design system, integration strategy, testing strategy and phased roadmap.
 - [`prompts.md`](prompts.md): every prompt used in this project, in chronological order, verbatim.
 - [`CHANGELOG.md`](CHANGELOG.md): version history.
+
+## What works now (Phase 1)
+
+- **Popup** (toolbar icon or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd>): a manual entry form for job title, company, job URL and an optional deadline (date, plus an optional time). The URL and page title are prefilled from the current tab. On browser pages that aren't regular websites (for example `chrome://` pages) nothing is prefilled, and the form still works.
+- **Validation:** title, company and URL are required. Only `http://` and `https://` links are accepted. Errors appear next to each field, and focus moves to the first problem.
+- **Drafts:** whatever you type in the popup is kept in `chrome.storage.session` for that tab. If the popup closes before you save, reopening it restores the entry. The draft is cleared on save, and session storage is wiped when Chrome quits.
+- **No deadline is fine:** a job without a deadline is saved with `deadline: null` and shown as "No deadline provided". Deadlines are never guessed.
+- **Dashboard** (opens automatically on first install, or via "Open dashboard"): hash-routed pages for Overview, Applications, Calendar and Settings, in a Northline-inspired dark editorial design.
+  - **Overview** has the "Your next opportunity starts here." hero, four statistics (Tracked, Applied this week, Interviews, Due in 7 days), and three panels: Recently saved, Application overview (weekly saves chart and pipeline), and Upcoming deadlines (14-day timeline).
+  - Every number is calculated from your saved jobs. With nothing saved, the panels show empty states, never sample data.
+  - **Add application** opens the same manual form in a dialog, with no job page needed.
+  - The dashboard updates live when the popup saves a job.
+  - Applications, Calendar and Settings are honest placeholders that say which phase brings their features.
+- **Storage:** each job is stored under its own `job:<uuid>` key in `chrome.storage.local`, with IDs from `crypto.randomUUID()`. Default settings and a schema version are written on install. Existing data is kept on update.
 
 ## What it will do
 
@@ -31,7 +45,7 @@ It runs entirely in your browser: no backend, no login, no paid API, no cloud se
 
 | Feature | Status | Planned phase |
 | --- | --- | --- |
-| One-click save of role, company, link and deadline | Planned | 1 (manual), 4 (auto-detect) |
+| One-click save of role, company, link and deadline | Manual entry implemented (Phase 1), not yet manually tested in Chrome; auto-detect Planned | 1 (manual), 4 (auto-detect) |
 | Every saved field editable | Planned | 2 |
 | Kanban board: Saved, Applied, Interview, Result | Planned | 3 |
 | Reminder before an application deadline | Planned | 5 |
@@ -42,13 +56,13 @@ It runs entirely in your browser: no backend, no login, no paid API, no cloud se
 | Criterion | Status |
 | --- | --- |
 | Works on three different job websites | Not yet tested |
-| Manual entry when details cannot be detected | Not yet tested |
+| Manual entry when details cannot be detected | Implemented and covered by automated tests; not yet manually tested in Chrome |
 | A deadline reminder actually appears | Not yet tested |
 | Exported CSV opens correctly in a spreadsheet | Not yet tested |
 
 ### Additional planned features
 
-India eligibility classification, duplicate detection, calendar view, JSON backup and import, Northline-inspired dark dashboard and popup. See [`PROJECT_SPEC.md`](PROJECT_SPEC.md) for details.
+India eligibility classification, duplicate detection, calendar view, JSON backup and import. See [`PROJECT_SPEC.md`](PROJECT_SPEC.md) for details. The Northline-inspired dark dashboard and popup are implemented in Phase 1.
 
 ## Job site support
 
@@ -81,17 +95,21 @@ Possible statuses: Planned, In development, Verified, Manual entry only (with a 
 - You can add, edit or clear a deadline at any time.
 - Reminders are scheduled only for jobs with a valid deadline.
 
-## Planned permissions
+## Permissions
 
-| Permission | Why |
-| --- | --- |
-| `storage` | Save jobs and settings locally on your device. |
-| `alarms` | Schedule deadline reminders that survive the background worker being suspended. |
-| `notifications` | Show deadline reminder notifications. |
-| `activeTab` | Read only the tab you are on, and only when you click the extension icon or press its shortcut. |
-| `scripting` | Run the read-only job detector in that tab after you click. |
+The extension requests only the permissions its shipped features use. Phase 1 requests two:
 
-Deliberately **not** requested: access to all websites (`host_permissions`), `tabs`, `downloads`, `cookies`, `unlimitedStorage`. The extension makes no network requests.
+| Permission | Status | Why |
+| --- | --- | --- |
+| `storage` | Requested (Phase 1) | Save jobs and settings locally (`chrome.storage.local`) and keep popup drafts (`chrome.storage.session`). |
+| `activeTab` | Requested (Phase 1) | Read the current tab's URL and title to prefill the popup, only when you click the extension icon or press its shortcut. |
+| `scripting` | Planned (Phase 4) | Run the read-only job detector in that tab after you click. |
+| `alarms` | Planned (Phase 5) | Schedule deadline reminders that survive the background worker being suspended. |
+| `notifications` | Planned (Phase 5) | Show deadline reminder notifications. |
+
+The Phase 0 plan lists all five. The last three are added in the phases that use them, so Phase 1 doesn't ask for access it never exercises. Adding them later makes Chrome show a permission prompt when the extension updates.
+
+Deliberately **not** requested: access to all websites (`host_permissions`), `tabs`, `downloads`, `cookies`, `unlimitedStorage`. The extension makes no network requests, and its content security policy (`script-src 'self'`) allows only its own bundled scripts.
 
 ## Privacy
 
@@ -100,7 +118,18 @@ Deliberately **not** requested: access to all websites (`host_permissions`), `ta
 - The extension never reads cookies, passwords, session data or form inputs on job sites, and never bypasses login walls or bot checks. It reads only what you can already see on the page you clipped.
 - Uninstalling the extension deletes its data. The planned JSON backup feature lets you keep a copy first.
 
-## Known limitations (planned behaviour)
+## Known limitations
+
+### Phase 1 (current build)
+
+- Saved jobs can't be edited, deleted or moved between stages yet. Editing arrives in Phase 2, the Kanban board in Phase 3. To start over, remove and reinstall the extension (this deletes all saved jobs).
+- Saving the same link twice creates two entries; duplicate detection comes later.
+- Nothing is detected from the page except the tab's URL and title. Company and deadline are always typed by hand.
+- "Explore opportunities" on the Overview scrolls to your dashboard panels; the feature it is named for comes later.
+- Applications, Calendar and Settings are placeholder pages. No search, filters, reminders, CSV export or backup yet.
+- Not yet manually tested in Chrome (see the checklist below).
+
+### Planned behaviour
 
 - Most job sites don't publish an application deadline, so many jobs will show "No deadline provided" until you add one. Those jobs get no reminder.
 - Reminders fire only while Chrome is running; missed reminders appear the next time Chrome starts.
@@ -108,19 +137,108 @@ Deliberately **not** requested: access to all websites (`host_permissions`), `ta
 - Site layouts change, so automatic detection can break. Manual entry always remains available.
 - Local storage is limited to about 10 MB, and there is no cross-device sync.
 
-## Tech stack (planned)
+## Tech stack
 
-Chrome Extension Manifest V3, React, TypeScript, Vite, Tailwind CSS, `@dnd-kit`, `zod`, Vitest, Playwright. Fonts (Instrument Serif, Inter, JetBrains Mono) and icons are bundled locally so the extension works offline.
+In use (Phase 1): Chrome Extension Manifest V3, React 19, TypeScript 6 (strict), Vite 8, Tailwind CSS 4, date-fns, lucide-react icons, Vitest 5 with Testing Library and jsdom, ESLint 10 and Prettier.
+
+Fonts (Instrument Serif, Inter and JetBrains Mono, via Fontsource) and icons are bundled into the build, so the extension makes no remote requests and works offline.
+
+Planned for later phases: `@dnd-kit` (Kanban), `zod` (import validation), Playwright (end-to-end tests).
+
+TypeScript is pinned to 6.0.x because `typescript-eslint` does not yet support TypeScript 7.
 
 ## Installation
 
-Not available yet. Build and "Load unpacked" instructions will be added in Phase 1.
+Requirements: Node.js 22.12 or newer (developed with Node 25.9 and npm 11.12), and Google Chrome 120 or newer.
+
+```sh
+npm install
+npm run build
+```
+
+Then load the extension:
+
+1. Open `chrome://extensions`.
+2. Turn on **Developer mode** (top right).
+3. Click **Load unpacked** and select the `dist` folder in this project.
+4. The dashboard opens in a new tab on first install. Pin Job Clipper from the toolbar's puzzle-piece menu to reach the popup easily.
+
+After changing the code, run `npm run build` again and click the reload icon on the extension's card in `chrome://extensions`. `npm run dev` rebuilds on every save, but you still need to reload the extension.
+
+### Scripts
+
+| Command | What it does |
+| --- | --- |
+| `npm run build` | Production build into `dist/` |
+| `npm run dev` | Rebuild `dist/` on every change |
+| `npm run typecheck` | TypeScript type checking |
+| `npm run lint` | ESLint |
+| `npm run format:check` / `npm run format` | Check / apply Prettier formatting |
+| `npm test` | Run the Vitest suite once |
+| `npm run check` | All of the above, in order |
+| `npm run icons` | Regenerate the toolbar icons in `public/icons/` |
+
+## Project structure
+
+```text
+public/            manifest.json and toolbar icons (copied into dist/)
+popup.html         popup entry page
+dashboard.html     dashboard entry page
+src/
+  background/      service worker: install/update initialisation
+  core/            pure logic, no Chrome APIs: data model, validation, URL and text
+                   normalisation, deadline formatting, overview statistics
+  storage/         typed chrome.storage wrapper, job repository, settings, popup drafts
+  popup/           popup app: tab context, clip form, saved state
+  dashboard/       dashboard app: hash router, layout, Overview and placeholder pages
+  ui/              shared components, hooks, design tokens and global styles
+tests/             test setup, in-memory chrome.* fake, test data factory
+scripts/           icon generator
+```
+
+## Automated tests
+
+`npm test` runs 77 tests in 10 files against an in-memory fake of the `chrome.*` APIs (`tests/fakes/chrome.ts`). They cover:
+
+- **Repository:** creating jobs (stored under `job:<uuid>`), listing them newest first, and subscribing to live updates, including unsubscribing and ignoring unrelated keys.
+- **Validation:** required fields, non-http(s) URLs (`javascript:`, `chrome://`, `file:`, `ftp:`, `data:` and others), overlong URLs, optional deadlines, impossible dates and times.
+- **Popup:** manual entry, prefill from the tab, restricted pages and the no-tab case, saving without a deadline ("No deadline provided"), and draft persistence, restoration and clearing.
+- **Dashboard:** statistics computed from real data, empty states, live updates when another page saves, the Add application dialog, and hash routing.
+- **Background:** install initialisation and preservation of existing data on update.
+
+## Manual verification checklist (Phase 1)
+
+These checks need a real Chrome profile and **have not been performed yet**. Record the date, Chrome version and macOS version when you run them, and note any failure.
+
+| # | Check | Result |
+| --- | --- | --- |
+| 1 | `npm run build`, then load `dist/` with "Load unpacked": no errors or warnings on the extension card, and the service worker is listed as active. | Not yet performed |
+| 2 | On first install the dashboard opens in a new tab and shows the empty Overview (all statistics 0, empty-state panels). | Not yet performed |
+| 3 | On a job listing page, clicking the icon (or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd>) opens the popup with the page URL and title prefilled. | Not yet performed |
+| 4 | Clicking Save with Company empty shows "Enter the company name." and focuses that field. Entering `javascript:alert(1)` as the URL is rejected. | Not yet performed |
+| 5 | Saving with no deadline shows the success state with "No deadline provided". | Not yet performed |
+| 6 | Saving with a deadline shows "Due …" in the success state, and the job appears under Upcoming deadlines if it is due within 14 days. | Not yet performed |
+| 7 | Typing in the popup, clicking elsewhere so it closes, then reopening it on the same tab restores the entry with "Restored your unsaved entry." | Not yet performed |
+| 8 | On `chrome://extensions` or a new tab page, the popup shows the restricted-page notice and a manually typed job still saves. | Not yet performed |
+| 9 | With the dashboard open in one tab, saving from the popup in another updates the Overview without a reload. | Not yet performed |
+| 10 | Using only the keyboard (<kbd>Tab</kbd>, <kbd>Enter</kbd>, <kbd>Esc</kbd>): Dashboard → Add application opens the dialog with focus in Job title, Escape closes it, and a saved entry appears on the Overview with a confirmation message. Focus outlines are visible throughout. | Not yet performed |
+| 11 | Overview, Applications, Calendar and Settings links work, as do browser back/forward and reloading on a `#/…` URL. At 360 px wide nothing overflows, and the menu button shows the navigation. With DevTools → Network set to Offline, a reload looks identical (fonts included) and no requests go anywhere except the extension's own files. With reduced motion on (macOS System Settings → Accessibility → Display), the animations stop. | Not yet performed |
 
 ## Verification log
 
 Real test results only, added as each phase is completed. Each entry records the date, Chrome version, macOS version, what was tested and the outcome, including failures.
 
-_No entries yet. No testing has been performed because no code has been written._
+### 2026-11-22 — Phase 1, automated checks
+
+- Environment: macOS 26 (Darwin 25.6), Node 25.9.0, npm 11.12.1.
+- `npm run typecheck`: passed, 0 errors.
+- `npm run lint`: passed, 0 errors, 0 warnings.
+- `npm run format:check`: passed.
+- `npm test`: 10 files, 77 tests, all passed.
+- `npm run build`: passed. `dist/` contains `manifest.json`, `background.js`, `popup.html`, `dashboard.html`, the icons and the bundled assets, with no inline scripts and no remote URLs loaded.
+- In-browser preview: the built pages were opened from a local server in a browser with a stand-in for the `chrome.*` APIs, to check layout and interaction (popup at 380 px, dashboard at desktop and phone widths, validation, saved state, dialog). This is **not** a test of the installed extension, and none of the manual checklist items above count as performed.
+
+_No manual tests in Chrome have been performed yet._
 
 ## Design reference
 
