@@ -4,8 +4,8 @@ An offline-first Chrome extension for clipping, tracking and getting reminded ab
 
 Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship — Week 2, Project 10.
 
-> **Current status: Phase 2 (complete job management) implemented, awaiting review.**
-> Automated checks pass (type checking, ESLint, Prettier, 101 Vitest tests, production build). The extension has **not yet been manually tested in Chrome**; see the [Phase 1](#manual-verification-checklist-phase-1) and [Phase 2](#manual-verification-checklist-phase-2) checklists. Features from later phases are still **Planned**. This file is updated at the end of each phase with real results only.
+> **Current status: Phase 3 (Kanban board) implemented, awaiting review.**
+> Automated checks pass (type checking, ESLint, Prettier, 123 Vitest tests, production build). The extension has **not yet been manually tested in Chrome**; see the [Phase 1](#manual-verification-checklist-phase-1), [Phase 2](#manual-verification-checklist-phase-2) and [Phase 3](#manual-verification-checklist-phase-3) checklists. Search, filters, reminders, extraction and CSV export are still **Planned**. This file is updated at the end of each phase with real results only.
 
 ## Documents
 
@@ -13,7 +13,7 @@ Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship �
 - [`prompts.md`](prompts.md): every prompt used in this project, in chronological order, verbatim.
 - [`CHANGELOG.md`](CHANGELOG.md): version history.
 
-## What works now (Phase 1)
+## What works now
 
 - **Popup** (toolbar icon or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd>): a manual entry form for job title, company, job URL and an optional deadline (date, plus an optional time). The URL and page title are prefilled from the current tab. On browser pages that aren't regular websites (for example `chrome://` pages) nothing is prefilled, and the form still works.
 - **Validation:** title, company and URL are required. Only `http://` and `https://` links are accepted. Errors appear next to each field, and focus moves to the first problem.
@@ -25,7 +25,7 @@ Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship �
   - **Add application** opens the same manual form in a dialog, with no job page needed.
   - The dashboard updates live when a job is saved, edited or deleted, including from the popup.
   - Calendar and Settings are honest placeholders that say which phase brings their features.
-- **Applications:** a list of every saved job (the Kanban board is still Phase 3). Open one to see its details.
+- **Applications:** a Kanban board with four stages — Saved, Applied, Interview and Result. A card shows the job title, company, deadline (or "No deadline provided"), India eligibility and source. Drag a card onto another stage, or change the stage with the card's Move to list. With the card focused, <kbd>[</kbd> and <kbd>]</kbd> move it one stage backward or forward. The first move into Applied records the applied date. A move into Interview can record an interview date, and Skip leaves that date empty. A move into Result asks for an outcome (Selected, Rejected, Withdrawn or No response); Leave unset keeps the card in Result and shows "Outcome not set". On a narrow window, a stage switcher shows one column at a time; dragging reveals every column so a card can still be dropped. Stage changes are written through the job repository into `chrome.storage.local` and stay there across a dashboard reload. Open a card for the existing details, editor and delete confirmation.
 - **Editing:** a right-hand sheet edits every stored field: title, company, URL, source, description, location, work arrangement, India eligibility (chosen by you, never classified automatically), employment, pay, skills, status, result, applied and interview dates, deadline, notes and contact. Clearing the deadline stores `null` and shows "No deadline provided". Status changes are appended to the job's history.
 - **Delete:** Delete asks for confirmation and names the job. Cancel leaves it in place.
 - **Duplicates:** links are compared after normalisation (host case, a leading `www.`, tracking parameters, and the LinkedIn and Indeed shapes in the spec). The same link, or the same site job id, shows "Already saved on …". A very similar company and title saved within 60 days is called out too. You can open the existing application, edit it, or save a separate copy. Nothing is overwritten silently. An edit made from an older copy is refused if the stored job changed in the meantime.
@@ -36,7 +36,6 @@ Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship �
 - Save the job you are viewing in one click: role, company, link and deadline.
 - Detect job details automatically on supported sites, and always fall back to manual entry on every other website.
 - Let you edit every saved field.
-- Track applications on a Kanban board: Saved, Applied, Interview, Result (outcomes: Selected, Rejected, Withdrawn, No response).
 - Send real Chrome notifications before deadlines, recovering reminders after Chrome restarts and extension updates.
 - Search, filter and sort applications, and export all or filtered applications to CSV.
 - Classify India eligibility from evidence on the page (India on-site or hybrid, Remote — India eligible, Remote — Worldwide, Remote — Restricted region, International — Relocation required, or Unknown). A "Remote" label alone never counts as India-eligible.
@@ -51,9 +50,9 @@ It runs entirely in your browser: no backend, no login, no paid API, no cloud se
 | --- | --- | --- |
 | One-click save of role, company, link and deadline | Manual entry implemented (Phase 1), not yet manually tested in Chrome; auto-detect Planned | 1 (manual), 4 (auto-detect) |
 | Every saved field editable | Implemented (Phase 2), not yet manually tested in Chrome | 2 |
-| Kanban board: Saved, Applied, Interview, Result | Planned | 3 |
+| Kanban board: Saved, Applied, Interview, Result | Implemented (Phase 3), not yet manually tested in Chrome | 3 |
 | Reminder before an application deadline | Planned | 5 |
-| Search and CSV export | Planned | 3 (search), 6 (CSV) |
+| Search and CSV export | Not implemented. Search was specified for Phase 3 and is not in this build. CSV remains Phase 6 | 3 (search), 6 (CSV) |
 
 ### BSERC completion criteria
 
@@ -126,7 +125,7 @@ Deliberately **not** requested: access to all websites (`host_permissions`), `ta
 
 ### Current build
 
-- There is no Kanban board, drag-and-drop, or search. Applications is a list. Status is changed in the editor.
+- There is no search, filter or sort control. Cards in a column are ordered by the approaching deadline. Jobs with no deadline stay at the bottom of their column. Search was listed with Phase 3 in the specification; it is not in this build.
 - Nothing is read from the page except the tab's URL and title. Company, description and deadline are typed. India eligibility is a manual choice, not a classifier.
 - Reminders are stored with the job but are not scheduled or shown. No calendar, CSV export or backup yet.
 - "Explore opportunities" scrolls to the Overview panels.
@@ -143,11 +142,11 @@ Deliberately **not** requested: access to all websites (`host_permissions`), `ta
 
 ## Tech stack
 
-In use (Phase 1): Chrome Extension Manifest V3, React 19, TypeScript 6 (strict), Vite 8, Tailwind CSS 4, date-fns, lucide-react icons, Vitest 5 with Testing Library and jsdom, ESLint 10 and Prettier.
+In use: Chrome Extension Manifest V3, React 19, TypeScript 6 (strict), Vite 8, Tailwind CSS 4, date-fns, lucide-react icons, `@dnd-kit/core` (the Kanban board), Vitest 5 with Testing Library and jsdom, ESLint 10 and Prettier.
 
 Fonts (Instrument Serif, Inter and JetBrains Mono, via Fontsource) and icons are bundled into the build, so the extension makes no remote requests and works offline.
 
-Planned for later phases: `@dnd-kit` (Kanban), `zod` (import validation), Playwright (end-to-end tests).
+Planned for later phases: `zod` (import validation), Playwright (end-to-end tests).
 
 TypeScript is pinned to 6.0.x because `typescript-eslint` does not yet support TypeScript 7.
 
@@ -195,7 +194,7 @@ src/
   storage/         typed chrome.storage wrapper, job repository (create, read, update,
                    delete), settings, migrations, popup drafts
   popup/           popup app: tab context, clip form, duplicate warning, saved state
-  dashboard/       dashboard app: hash router, layout, Overview, application list,
+  dashboard/       dashboard app: hash router, layout, Overview, Kanban board,
                    job sheet (details, edit, delete)
   ui/              shared components, hooks, design tokens and global styles
 tests/             test setup, in-memory chrome.* fake, test data factory
@@ -204,9 +203,10 @@ scripts/           icon generator
 
 ## Automated tests
 
-`npm test` runs 101 tests in 13 files against an in-memory fake of the `chrome.*` APIs (`tests/fakes/chrome.ts`). They cover:
+`npm test` runs 123 tests in 16 files against an in-memory fake of the `chrome.*` APIs (`tests/fakes/chrome.ts`). They cover:
 
-- **Repository:** creating, updating and deleting jobs, refusing a duplicate link unless the save is intentional, refusing an edit that would overwrite a different job, refusing a stale edit, listing newest first, and live subscriptions.
+- **Repository:** creating, updating and deleting jobs, refusing a duplicate link unless the save is intentional, refusing an edit that would overwrite a different job, refusing a stale edit, listing newest first, and live subscriptions. Moving a job to a stage, including rejecting a stage or outcome that is not on the board, and keeping that change for a later read.
+- **Board:** four columns, card title, company, deadline and India eligibility, Move to, the bracket-key move, the result outcome, the optional interview date, a reload that still shows the new stage, and the Overview counts after a move. Opening a card still edits it.
 - **Duplicates and URLs:** canonical links (www, tracking parameters, LinkedIn job id, Indeed job id) and probable company-and-title matches.
 - **Validation:** required fields, non-http(s) URLs, optional deadlines, impossible dates, and the full edit form (including a required result).
 - **Popup:** manual entry, prefill, restricted pages, saving without a deadline, drafts, and the duplicate warning.
@@ -245,6 +245,19 @@ These checks need a real Chrome profile and **have not been performed yet**.
 | 6 | Save the same company and title with a different URL. A similar-application warning appears. A different title at that company does not. | Not yet performed |
 | 7 | Open the dashboard in two windows, edit the same job in both, and save the second window last. It reports that the application changed elsewhere and does not replace the first save until you choose "Show the latest version". | Not yet performed |
 
+## Manual verification checklist (Phase 3)
+
+These checks need a real Chrome profile and **have not been performed yet**. Pointer dragging, touch dragging and VoiceOver are not covered by the automated tests, which move cards with the Move to list and the bracket keys against an in-memory storage fake.
+
+| # | Check | Result |
+| --- | --- | --- |
+| 1 | Reload the extension, open Applications, and confirm four columns: Saved, Applied, Interview, Result. A saved job shows its title, company, "No deadline provided" or a due date, and the India eligibility chosen in the editor. | Not yet performed |
+| 2 | Drag a card from Saved to Applied. The applied date is filled. Reload the dashboard, quit Chrome, reopen the dashboard, and confirm the card is still in Applied. | Not yet performed |
+| 3 | Move the same card with only the keyboard: focus it, press <kbd>]</kbd> until it reaches Interview, press Space on the drag handle and use the arrow keys as an alternative, and change stage with the Move to list. Skip the interview date, then move to Result and choose Rejected. Leave a second card's outcome unset and confirm it says "Outcome not set". | Not yet performed |
+| 4 | Open a card from the board, edit the title and notes, and save. The card and the Overview update. Delete still asks for confirmation. | Not yet performed |
+| 5 | After each move, Overview's Interviews count, Applied this week, Due in 7 days and the pipeline counts match the columns. A card in Result no longer counts as due. | Not yet performed |
+| 6 | Narrow the window to 360 px. One stage shows at a time, the stage switcher changes column, and nothing overflows. With reduced motion on, the card does not scale while dragging. | Not yet performed |
+
 ## Verification log
 
 Real test results only, added as each phase is completed. Each entry records the date, Chrome version, macOS version, what was tested and the outcome, including failures.
@@ -264,6 +277,12 @@ Real test results only, added as each phase is completed. Each entry records the
 - Environment: macOS 26 (Darwin 25.6), Node 25.9.0, npm 11.12.1.
 - `npm run check`: passed. That runs typecheck (0 errors), ESLint (0 errors, 0 warnings), Prettier, Vitest (13 files, 101 tests, all passed) and the production build.
 - No manual test in an installed extension was performed. The Phase 1 and Phase 2 checklists above are still open.
+
+### 2026-11-22 — Phase 3, automated checks
+
+- Environment: macOS 26 (Darwin 25.6), Node 25.9.0, npm 11.12.1.
+- `npm run check`: passed. That runs typecheck (0 errors), ESLint (0 errors, 0 warnings), Prettier, Vitest (16 files, 123 tests, all passed) and the production build.
+- No manual test in an installed extension was performed. The Phase 1, Phase 2 and Phase 3 checklists above are still open. Pointer drag, touch drag and VoiceOver were not run.
 
 _No manual tests in Chrome have been performed yet._
 

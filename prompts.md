@@ -817,3 +817,42 @@ At completion, provide changed files, implemented features, test results, known 
 
 Stop after Phase 2. Wait for my review before proceeding to Phase 3.
 ````
+
+---
+
+## Prompt 6 — Phase 3: Kanban application board
+
+- **Date:** 2026-11-22
+- **Phase:** 3 (implementation)
+- **Outcome:** Kanban board with Saved, Applied, Interview and Result, drag-and-drop plus Move to and bracket keys, stage changes persisted through the job repository. Search and filters were not implemented. 123 automated tests. `npm run check` result is recorded in the README verification log. Not manually tested in Chrome. Not committed.
+
+````text
+# Job Clipper — Phase 3: Kanban Application Board
+
+Implement Phase 3 using the existing `PROJECT_SPEC.md`, `README.md`, and current codebase as the source of truth.
+
+Requirements:
+1. Replace the Phase 2 Applications list/placeholder with a functional Kanban board containing exactly four stages: Saved, Applied, Interview, Result.
+2. Display saved applications as cards with relevant details: job title, company, deadline (or "No deadline provided"), and India eligibility.
+3. Allow moving applications between stages using drag-and-drop.
+4. Provide an accessible alternative to drag-and-drop, such as stage-selection controls.
+5. Persist stage changes through the existing storage repository. Changes must survive dashboard refreshes and Chrome restarts.
+6. Keep the existing job details and editing functionality working.
+7. Update Overview statistics and pipeline information to reflect the actual application stages.
+8. Maintain the existing Northline-inspired visual design and responsive layout.
+9. Do not implement Phase 4 extraction, Phase 5 reminders, or Phase 6 CSV export.
+10. Add or update tests for stage changes, persistence, board rendering, and invalid stage values.
+
+Keep the implementation consistent with the existing architecture. Do not rewrite working Phase 1 or Phase 2 functionality.
+
+Update `prompts.md`, README and CHANGELOG with the actual Phase 3 work. Do not fabricate manual test results.
+
+Run `npm run check` and report:
+- Files changed
+- Features implemented
+- Tests added and results
+- Known limitations
+- Manual Chrome verification steps
+
+Stop after Phase 3. Do not start Phase 4.
+````

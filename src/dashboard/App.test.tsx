@@ -140,7 +140,7 @@ describe("Dashboard navigation", () => {
     const nav = screen.getAllByRole("navigation", { name: "Main" })[0]!;
 
     for (const [name, text] of [
-      ["Applications", "The board arrives in Phase 3"],
+      ["Applications", /drag a card between stages/i],
       ["Calendar", "The calendar arrives in Phase 5"],
       ["Settings", "Your data"],
     ] as const) {

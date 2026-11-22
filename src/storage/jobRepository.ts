@@ -11,8 +11,11 @@ import {
   type ManualEntryErrors,
   type ManualEntryValues,
 } from "../core/model/manualEntry";
+import { applyInterviewDate, applyStageMove } from "../core/model/stage";
 import type { JobApplication } from "../core/model/types";
 import { isJobKey, jobKey, localStore } from "./chromeStorage";
+
+export { InvalidInterviewDateError, InvalidStageError } from "../core/model/stage";
 
 export class ManualEntryValidationError extends Error {
   constructor(readonly errors: ManualEntryErrors) {
@@ -137,6 +140,45 @@ export async function deleteJob(id: string): Promise<void> {
   const existing = await getJob(id);
   if (!existing) throw new JobNotFoundError(id);
   await localStore.remove(jobKey(id));
+}
+
+/**
+ * Changes only the stage (and, for Result, the outcome). Writes the whole job
+ * read from storage, so a title edit that landed first is kept when `expectedUpdatedAt` matches.
+ */
+export async function moveJob(
+  id: string,
+  status: string,
+  now: Date = new Date(),
+  options?: { result?: string | null; expectedUpdatedAt?: string },
+): Promise<JobApplication> {
+  const existing = await getJob(id);
+  if (!existing) throw new JobNotFoundError(id);
+  if (options?.expectedUpdatedAt && existing.updatedAt !== options.expectedUpdatedAt) {
+    throw new JobConflictError(existing);
+  }
+  const next = applyStageMove(existing, status, now, options?.result ?? null);
+  if (next === existing) return existing;
+  await localStore.set({ [jobKey(id)]: next });
+  return next;
+}
+
+/** Records an interview date on the job that is already in storage. Does not change the stage. */
+export async function recordInterviewDate(
+  id: string,
+  date: string,
+  now: Date = new Date(),
+  options?: { expectedUpdatedAt?: string },
+): Promise<JobApplication> {
+  const existing = await getJob(id);
+  if (!existing) throw new JobNotFoundError(id);
+  if (options?.expectedUpdatedAt && existing.updatedAt !== options.expectedUpdatedAt) {
+    throw new JobConflictError(existing);
+  }
+  const next = applyInterviewDate(existing, date, now);
+  if (next === existing) return existing;
+  await localStore.set({ [jobKey(id)]: next });
+  return next;
 }
 
 /** All saved jobs, most recently saved first. */

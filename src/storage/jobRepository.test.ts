@@ -9,9 +9,12 @@ import {
   createJob,
   deleteJob,
   DuplicateJobError,
+  InvalidStageError,
   JobConflictError,
   listJobs,
   ManualEntryValidationError,
+  moveJob,
+  recordInterviewDate,
   subscribeJobs,
   updateJob,
 } from "./jobRepository";
@@ -131,6 +134,80 @@ describe("updateJob and deleteJob", () => {
       notes: "Newer note",
       updatedAt: newer.updatedAt,
     });
+  });
+});
+
+describe("moveJob", () => {
+  it("persists the new stage so a later read, as on refresh, sees it", async () => {
+    const created = await createJob(entry, new Date("2026-11-22T06:00:00.000Z"));
+    const moved = await moveJob(created.id, "applied", new Date("2026-11-22T09:00:00.000Z"), {
+      expectedUpdatedAt: created.updatedAt,
+    });
+
+    expect(moved.status).toBe("applied");
+    expect(moved.appliedAt).toBe("2026-11-22T09:00:00.000Z");
+    const stored = (await listJobs())[0];
+    expect(stored).toMatchObject({
+      id: created.id,
+      title: created.title,
+      status: "applied",
+      deadline: null,
+    });
+    expect(stored?.statusHistory.map((item) => item.status)).toEqual(["saved", "applied"]);
+
+    const again = await moveJob(created.id, "applied", new Date("2026-11-22T10:00:00.000Z"));
+    expect(again.updatedAt).toBe(moved.updatedAt);
+    expect(chromeFake().storage.local.snapshot()[jobKey(created.id)]).toEqual(moved);
+  });
+
+  it("rejects an invalid stage and leaves storage unchanged", async () => {
+    const created = await createJob(entry);
+    const before = chromeFake().storage.local.snapshot();
+
+    await expect(moveJob(created.id, "offer")).rejects.toBeInstanceOf(InvalidStageError);
+    await expect(moveJob(created.id, "Applied")).rejects.toBeInstanceOf(InvalidStageError);
+    await expect(
+      moveJob(created.id, "result", new Date(), { result: "maybe" }),
+    ).rejects.toBeInstanceOf(InvalidStageError);
+
+    expect(chromeFake().storage.local.snapshot()).toEqual(before);
+    expect((await listJobs())[0]?.status).toBe("saved");
+  });
+
+  it("refuses a stale stage change after another edit", async () => {
+    const created = await createJob(entry, new Date("2026-11-22T06:00:00.000Z"));
+    const edited = await updateJob(
+      created.id,
+      { ...jobToForm(created), notes: "From the other window" },
+      new Date("2026-11-22T08:00:00.000Z"),
+    );
+
+    await expect(
+      moveJob(created.id, "interview", new Date(), { expectedUpdatedAt: created.updatedAt }),
+    ).rejects.toBeInstanceOf(JobConflictError);
+
+    expect((await listJobs())[0]).toMatchObject({
+      status: "saved",
+      notes: "From the other window",
+      updatedAt: edited.updatedAt,
+    });
+  });
+
+  it("stores an interview date without leaving Interview", async () => {
+    const created = await createJob(entry);
+    const interviewing = await moveJob(created.id, "interview");
+    const dated = await recordInterviewDate(created.id, "2026-12-04", new Date(), {
+      expectedUpdatedAt: interviewing.updatedAt,
+    });
+
+    expect(dated.status).toBe("interview");
+    expect(dated.interviewAt).toBeDefined();
+    expect((await listJobs())[0]?.interviewAt).toBe(dated.interviewAt);
+
+    await expect(recordInterviewDate(created.id, "2026-02-31")).rejects.toThrow(
+      /real calendar date/i,
+    );
+    expect((await listJobs())[0]?.interviewAt).toBe(dated.interviewAt);
   });
 });
 

@@ -57,7 +57,12 @@ export function App() {
         <OverviewPage jobsState={jobsState} onAddApplication={openAdd} onOpenJob={openJob} />
       )}
       {route.name === "applications" && (
-        <ApplicationsPage jobs={jobsState.jobs} onAddApplication={openAdd} onOpenJob={openJob} />
+        <ApplicationsPage
+          jobs={jobsState.jobs}
+          onAddApplication={openAdd}
+          onOpenJob={openJob}
+          onNotice={setToast}
+        />
       )}
       {route.name === "calendar" && <CalendarPage jobs={jobsState.jobs} />}
       {route.name === "settings" && <SettingsPage jobCount={jobsState.jobs.length} />}

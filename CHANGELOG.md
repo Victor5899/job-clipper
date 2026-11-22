@@ -6,7 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-Phase 3 (Kanban, drag-and-drop, search and filters) is pending approval of Phase 2.
+Search, filters and sorts are not implemented. Phase 4 (page extraction) has not been started.
+
+## [0.3.0] — 2026-11-22 — Phase 3: Kanban board
+
+Automated checks pass (123 tests). Not yet manually tested in Chrome.
+
+### Added
+
+- Applications board with four columns: Saved, Applied, Interview and Result. Cards show the title, company, deadline (or "No deadline provided"), India eligibility and source.
+- Drag and drop between columns (pointer, touch and keyboard) via `@dnd-kit/core`, with a screen-reader announcement. The Move to list, the outcome list on Result cards, and <kbd>[</kbd> / <kbd>]</kbd> on a focused card change the stage without dragging.
+- Moving into Applied stores `appliedAt` when it was empty. Moving into Interview offers an optional date and still saves the stage if you skip it. Moving into Result asks for Selected, Rejected, Withdrawn or No response, and can stay "Outcome not set".
+- `moveJob` and `recordInterviewDate` on the existing job repository. Invalid stage and outcome values are rejected and nothing is written. A stale move is refused the same way a stale edit is.
+- Below 768 px, a stage switcher shows one column. While a card is being dragged, every column is shown so it can be dropped. From 768 px the columns scroll sideways; from 1280 px all four sit in a row.
+- Tests for stage changes, invalid stages, persistence across a fresh read, board rendering, the accessible move controls, and the Overview counts after a move.
+
+### Changed
+
+- Extension version is 0.3.0.
+- The Applications list is now the board. Opening a card still uses the existing details, editor and delete confirmation.
+- Overview statistics and the pipeline bar already count jobs by `status`. A board move updates them through the same storage subscription.
+
+### Not in this version
+
+- Search, filters, sorts and URL-persisted filter state from the Phase 3 specification.
+- Page extraction, deadline notifications and CSV export.
 
 ## [0.2.0] — 2026-11-22 — Phase 2: complete job management
 

@@ -31,6 +31,25 @@ export function daysUntilDeadline(deadline: NonNullable<Deadline>, now: Date): n
   return differenceInCalendarDays(deadlineMoment(deadline), now);
 }
 
+export type CardDeadlineTone = "none" | "ok" | "soon" | "overdue";
+
+/** Board-card deadline: "Due 24 Nov · 3d", "No deadline provided", or "Closed 3d ago". */
+export function formatCardDeadline(
+  deadline: Deadline,
+  now: Date,
+): { text: string; tone: CardDeadlineTone } {
+  if (!deadline) return { text: "No deadline provided", tone: "none" };
+  const moment = deadlineMoment(deadline);
+  const days = daysUntilDeadline(deadline, now);
+  if (moment.getTime() < now.getTime()) {
+    if (days >= 0) return { text: "Closed today", tone: "overdue" };
+    return { text: `Closed ${-days}d ago`, tone: "overdue" };
+  }
+  const when = format(moment, "d MMM");
+  const relative = days === 0 ? "Today" : days === 1 ? "Tomorrow" : `${days}d`;
+  return { text: `Due ${when} · ${relative}`, tone: days <= 3 ? "soon" : "ok" };
+}
+
 export function describeDaysLeft(days: number): string {
   if (days === 0) return "Today";
   if (days === 1) return "Tomorrow";
