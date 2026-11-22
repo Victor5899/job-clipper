@@ -62,6 +62,7 @@ export function OverviewPage({ jobsState, onAddApplication, onOpenJob }: Overvie
           <DeadlinesPanel
             stats={stats}
             now={now}
+            onOpenJob={onOpenJob}
             className="origin-left xl:motion-safe:[transform:perspective(1600px)_rotateY(-5deg)]"
           />
         </div>

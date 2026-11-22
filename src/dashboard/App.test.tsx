@@ -141,7 +141,7 @@ describe("Dashboard navigation", () => {
 
     for (const [name, text] of [
       ["Applications", /drag a card between stages/i],
-      ["Calendar", "The calendar arrives in Phase 5"],
+      ["Calendar", /deadlines, interviews and reminders/i],
       ["Settings", "Your data"],
     ] as const) {
       await user.click(within(nav).getByRole("link", { name }));

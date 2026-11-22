@@ -21,11 +21,27 @@ import {
   type JobFormValues,
 } from "../../core/model/jobForm";
 import { MAX_COMPANY_LENGTH, MAX_TITLE_LENGTH } from "../../core/model/manualEntry";
+import { formatDatetimeLocal } from "../../core/reminders/datetimeLocal";
+import { Button } from "../../ui/components/Button";
 import { SelectField } from "../../ui/components/SelectField";
 import { TextAreaField } from "../../ui/components/TextAreaField";
 import { TextField } from "../../ui/components/TextField";
 
 const PREFIX = "edit";
+
+const LEAD_OPTIONS = [
+  { value: "", label: "Settings default" },
+  { value: "0", label: "Same day" },
+  { value: "1", label: "1 day before" },
+  { value: "2", label: "2 days before" },
+  { value: "3", label: "3 days before" },
+  { value: "7", label: "7 days before" },
+];
+
+const REMINDER_MODES = [
+  { value: "default", label: "Before the deadline" },
+  { value: "custom", label: "A specific time" },
+];
 
 function choices(labels: Record<string, string>) {
   return Object.entries(labels).map(([value, label]) => ({ value, label }));
@@ -193,6 +209,68 @@ export function JobForm({ formId, values, errors, disabled, onChange, onSubmit }
           <p className="text-[12.5px] text-text-muted">No deadline provided</p>
         )}
         <TextAreaField label="Notes" optional maxLength={MAX_NOTES_LENGTH} {...field("notes")} />
+      </Section>
+
+      <Section title="Reminder">
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-2">
+            <input
+              id="edit-reminderEnabled"
+              type="checkbox"
+              className="size-4 accent-accent"
+              checked={values.reminderEnabled === "on"}
+              disabled={disabled || !values.deadlineDate}
+              aria-describedby={values.deadlineDate ? undefined : "edit-reminderEnabled-hint"}
+              onChange={(event) => onChange("reminderEnabled", event.target.checked ? "on" : "off")}
+            />
+            <label htmlFor="edit-reminderEnabled" className="text-[13px] font-medium text-text">
+              Remind me before the deadline
+            </label>
+          </div>
+          {!values.deadlineDate && (
+            <p id="edit-reminderEnabled-hint" className="text-[12.5px] text-text-muted">
+              Add a deadline to enable reminders
+            </p>
+          )}
+        </div>
+        {values.deadlineDate && values.reminderEnabled === "on" && (
+          <>
+            <SelectField label="When" options={REMINDER_MODES} {...field("reminderMode")} />
+            {values.reminderMode !== "custom" ? (
+              <>
+                <SelectField
+                  label="How early"
+                  options={LEAD_OPTIONS}
+                  hint="Leave this on Settings default to follow the time in Settings."
+                  {...field("reminderLeadDays")}
+                />
+                <TextField
+                  label="Time"
+                  optional
+                  type="time"
+                  hint="Leave empty to use the time from Settings."
+                  {...field("reminderAtTime")}
+                />
+              </>
+            ) : (
+              <TextField label="Remind at" type="datetime-local" {...field("reminderCustomAt")} />
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled={disabled}
+              onClick={() => {
+                const when = new Date(Date.now() + 60_000);
+                onChange("reminderEnabled", "on");
+                onChange("reminderMode", "custom");
+                onChange("reminderCustomAt", formatDatetimeLocal(when));
+              }}
+            >
+              Remind me in 1 minute
+            </Button>
+          </>
+        )}
       </Section>
 
       <Section title="Contact">

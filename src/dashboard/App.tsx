@@ -64,7 +64,7 @@ export function App() {
           onNotice={setToast}
         />
       )}
-      {route.name === "calendar" && <CalendarPage jobs={jobsState.jobs} />}
+      {route.name === "calendar" && <CalendarPage jobs={jobsState.jobs} onOpenJob={openJob} />}
       {route.name === "settings" && <SettingsPage jobCount={jobsState.jobs.length} />}
 
       <AddApplicationDialog

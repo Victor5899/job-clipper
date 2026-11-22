@@ -969,3 +969,67 @@ Do not start Phase 5. Do not commit or push.
 
 Stop and wait for my review.
 ````
+
+---
+
+## Prompt 8 — Phase 5: Deadline management and reminders
+
+- **Date:** 2026-11-22
+- **Phase:** 5 (implementation)
+- **Outcome:** Deadline reminders via `chrome.alarms` and `chrome.notifications`, calendar month and agenda, reminder settings, and tests for scheduling and notification behaviour. 256 automated tests. `npm run check` is recorded in the README verification log. The extension was not installed in Chrome, so a real notification was not seen. Not committed.
+
+````text
+# Job Clipper — Phase 5: Deadline Management and Reminders
+
+Read `PROJECT_SPEC.md`, inspect the existing codebase, and implement Phase 5 only.
+
+### 1. Deadline management
+Implement the deadline-management requirements defined in `PROJECT_SPEC.md`.
+
+Preserve these existing rules:
+- Deadlines are optional.
+- Never invent or infer a deadline.
+- Only explicitly labelled application deadlines qualify.
+- Users can add, edit, or clear deadlines.
+- Jobs without deadlines must remain valid and display "No deadline provided".
+
+### 2. Reminders
+Implement reliable deadline reminders using Chrome Manifest V3 APIs.
+
+- Use `chrome.alarms` and `chrome.notifications` where appropriate.
+- Request only the permissions actually required.
+- Schedule reminders only for valid deadlines.
+- Reschedule or clear alarms when deadlines change or jobs are deleted.
+- Avoid duplicate notifications and stale alarms.
+- Handle extension restarts and browser restarts reliably.
+- Respect the user's reminder settings and avoid notifying for jobs that no longer need reminders.
+
+### 3. Dashboard integration
+Implement the Phase 5 deadline views and interactions specified in `PROJECT_SPEC.md`.
+
+Ensure deadline information remains consistent across the overview, application board, and job details.
+
+### 4. Reliability and testing
+- Add automated tests for scheduling, rescheduling, cancellation, invalid dates, missing deadlines, duplicate alarms, and notification behaviour.
+- Handle timezone and date-boundary cases correctly.
+- Do not break existing extraction, CRUD, Kanban, or manual-entry functionality.
+- Do not introduce a backend or paid external APIs.
+
+### 5. Documentation and completion
+Update `prompts.md`, README, and CHANGELOG.
+
+Run `npm run check` and fix all introduced errors.
+
+Report:
+- Features implemented.
+- Permissions added or changed.
+- Reminder scheduling behaviour.
+- Timezone handling.
+- Tests and results.
+- Manual Chrome testing instructions.
+- Known limitations.
+
+Do not start Phase 6. Do not commit or push.
+
+Stop and wait for my review.
+````

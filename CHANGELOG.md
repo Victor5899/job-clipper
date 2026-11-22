@@ -6,7 +6,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-Search, filters and sorts are not implemented. Deadline reminders and CSV export have not been started.
+Search, filters and sorts are not implemented. CSV export has not been started.
+
+## [0.5.0] — 2026-11-22 — Phase 5: deadline reminders and calendar
+
+Automated checks pass (269 tests). The extension was not installed in Chrome, so a notification was not seen and no screenshot is recorded.
+
+### Added
+
+- Deadline reminders through `chrome.alarms` and `chrome.notifications`. A reminder is created only for a valid deadline that is still ahead, with the reminder turned on. The default is 1 day before at 09:00. A job can use same day, 1, 2, 3 or 7 days before, or a time that is before the deadline.
+- Adding a deadline schedules the reminder. Clearing the deadline, turning the reminder off, or deleting the job removes the alarm. Editing the deadline or the default lead time replaces the existing alarm instead of adding a second one.
+- Reconciliation when the extension is installed, when Chrome starts, when a job or the settings change, and every hour. A reminder that comes due while Chrome is closed is shown as missed on the next launch if the deadline has not passed, and marked expired if it has.
+- If the chosen reminder time is already past and the deadline is not, the alarm is set about one minute ahead and the notification says the deadline is soon.
+- "Remind me in 1 minute" on a job that has a future deadline. That notification does not replace the saved reminder; the previous reminder is scheduled again if it is still due. "Send test notification" in Settings, which is not a job reminder.
+- Calendar month grid for deadlines, interviews and reminders. Jobs with no deadline are listed under "No deadline provided" and are not placed on a day. A narrow window shows an agenda. Overview deadline rows open the job, and the no-deadline line opens the calendar.
+- Clicking a reminder opens `dashboard.html#/job/<id>`.
+- Tests for scheduling, rescheduling, cancellation, missing and impossible dates, duplicate alarms, missed and on-time notifications, local date boundaries, restoring the saved reminder after "Remind me in 1 minute", a missed notification after alarms are wiped, deleting a job whose alarm has already fired, and topping up the 400-alarm cap.
+
+### Fixed
+
+- Deleting a job clears its notification even when the alarm has already fired. A reminder past the 400-alarm cap does not keep a stale alarm, and the next free slot arms the following reminder.
+
+### Changed
+
+- Extension version is 0.5.0. The manifest requests `alarms` and `notifications` in addition to `storage`, `activeTab` and `scripting`.
+- New applications take the Settings choice for whether reminders start on. Jobs already saved keep their own reminder switch.
+
+### Not in this version
+
+- A confirmed on-screen Chrome notification. That remains a manual check.
+- Search, filters, sorts and CSV export.
 
 ## [0.4.0] — 2026-11-22 — Phase 4: job listing extraction
 

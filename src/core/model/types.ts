@@ -82,6 +82,11 @@ export interface JobApplication {
     leadDays?: number;
     atTime?: string;
     customAt?: string;
+    /**
+     * One-shot "Remind me in 1 minute" instant. It is cleared after that notification
+     * is delivered. The mode and time above are the schedule that comes back.
+     */
+    soonAt?: string;
     remindAt?: string;
     status: "none" | "scheduled" | "fired" | "missed" | "expired";
     firedAt?: string;

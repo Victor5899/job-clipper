@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
 import type { JobFormErrors, JobFormValues } from "../../core/model/jobForm";
 import { jobToForm } from "../../core/model/jobForm";
+import { deadlineEnd, SOON_DELAY_MS } from "../../core/reminders/computeRemindAt";
 import type { JobApplication } from "../../core/model/types";
 import {
   DuplicateJobError,
   JobConflictError,
   JobValidationError,
+  ReminderNotAvailableError,
   deleteJob,
+  scheduleReminderSoon,
   updateJob,
 } from "../../storage/jobRepository";
+import { useNow } from "../../ui/hooks/useNow";
 import { Button } from "../../ui/components/Button";
 import { ConfirmDialog } from "../../ui/components/ConfirmDialog";
 import { Drawer } from "../../ui/components/Drawer";
@@ -16,6 +20,51 @@ import { JobDetails } from "./JobDetails";
 import { JobForm, focusFirstJobError } from "./JobForm";
 
 const FORM_ID = "edit-application-form";
+
+function RemindSoon({ job }: { job: JobApplication }) {
+  const now = useNow();
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+  const end = deadlineEnd(job.deadline);
+  const available = Boolean(end && end.getTime() - now.getTime() > SOON_DELAY_MS);
+  if (!available && !message) return null;
+
+  const schedule = () => {
+    setPending(true);
+    setError(null);
+    scheduleReminderSoon(job.id, new Date(), { expectedUpdatedAt: job.updatedAt })
+      .then(() => setMessage("Reminder set for about one minute from now."))
+      .catch((caught: unknown) => {
+        if (caught instanceof ReminderNotAvailableError) {
+          setError("Add a deadline that is still ahead before setting a reminder.");
+        } else if (caught instanceof JobConflictError) {
+          setError(
+            "This application was updated somewhere else. Close the sheet and open it again.",
+          );
+        } else {
+          setError("Couldn't set the reminder. Please try again.");
+        }
+      })
+      .finally(() => setPending(false));
+  };
+
+  return (
+    <div className="mt-4 flex flex-col items-start gap-2">
+      {available && (
+        <Button variant="ghost" size="sm" disabled={pending} onClick={schedule}>
+          {pending ? "Setting reminder…" : "Remind me in 1 minute"}
+        </Button>
+      )}
+      {message && <p className="text-[12.5px] text-text-muted">{message}</p>}
+      {error && (
+        <p role="alert" className="text-[12.5px] text-danger">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
 
 interface JobDrawerProps {
   job: JobApplication | null;
@@ -188,7 +237,12 @@ export function JobDrawer({
           ) : undefined
         }
       >
-        {job && !editing && <JobDetails job={job} />}
+        {job && !editing && (
+          <>
+            <JobDetails job={job} />
+            <RemindSoon key={job.id} job={job} />
+          </>
+        )}
         {job && editing && (
           <JobEditor key={job.id} job={job} onCancel={onCancelEdit} onUpdated={onUpdated} />
         )}

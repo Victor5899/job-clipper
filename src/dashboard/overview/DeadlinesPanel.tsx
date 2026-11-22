@@ -12,10 +12,12 @@ export function DeadlinesPanel({
   stats,
   now,
   className,
+  onOpenJob,
 }: {
   stats: OverviewStats;
   now: Date;
   className?: string;
+  onOpenJob?: (id: string) => void;
 }) {
   const upcoming = stats.upcomingDeadlines;
   const perDay = new Map<number, number>();
@@ -64,19 +66,27 @@ export function DeadlinesPanel({
       ) : (
         <ol className="flex flex-col divide-y divide-border">
           {upcoming.slice(0, LIST_LIMIT).map(({ job, due, daysLeft }) => (
-            <li key={job.id} className="flex items-center justify-between gap-3 py-2.5 first:pt-0">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-text" title={job.title}>
-                  {job.title}
-                </p>
-                <p className="truncate text-[12.5px] text-text-muted">{job.company}</p>
-              </div>
-              <time
-                dateTime={due.toISOString()}
-                className={`shrink-0 font-mono text-[11.5px] ${daysLeft <= URGENT_DAYS ? "text-warn" : "text-text-muted"}`}
+            <li key={job.id} className="py-1 first:pt-0">
+              <button
+                type="button"
+                onClick={() => onOpenJob?.(job.id)}
+                className="flex w-full items-center justify-between gap-3 rounded-[10px] px-1 py-1.5 text-left hover:bg-surface-2/70"
               >
-                Due {format(due, "d MMM")} · {describeDaysLeft(daysLeft)}
-              </time>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-medium text-text" title={job.title}>
+                    {job.title}
+                  </span>
+                  <span className="block truncate text-[12.5px] text-text-muted">
+                    {job.company}
+                  </span>
+                </span>
+                <time
+                  dateTime={due.toISOString()}
+                  className={`shrink-0 font-mono text-[11.5px] ${daysLeft <= URGENT_DAYS ? "text-warn" : "text-text-muted"}`}
+                >
+                  Due {format(due, "d MMM")} · {describeDaysLeft(daysLeft)}
+                </time>
+              </button>
             </li>
           ))}
         </ol>
@@ -85,8 +95,10 @@ export function DeadlinesPanel({
       {stats.noDeadlineCount > 0 && (
         <div className="mt-auto pt-4">
           <p className="border-t border-border pt-3 text-[12.5px] text-text-subtle">
-            {stats.noDeadlineCount} saved {stats.noDeadlineCount === 1 ? "job has" : "jobs have"} no
-            deadline provided
+            <a href="#/calendar" className="hover:text-text hover:underline">
+              {stats.noDeadlineCount} saved {stats.noDeadlineCount === 1 ? "job has" : "jobs have"}{" "}
+              no deadline provided
+            </a>
           </p>
         </div>
       )}

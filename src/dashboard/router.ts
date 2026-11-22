@@ -15,12 +15,18 @@ export interface Route {
   params: URLSearchParams;
 }
 
-/** Parses "#/applications?status=saved" style hashes. Unknown or empty hashes fall back to Overview. */
+/** Parses "#/applications?status=saved" and "#/job/<id>" (the notification target). */
 export function parseHash(hash: string): Route {
   const [path = "", query = ""] = hash.replace(/^#\/?/, "").split("?", 2);
-  const name = path.split("/")[0]?.toLowerCase() ?? "";
+  const segments = path.split("/").filter(Boolean);
+  const head = segments[0]?.toLowerCase() ?? "";
+  if (head === "job" && segments[1]) {
+    const params = new URLSearchParams(query);
+    params.set("job", decodeURIComponent(segments[1]));
+    return { name: "overview", params };
+  }
   return {
-    name: (ROUTES as readonly string[]).includes(name) ? (name as RouteName) : "overview",
+    name: (ROUTES as readonly string[]).includes(head) ? (head as RouteName) : "overview",
     params: new URLSearchParams(query),
   };
 }

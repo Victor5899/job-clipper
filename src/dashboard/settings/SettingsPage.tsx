@@ -1,6 +1,7 @@
 import { HardDrive, Info, ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
 import { PageHeader } from "../PageHeader";
+import { ReminderSettings } from "./ReminderSettings";
 
 function SettingsSection({
   icon,
@@ -33,10 +34,11 @@ export function SettingsPage({ jobCount }: { jobCount: number }) {
   return (
     <div className="mx-auto max-w-3xl px-5 py-14 sm:px-8">
       <PageHeader eyebrow="Preferences" title={<>Settings</>}>
-        Reminder preferences arrive in Phase 5, and export and backup in Phase 6.
+        Reminder timing for deadlines. Export and backup arrive in Phase 6.
       </PageHeader>
 
       <div className="flex flex-col gap-4">
+        <ReminderSettings />
         <SettingsSection icon={<HardDrive size={16} />} title="Your data">
           <p>
             {jobCount} {jobCount === 1 ? "application is" : "applications are"} stored in this

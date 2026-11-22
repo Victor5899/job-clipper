@@ -1,4 +1,6 @@
 import { findDuplicates, type DuplicateMatch } from "../core/duplicates";
+import { deadlineEnd, SOON_DELAY_MS } from "../core/reminders/computeRemindAt";
+import { remindersEqual } from "../core/reminders/state";
 import { createJobFromManualEntry } from "../core/model/defaults";
 import {
   applyJobEdits,
@@ -15,6 +17,7 @@ import { buildReviewedJob, type ReviewedJobMeta } from "../core/model/reviewedJo
 import { applyInterviewDate, applyStageMove } from "../core/model/stage";
 import type { JobApplication } from "../core/model/types";
 import { isJobKey, jobKey, localStore } from "./chromeStorage";
+import { getSettings } from "./settingsRepository";
 
 export { InvalidInterviewDateError, InvalidStageError } from "../core/model/stage";
 
@@ -44,6 +47,14 @@ export class JobNotFoundError extends Error {
   constructor(readonly id: string) {
     super("Application not found");
     this.name = "JobNotFoundError";
+  }
+}
+
+/** The job has no deadline far enough ahead for a one-minute reminder. */
+export class ReminderNotAvailableError extends Error {
+  constructor() {
+    super("Add a future deadline before setting a reminder.");
+    this.name = "ReminderNotAvailableError";
   }
 }
 
@@ -101,7 +112,9 @@ export async function createJob(
 ): Promise<JobApplication> {
   const result = validateManualEntry(values);
   if (!result.ok) throw new ManualEntryValidationError(result.errors);
-  const job = createJobFromManualEntry(result.value, { id: crypto.randomUUID(), now });
+  const job = await withReminderDefault(
+    createJobFromManualEntry(result.value, { id: crypto.randomUUID(), now }),
+  );
   if (!options?.allowDuplicate) {
     const matches = await exactMatches(job, now);
     if (matches.length > 0) throw new DuplicateJobError(matches);
@@ -121,7 +134,9 @@ export async function createReviewedJob(
 ): Promise<JobApplication> {
   const result = validateJobForm(values);
   if (!result.ok) throw new JobValidationError(result.errors);
-  const job = buildReviewedJob(result.value, { ...meta, id: crypto.randomUUID() });
+  const job = await withReminderDefault(
+    buildReviewedJob(result.value, { ...meta, id: crypto.randomUUID() }),
+  );
   if (!options?.allowDuplicate) {
     const matches = await exactMatches(job, meta.now);
     if (matches.length > 0) throw new DuplicateJobError(matches);
@@ -153,6 +168,53 @@ export async function updateJob(
     const matches = await exactMatches(next, now, id);
     if (matches.length > 0) throw new DuplicateJobError(matches);
   }
+  await localStore.set({ [jobKey(id)]: next });
+  return next;
+}
+
+/**
+ * Patches only the reminder. `updatedAt` is left alone so a system reconcile does not
+ * look like a user edit to an open form.
+ */
+export async function writeReminder(
+  id: string,
+  reminder: JobApplication["reminder"],
+  expectedUpdatedAt: string,
+): Promise<"updated" | "skipped" | "missing"> {
+  const existing = await getJob(id);
+  if (!existing) return "missing";
+  if (existing.updatedAt !== expectedUpdatedAt) return "skipped";
+  if (remindersEqual(existing.reminder, reminder)) return "skipped";
+  await localStore.set({ [jobKey(id)]: { ...existing, reminder } });
+  return "updated";
+}
+
+/**
+ * Asks for one real notification about a minute from `now`. The saved mode, lead time
+ * and custom time stay. After that notification is delivered, reconciliation arms the
+ * saved schedule again when it is still due.
+ */
+export async function scheduleReminderSoon(
+  id: string,
+  now: Date = new Date(),
+  options?: { expectedUpdatedAt?: string },
+): Promise<JobApplication> {
+  const existing = await getJob(id);
+  if (!existing) throw new JobNotFoundError(id);
+  if (options?.expectedUpdatedAt && existing.updatedAt !== options.expectedUpdatedAt) {
+    throw new JobConflictError(existing);
+  }
+  const end = deadlineEnd(existing.deadline);
+  if (!end || end.getTime() - now.getTime() <= SOON_DELAY_MS) throw new ReminderNotAvailableError();
+  const next: JobApplication = {
+    ...existing,
+    updatedAt: now.toISOString(),
+    reminder: {
+      ...existing.reminder,
+      enabled: true,
+      soonAt: new Date(now.getTime() + SOON_DELAY_MS).toISOString(),
+    },
+  };
   await localStore.set({ [jobKey(id)]: next });
   return next;
 }
@@ -216,6 +278,14 @@ export async function listJobs(): Promise<JobApplication[]> {
  * Emits the current job list immediately, then again whenever any job key changes
  * (including writes from other extension pages). Returns an unsubscribe function.
  */
+async function withReminderDefault(job: JobApplication): Promise<JobApplication> {
+  const settings = await getSettings();
+  return {
+    ...job,
+    reminder: { ...job.reminder, enabled: settings.reminders.enabledByDefault },
+  };
+}
+
 export function subscribeJobs(
   listener: (jobs: JobApplication[]) => void,
   onError: (error: unknown) => void = () => {},

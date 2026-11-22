@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { chromeFake } from "../../tests/fakes/chrome";
 import { DEFAULT_SETTINGS, SCHEMA_VERSION } from "../core/model/defaults";
 import { handleInstalled } from "./lifecycle";
@@ -39,8 +39,15 @@ describe("handleInstalled", () => {
 });
 
 describe("background entry point", () => {
-  it("registers exactly one onInstalled listener at load time", async () => {
+  it("registers reminder listeners once at load time", async () => {
+    vi.resetModules();
     await import("./index");
-    expect(chromeFake().runtime.onInstalled.size).toBe(1);
+    const fake = chromeFake();
+    expect(fake.runtime.onInstalled.size).toBe(1);
+    expect(fake.runtime.onStartup.size).toBe(1);
+    expect(fake.runtime.onMessage.size).toBe(1);
+    expect(fake.alarms.onAlarm.size).toBe(1);
+    expect(fake.notifications.onClicked.size).toBe(1);
+    expect(fake.storage.onChanged.size).toBe(1);
   });
 });

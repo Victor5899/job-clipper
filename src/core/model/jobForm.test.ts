@@ -80,6 +80,56 @@ describe("applyJobEdits", () => {
     expect(next.updatedAt).toBe(now.toISOString());
   });
 
+  it("rejects a custom reminder that is not before the deadline", () => {
+    const values = jobToForm(
+      makeJob({ deadline: { date: "2026-12-01", time: "18:00", origin: "user" } }),
+    );
+    const result = validateJobForm({
+      ...values,
+      reminderEnabled: "on",
+      reminderMode: "custom",
+      reminderCustomAt: "2026-12-01T18:00",
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.reminderCustomAt).toMatch(/before the deadline/i);
+  });
+
+  it("keeps a scheduled reminder when the deadline and reminder choices are unchanged", () => {
+    const existing = makeJob({
+      deadline: { date: "2026-12-01", origin: "user" },
+      reminder: {
+        enabled: true,
+        mode: "default",
+        status: "scheduled",
+        remindAt: "2026-11-30T03:30:00.000Z",
+        soonAt: "2026-11-22T09:31:00.000Z",
+      },
+    });
+    const parsed = validateJobForm(jobToForm(existing));
+    if (!parsed.ok) throw new Error("expected a valid form");
+    expect(applyJobEdits(existing, parsed.value, now).reminder).toEqual(existing.reminder);
+  });
+
+  it("clears the computed reminder when the deadline is removed", () => {
+    const existing = makeJob({
+      deadline: { date: "2026-12-01", origin: "user" },
+      reminder: {
+        enabled: true,
+        mode: "default",
+        status: "scheduled",
+        remindAt: "2026-11-30T03:30:00.000Z",
+        soonAt: "2026-11-22T09:31:00.000Z",
+      },
+    });
+    const parsed = validateJobForm({ ...jobToForm(existing), deadlineDate: "", deadlineTime: "" });
+    if (!parsed.ok) throw new Error("expected a valid form");
+    const reminder = applyJobEdits(existing, parsed.value, now).reminder;
+    expect(reminder.status).toBe("none");
+    expect(reminder.remindAt).toBeUndefined();
+    expect(reminder.soonAt).toBeUndefined();
+    expect(reminder.enabled).toBe(true);
+  });
+
   it("keeps a page-labelled deadline when the date is unchanged", () => {
     const existing = makeJob({
       deadline: { date: "2026-12-01", time: "18:00", origin: "page_label", evidence: "Apply By" },

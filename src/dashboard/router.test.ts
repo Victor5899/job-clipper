@@ -19,6 +19,12 @@ describe("parseHash", () => {
     expect(parseHash(hash).name).toBe(name);
   });
 
+  it("opens the job sheet from a notification hash", () => {
+    const route = parseHash("#/job/job-42");
+    expect(route.name).toBe("overview");
+    expect(route.params.get("job")).toBe("job-42");
+  });
+
   it("parses query parameters", () => {
     const route = parseHash("#/applications?status=saved&q=data%20engineer");
     expect(route.name).toBe("applications");

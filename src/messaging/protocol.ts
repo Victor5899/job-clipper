@@ -10,6 +10,16 @@ const ARRANGEMENTS = new Set(["onsite", "hybrid", "remote", "unknown"]);
 const EMPLOYMENT = new Set(["internship", "full_time", "contract", "part_time", "unknown"]);
 const SOURCES = new Set(["jsonld", "adapter", "meta", "heuristic", "user"]);
 
+export interface TestNotificationRequest {
+  type: "jc:test-notification";
+}
+
+export function parseTestNotificationRequest(message: unknown): TestNotificationRequest | null {
+  if (typeof message !== "object" || message === null) return null;
+  if ((message as { type?: unknown }).type !== "jc:test-notification") return null;
+  return { type: "jc:test-notification" };
+}
+
 export function parseExtractRequest(message: unknown): ExtractRequest | null {
   if (typeof message !== "object" || message === null) return null;
   const record = message as Record<string, unknown>;

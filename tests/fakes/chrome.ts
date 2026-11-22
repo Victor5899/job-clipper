@@ -89,10 +89,26 @@ export interface FakeTab {
   title?: string;
 }
 
+interface FakeAlarm {
+  name: string;
+  scheduledTime?: number;
+  periodInMinutes?: number;
+}
+
+export interface FakeNotification {
+  id: string;
+  title?: string;
+  message?: string;
+  type?: string;
+}
+
 export function createChromeFake() {
   const onChanged = new FakeEvent<(changes: StorageChanges, areaName: string) => void>();
   const broadcast = (changes: StorageChanges, area: AreaName) => onChanged.emit(changes, area);
   let activeTab: FakeTab | undefined = { id: 1, url: "https://example.com/", title: "Example" };
+  const alarms = new Map<string, FakeAlarm>();
+  const notifications = new Map<string, FakeNotification>();
+  const notificationCalls: FakeNotification[] = [];
 
   return {
     storage: {
@@ -103,8 +119,9 @@ export function createChromeFake() {
     runtime: {
       id: "test-extension-id",
       getURL: (path: string) => `chrome-extension://test-extension-id/${path.replace(/^\//, "")}`,
-      getManifest: () => ({ manifest_version: 3, name: "Job Clipper", version: "0.4.0" }),
+      getManifest: () => ({ manifest_version: 3, name: "Job Clipper", version: "0.5.0" }),
       onInstalled: new FakeEvent<(details: chrome.runtime.InstalledDetails) => void>(),
+      onStartup: new FakeEvent<() => void>(),
       onMessage: new FakeEvent<
         (
           message: unknown,
@@ -120,6 +137,49 @@ export function createChromeFake() {
     tabs: {
       query: vi.fn(async (): Promise<FakeTab[]> => (activeTab ? [activeTab] : [])),
       create: vi.fn(async (props: { url?: string }) => ({ id: 99, ...props })),
+    },
+    alarms: {
+      onAlarm: new FakeEvent<(alarm: chrome.alarms.Alarm) => void>(),
+      create: vi.fn(async (name: string, info: chrome.alarms.AlarmCreateInfo) => {
+        const scheduledTime =
+          info.when ??
+          (info.delayInMinutes !== undefined
+            ? Date.now() + info.delayInMinutes * 60_000
+            : undefined);
+        alarms.set(name, { name, scheduledTime, periodInMinutes: info.periodInMinutes });
+      }),
+      get: vi.fn(async (name: string) => alarms.get(name)),
+      getAll: vi.fn(async () => [...alarms.values()].map((alarm) => ({ ...alarm }))),
+      clear: vi.fn(async (name: string) => alarms.delete(name)),
+      /** Test helper: deliver an alarm to onAlarm listeners. */
+      fire(name: string) {
+        const alarm = alarms.get(name);
+        if (!alarm) return;
+        this.onAlarm.emit(alarm as chrome.alarms.Alarm);
+      },
+    },
+    notifications: {
+      onClicked: new FakeEvent<(notificationId: string) => void>(),
+      onClosed: new FakeEvent<(notificationId: string) => void>(),
+      create: vi.fn(async (id: string, options: chrome.notifications.NotificationOptions) => {
+        const stored: FakeNotification = {
+          id,
+          title: options.title,
+          message: options.message,
+          type: options.type,
+        };
+        notifications.set(id, stored);
+        notificationCalls.push(stored);
+        return id;
+      }),
+      clear: vi.fn(async (id: string) => notifications.delete(id)),
+      getAll: vi.fn(async () =>
+        Object.fromEntries([...notifications.keys()].map((id) => [id, true] as const)),
+      ),
+      /** Every create call, including a replacement of the same id. */
+      calls(): FakeNotification[] {
+        return [...notificationCalls];
+      },
     },
     /** Test helper: what chrome.tabs.query returns as the active tab (undefined = no tab). */
     setActiveTab(tab: FakeTab | undefined) {

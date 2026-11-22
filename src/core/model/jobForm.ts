@@ -1,4 +1,6 @@
-import { isValidDateString, isValidTimeString } from "../deadline";
+import { isValidDateString, isValidTimeString, deadlineMoment } from "../deadline";
+import { isLeadPreset } from "../reminders/computeRemindAt";
+import { formatDatetimeLocal, parseDatetimeLocal } from "../reminders/datetimeLocal";
 import { cleanMultiline, cleanText } from "../normalize/text";
 import { canonicalizeUrl, parseHttpUrl } from "../normalize/url";
 import {
@@ -74,6 +76,11 @@ export interface JobFormValues {
   contactEmail: string;
   contactPhone: string;
   contactProfileUrl: string;
+  reminderEnabled: string;
+  reminderMode: string;
+  reminderLeadDays: string;
+  reminderAtTime: string;
+  reminderCustomAt: string;
 }
 
 export const JOB_FORM_FIELDS = [
@@ -118,6 +125,11 @@ export const JOB_FORM_FIELDS = [
   "contactEmail",
   "contactPhone",
   "contactProfileUrl",
+  "reminderEnabled",
+  "reminderMode",
+  "reminderLeadDays",
+  "reminderAtTime",
+  "reminderCustomAt",
 ] as const satisfies readonly (keyof JobFormValues)[];
 
 export type JobFormErrors = Partial<Record<keyof JobFormValues, string>>;
@@ -149,6 +161,13 @@ export interface ParsedJobForm {
   deadline: { date: string; time?: string } | null;
   notes: string;
   contact?: NonNullable<JobApplication["contact"]>;
+  reminder: {
+    enabled: boolean;
+    mode: "default" | "custom";
+    leadDays?: number;
+    atTime?: string;
+    customAt?: string;
+  };
 }
 
 function oneOf<T extends string>(value: string, allowed: readonly T[]): T | undefined {
@@ -212,7 +231,19 @@ export function jobToForm(job: JobApplication): JobFormValues {
     contactEmail: job.contact?.email ?? "",
     contactPhone: job.contact?.phone ?? "",
     contactProfileUrl: job.contact?.profileUrl ?? "",
+    reminderEnabled: job.reminder.enabled ? "on" : "off",
+    reminderMode: job.reminder.mode,
+    reminderLeadDays: job.reminder.leadDays?.toString() ?? "",
+    reminderAtTime: job.reminder.atTime ?? "",
+    reminderCustomAt: customAtToLocal(job.reminder.customAt),
   };
+}
+
+function customAtToLocal(value: string | undefined): string {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return formatDatetimeLocal(date);
 }
 
 function optionalNumber(
@@ -352,6 +383,47 @@ export function validateJobForm(
   else if (deadlineTime && !isValidTimeString(deadlineTime))
     errors.deadlineTime = "Enter a time as HH:MM.";
 
+  const reminderEnabled = values.reminderEnabled === "on";
+  const reminderMode = values.reminderMode === "custom" ? "custom" : "default";
+  let leadDays: number | undefined;
+  if (values.reminderLeadDays.trim()) {
+    const lead = Number(values.reminderLeadDays);
+    if (!Number.isInteger(lead) || !isLeadPreset(lead)) {
+      errors.reminderLeadDays = "Choose how many days before the deadline.";
+    } else leadDays = lead;
+  }
+  let atTime: string | undefined;
+  const reminderAtTime = values.reminderAtTime.trim();
+  if (reminderAtTime && !isValidTimeString(reminderAtTime)) {
+    errors.reminderAtTime = "Enter a time as HH:MM.";
+  } else if (reminderAtTime) atTime = reminderAtTime;
+  let customAt: string | undefined;
+  const customRaw = values.reminderCustomAt.trim();
+  if (customRaw) {
+    const custom = parseDatetimeLocal(customRaw);
+    if (!custom) errors.reminderCustomAt = "Enter a real date and time.";
+    else customAt = custom.toISOString();
+  }
+  if (
+    reminderEnabled &&
+    reminderMode === "custom" &&
+    deadlineDate &&
+    isValidDateString(deadlineDate) &&
+    !(deadlineTime && !isValidTimeString(deadlineTime))
+  ) {
+    if (!customAt) errors.reminderCustomAt = "Choose a reminder time.";
+    else {
+      const end = deadlineMoment({
+        date: deadlineDate,
+        ...(deadlineTime ? { time: deadlineTime } : {}),
+        origin: "user",
+      });
+      if (new Date(customAt).getTime() >= end.getTime()) {
+        errors.reminderCustomAt = "Choose a reminder time before the deadline.";
+      }
+    }
+  }
+
   const email = values.contactEmail.trim();
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
     errors.contactEmail = "Enter an email address.";
@@ -436,8 +508,56 @@ export function validateJobForm(
         : null,
       notes,
       ...(Object.keys(contact).length > 0 ? { contact } : {}),
+      reminder: {
+        enabled: reminderEnabled,
+        mode: reminderMode,
+        ...(leadDays !== undefined ? { leadDays } : {}),
+        ...(atTime ? { atTime } : {}),
+        ...(customAt ? { customAt } : {}),
+      },
     },
   };
+}
+
+function deadlineKey(deadline: Deadline): string {
+  if (!deadline) return "";
+  return `${deadline.date}|${deadline.time ?? ""}`;
+}
+
+function sameReminderPrefs(
+  existing: JobApplication["reminder"],
+  prefs: ParsedJobForm["reminder"],
+): boolean {
+  return (
+    existing.enabled === prefs.enabled &&
+    existing.mode === prefs.mode &&
+    (existing.leadDays ?? null) === (prefs.leadDays ?? null) &&
+    (existing.atTime ?? null) === (prefs.atTime ?? null) &&
+    customAtToLocal(existing.customAt) === customAtToLocal(prefs.customAt)
+  );
+}
+
+function reminderFromPrefs(
+  prefs: ParsedJobForm["reminder"],
+  status: JobApplication["reminder"]["status"],
+): JobApplication["reminder"] {
+  return { ...prefs, status };
+}
+
+/** Keeps a fired or scheduled reminder when the user did not change when it should run. */
+function nextReminder(
+  existing: JobApplication,
+  deadline: Deadline,
+  prefs: ParsedJobForm["reminder"],
+): JobApplication["reminder"] {
+  if (!deadline) return reminderFromPrefs(prefs, "none");
+  if (
+    sameReminderPrefs(existing.reminder, prefs) &&
+    deadlineKey(existing.deadline) === deadlineKey(deadline)
+  ) {
+    return existing.reminder;
+  }
+  return reminderFromPrefs(prefs, "none");
 }
 
 function nextDeadline(existing: Deadline, parsed: ParsedJobForm["deadline"]): Deadline {
@@ -511,9 +631,7 @@ export function applyJobEdits(
     deadline,
     notes: parsed.notes,
     contact: parsed.contact,
-    reminder: deadline
-      ? existing.reminder
-      : { ...existing.reminder, remindAt: undefined, status: "none", firedAt: undefined },
+    reminder: nextReminder(existing, deadline, parsed.reminder),
   };
   if (!next.sourceJobId) delete next.sourceJobId;
   if (!next.description) delete next.description;

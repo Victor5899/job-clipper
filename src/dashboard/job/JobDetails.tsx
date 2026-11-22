@@ -1,4 +1,6 @@
 import { formatDeadline } from "../../core/deadline";
+import { describeReminder } from "../../core/reminders/describeReminder";
+import { useNow } from "../../ui/hooks/useNow";
 import {
   CATEGORY_LABELS,
   ELIGIBILITY_LABELS,
@@ -21,6 +23,7 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export function JobDetails({ job }: { job: JobApplication }) {
+  const now = useNow();
   const place = [job.location.city, job.location.country, job.location.raw]
     .filter(Boolean)
     .join(" · ");
@@ -34,6 +37,7 @@ export function JobDetails({ job }: { job: JobApplication }) {
       <dl className="mt-4">
         <Row label="Job URL" value={job.url} />
         <Row label="Deadline" value={formatDeadline(job.deadline)} />
+        <Row label="Reminder" value={describeReminder(job, now)} />
         <Row label="Status" value={STATUS_LABELS[job.status]} />
         {job.result && <Row label="Result" value={RESULT_LABELS[job.result]} />}
         {place && <Row label="Location" value={place} />}

@@ -235,5 +235,10 @@ export function reviewToJobForm(review: ClipReview): JobFormValues {
     contactEmail: "",
     contactPhone: "",
     contactProfileUrl: "",
+    reminderEnabled: "on",
+    reminderMode: "default",
+    reminderLeadDays: "",
+    reminderAtTime: "",
+    reminderCustomAt: "",
   };
 }
