@@ -1,7 +1,9 @@
 import { Info } from "lucide-react";
+import type { ClipReview } from "../core/extraction/review";
 import type { ManualEntryErrors, ManualEntryValues } from "../core/model/manualEntry";
 import { Button } from "../ui/components/Button";
 import { ManualEntryForm } from "../ui/components/ManualEntryForm";
+import { DetectionPreview } from "./DetectionPreview";
 
 export const CLIP_FORM_ID = "clip-form";
 export const CLIP_FIELD_PREFIX = "clip";
@@ -11,9 +13,12 @@ interface ClipFormProps {
   errors: ManualEntryErrors;
   restricted: boolean;
   draftRestored: boolean;
+  notice?: string | null;
+  review?: ClipReview | null;
   saving: boolean;
   saveError: string | null;
   onChange: (field: keyof ManualEntryValues, value: string) => void;
+  onReviewChange?: (review: ClipReview, field: "eligibility" | "other") => void;
   onSubmit: () => void;
   onOpenDashboard: () => void;
 }
@@ -23,9 +28,12 @@ export function ClipForm({
   errors,
   restricted,
   draftRestored,
+  notice,
+  review,
   saving,
   saveError,
   onChange,
+  onReviewChange,
   onSubmit,
   onOpenDashboard,
 }: ClipFormProps) {
@@ -36,16 +44,24 @@ export function ClipForm({
           Clip this <em className="text-accent">job</em>
         </h1>
         <p className="mt-1.5 text-[13px] text-text-muted">
-          Enter the details below. Everything stays on this device.
+          {review
+            ? "Review what was read from this page. You can edit any of it."
+            : "Enter the details below. Everything stays on this device."}
         </p>
 
-        {(restricted || draftRestored) && (
+        {(restricted || draftRestored || notice) && (
           <div className="mt-4 flex flex-col gap-2">
             {restricted && (
               <p className="flex gap-2 rounded-[10px] border border-border-strong bg-surface-2 px-3 py-2.5 text-[12.5px] text-text-muted">
                 <Info size={15} className="mt-px shrink-0 text-info" aria-hidden="true" />
                 This tab isn't a regular web page, so nothing was prefilled. Paste the job link
                 yourself.
+              </p>
+            )}
+            {notice && (
+              <p className="flex gap-2 rounded-[10px] border border-border-strong bg-surface-2 px-3 py-2.5 text-[12.5px] text-text-muted">
+                <Info size={15} className="mt-px shrink-0 text-info" aria-hidden="true" />
+                {notice}
               </p>
             )}
             {draftRestored && (
@@ -61,15 +77,27 @@ export function ClipForm({
         )}
 
         <div className="mt-5">
-          <ManualEntryForm
-            formId={CLIP_FORM_ID}
-            idPrefix={CLIP_FIELD_PREFIX}
-            values={values}
-            errors={errors}
-            disabled={saving}
-            onChange={onChange}
-            onSubmit={onSubmit}
-          />
+          {review && onReviewChange ? (
+            <DetectionPreview
+              formId={CLIP_FORM_ID}
+              idPrefix={CLIP_FIELD_PREFIX}
+              review={review}
+              errors={errors}
+              disabled={saving}
+              onChange={onReviewChange}
+              onSubmit={onSubmit}
+            />
+          ) : (
+            <ManualEntryForm
+              formId={CLIP_FORM_ID}
+              idPrefix={CLIP_FIELD_PREFIX}
+              values={values}
+              errors={errors}
+              disabled={saving}
+              onChange={onChange}
+              onSubmit={onSubmit}
+            />
+          )}
         </div>
       </main>
 

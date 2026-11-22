@@ -1,3 +1,4 @@
+import type { ClipReview } from "../core/extraction/review";
 import type { ManualEntryValues } from "../core/model/manualEntry";
 import type { JobApplication, Settings } from "../core/model/types";
 
@@ -14,6 +15,8 @@ export interface LocalSchema {
 export interface PopupDraft {
   values: ManualEntryValues;
   updatedAt: string;
+  /** Present when the user was reviewing a detected job. */
+  review?: ClipReview;
 }
 
 /** chrome.storage.session holds popup drafts only. */

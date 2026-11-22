@@ -39,6 +39,27 @@ describe("canonicalizeUrl", () => {
     });
   });
 
+  it("keeps an Internshala detail slug and its trailing id", () => {
+    const url = new URL(
+      "https://WWW.Internshala.com/internship/detail/work-from-home-data-science-internship-at-codeatrix1794985193/?utm_source=x#apply",
+    );
+    expect(canonicalizeUrl(url)).toEqual({
+      canonicalUrl:
+        "https://internshala.com/internship/detail/work-from-home-data-science-internship-at-codeatrix1794985193",
+      sourceJobId: "1794985193",
+    });
+  });
+
+  it("keeps a Naukri listing path and its trailing id", () => {
+    const url = new URL(
+      "https://www.naukri.com/job-listings-data-analyst-capgemini-987654321?utm_campaign=x",
+    );
+    expect(canonicalizeUrl(url)).toEqual({
+      canonicalUrl: "https://naukri.com/job-listings-data-analyst-capgemini-987654321",
+      sourceJobId: "987654321",
+    });
+  });
+
   it("sorts the remaining query so parameter order does not matter", () => {
     const a = canonicalizeUrl(new URL("https://example.com/job?b=2&a=1"));
     const b = canonicalizeUrl(new URL("https://example.com/job?a=1&b=2"));
@@ -51,6 +72,7 @@ describe("sourceFromUrl", () => {
     ["https://internshala.com/internship/detail/x", "internshala"],
     ["https://www.linkedin.com/jobs/view/1", "linkedin"],
     ["https://in.indeed.com/viewjob?jk=1", "indeed"],
+    ["https://www.naukri.com/job-listings-a-1", "naukri"],
     ["https://www.glassdoor.co.in/job-listing/x", "glassdoor"],
     ["https://notlinkedin.com/jobs", "other"],
     ["https://careers.example.com/job/1", "other"],

@@ -856,3 +856,116 @@ Run `npm run check` and report:
 
 Stop after Phase 3. Do not start Phase 4.
 ````
+
+---
+
+## Prompt 7 — Phase 4: Job listing extraction
+
+- **Date:** 2026-11-22
+- **Phase:** 4 (implementation)
+- **Outcome:** Internshala, LinkedIn Jobs and Naukri adapters, an editable detection preview, and India eligibility from explicit page evidence. Indeed was blocked by a Cloudflare challenge and was not implemented. Wellfound and Y Combinator Jobs were reachable and were not implemented. Not marked Verified. Not manually tested as an installed extension. Not committed. `npm run check` is recorded in the README verification log.
+
+````text
+# Job Clipper — Phase 4: Job Listing Extraction
+
+Read `PROJECT_SPEC.md` and inspect the existing codebase. Implement Phase 4 only.
+
+### 1. Website integrations
+
+Implement separate, modular extraction adapters in this priority order:
+
+1. Internshala
+2. LinkedIn Jobs
+3. Naukri
+
+The first milestone is three genuinely tested integrations.
+
+If a website cannot be accessed reliably, document the reason and try the next source in the approved order: Wellfound, Indeed, then Y Combinator Jobs.
+
+Never claim an integration is verified without actual testing.
+
+Respect website terms, access restrictions, authentication requirements and anti-bot protections. Do not bypass login walls or scrape private data.
+
+### 2. Extraction
+
+Where accessible, extract:
+- Job title
+- Company
+- Job URL
+- Explicitly labelled application deadline
+- Location
+- Work arrangement
+- Employment type
+- Experience requirement
+- Salary/stipend
+- Description and skills, where available
+
+Use separate adapters and normalize results into the existing Job Clipper data model.
+
+Only use explicit deadline labels such as "Apply By". Never infer deadlines from description text, generic structured-data expiry dates or unrelated dates.
+
+### 3. India eligibility
+
+Apply the evidence-based eligibility rules in `PROJECT_SPEC.md`.
+
+Support:
+- India — On-site
+- India — Hybrid
+- Remote — India eligible
+- Remote — Worldwide
+- Remote — Restricted region
+- International — Relocation required
+- Unknown — Verify manually
+
+A generic Remote label without evidence of India eligibility must produce Unknown — Verify manually.
+
+Allow manual correction.
+
+### 4. Popup workflow
+
+When a supported job page is open:
+- Detect the website.
+- Run its adapter.
+- Display detected information in an editable preview.
+- Clearly identify missing fields.
+- Allow the user to edit everything before saving.
+- Reuse existing validation, storage and duplicate detection.
+
+When detection fails or the website is unsupported, retain the existing manual-entry workflow.
+
+Do not silently save partially detected information.
+
+### 5. Architecture and testing
+
+- Use Manifest V3-compatible content scripts and background messaging.
+- Request only necessary permissions.
+- Keep adapters isolated and maintainable.
+- Treat page content as untrusted input.
+- Avoid unsafe HTML injection.
+- Do not introduce a backend or external APIs.
+- Do not break existing popup, dashboard, CRUD or Kanban functionality.
+
+Add automated tests for adapter parsing using representative HTML fixtures, missing fields, invalid content, eligibility classification, messaging and fallback behaviour.
+
+Do not mark fixture tests as proof of real website compatibility.
+
+### 6. Documentation and completion
+
+Update `prompts.md`, README and CHANGELOG.
+
+Run `npm run check` and fix introduced errors.
+
+Report:
+- Adapters implemented.
+- Websites actually tested and verified.
+- Websites blocked or unsupported and why.
+- Fields detected by each adapter.
+- Tests and actual results.
+- Permissions changed.
+- Manual Chrome testing instructions.
+- Known limitations.
+
+Do not start Phase 5. Do not commit or push.
+
+Stop and wait for my review.
+````

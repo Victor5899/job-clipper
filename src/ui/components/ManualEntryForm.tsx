@@ -28,6 +28,8 @@ interface ManualEntryFormProps {
   values: ManualEntryValues;
   errors: ManualEntryErrors;
   disabled?: boolean;
+  /** Render the fields without a form element so a parent form can own them. */
+  embedded?: boolean;
   onChange: (field: keyof ManualEntryValues, value: string) => void;
   onSubmit: () => void;
 }
@@ -39,6 +41,7 @@ export function ManualEntryForm({
   values,
   errors,
   disabled,
+  embedded = false,
   onChange,
   onSubmit,
 }: ManualEntryFormProps) {
@@ -55,8 +58,8 @@ export function ManualEntryForm({
     onChange: (event: { target: { value: string } }) => onChange(field, event.target.value),
   });
 
-  return (
-    <form id={formId} noValidate onSubmit={handleSubmit} className="flex flex-col gap-4">
+  const fields = (
+    <>
       <TextField
         {...bind("title")}
         label="Job title"
@@ -93,6 +96,14 @@ export function ManualEntryForm({
           <p className="text-[12.5px] text-text-muted">No deadline provided</p>
         )}
       </fieldset>
+    </>
+  );
+
+  if (embedded) return <div className="flex flex-col gap-4">{fields}</div>;
+
+  return (
+    <form id={formId} noValidate onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {fields}
     </form>
   );
 }

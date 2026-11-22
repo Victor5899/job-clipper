@@ -6,7 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-Search, filters and sorts are not implemented. Phase 4 (page extraction) has not been started.
+Search, filters and sorts are not implemented. Deadline reminders and CSV export have not been started.
+
+## [0.4.0] — 2026-11-22 — Phase 4: job listing extraction
+
+Automated checks are in the README verification log. The extension was not installed in Chrome. Internshala, LinkedIn Jobs and Naukri were read from public pages; that is not a Verified status. Fixture tests are not proof of live compatibility.
+
+### Added
+
+- Separate adapters for Internshala, LinkedIn Jobs and Naukri. Each is enabled for this review build and marked not verified.
+- A read-only extractor injected with `chrome.scripting` after the popup opens. The popup shows an editable preview, names missing fields, and saves only when you confirm. A failed or unsupported page keeps manual entry.
+- India eligibility is classified separately from work arrangement. Outcomes: India on-site, India hybrid, Remote — India eligible, Remote — worldwide, Remote — restricted region, International — relocation required, or Unknown. A Remote label by itself stays Unknown. "Work from home" stays Unknown too, including on Internshala and Naukri, unless the page has an applicant-location requirement of India, a phrase such as "Remote (India)" or "Anywhere in India", or India in the eligible-country list. You can change the suggestion before saving.
+- A deadline only when the page has an explicit label such as "Apply By". `validThrough`, a start date, and a date inside a sentence are ignored.
+- Parser tests with trimmed HTML fixtures, eligibility cases, merge order, messaging, injection failure, and the popup preview. The fixtures are excerpts, not a live-site certificate.
+
+### Changed
+
+- Extension version is 0.4.0. The manifest requests `scripting` in addition to `storage` and `activeTab`.
+- Canonical links also keep the trailing id on an Internshala detail URL and a Naukri `/job-listings-…` URL.
+
+### Not in this version
+
+- Wellfound and Y Combinator Jobs. Both responded on 2026-11-22 and were left for later because the first three sites could be read.
+- Indeed. A request returned a Cloudflare challenge and was not bypassed.
+- Search, filters, deadline notifications and CSV export.
 
 ## [0.3.0] — 2026-11-22 — Phase 3: Kanban board
 

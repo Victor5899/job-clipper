@@ -11,6 +11,7 @@ import {
   type ManualEntryErrors,
   type ManualEntryValues,
 } from "../core/model/manualEntry";
+import { buildReviewedJob, type ReviewedJobMeta } from "../core/model/reviewedJob";
 import { applyInterviewDate, applyStageMove } from "../core/model/stage";
 import type { JobApplication } from "../core/model/types";
 import { isJobKey, jobKey, localStore } from "./chromeStorage";
@@ -103,6 +104,26 @@ export async function createJob(
   const job = createJobFromManualEntry(result.value, { id: crypto.randomUUID(), now });
   if (!options?.allowDuplicate) {
     const matches = await exactMatches(job, now);
+    if (matches.length > 0) throw new DuplicateJobError(matches);
+  }
+  await localStore.set({ [jobKey(job.id)]: job });
+  return job;
+}
+
+/**
+ * Saves a job the user reviewed after detection. Uses the same validation and
+ * duplicate rules as manual entry, and writes nothing until this is called.
+ */
+export async function createReviewedJob(
+  values: JobFormValues,
+  meta: Omit<ReviewedJobMeta, "id">,
+  options?: WriteOptions,
+): Promise<JobApplication> {
+  const result = validateJobForm(values);
+  if (!result.ok) throw new JobValidationError(result.errors);
+  const job = buildReviewedJob(result.value, { ...meta, id: crypto.randomUUID() });
+  if (!options?.allowDuplicate) {
+    const matches = await exactMatches(job, meta.now);
     if (matches.length > 0) throw new DuplicateJobError(matches);
   }
   await localStore.set({ [jobKey(job.id)]: job });

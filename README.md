@@ -4,8 +4,8 @@ An offline-first Chrome extension for clipping, tracking and getting reminded ab
 
 Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship — Week 2, Project 10.
 
-> **Current status: Phase 3 (Kanban board) implemented, awaiting review.**
-> Automated checks pass (type checking, ESLint, Prettier, 123 Vitest tests, production build). The extension has **not yet been manually tested in Chrome**; see the [Phase 1](#manual-verification-checklist-phase-1), [Phase 2](#manual-verification-checklist-phase-2) and [Phase 3](#manual-verification-checklist-phase-3) checklists. Search, filters, reminders, extraction and CSV export are still **Planned**. This file is updated at the end of each phase with real results only.
+> **Current status: Phase 4 (job listing extraction) implemented, awaiting review.**
+> Automated checks are recorded in the [verification log](#verification-log). The extension has **not been loaded in Chrome**. Internshala, LinkedIn Jobs and Naukri were read from public pages on 2026-11-22; that check is **not** a Verified install, and the fixture tests are not proof that a live site still matches. See the [Phase 4 checklist](#manual-verification-checklist-phase-4). Search, filters, reminders and CSV export are still not implemented. This file is updated at the end of each phase with real results only.
 
 ## Documents
 
@@ -15,7 +15,7 @@ Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship �
 
 ## What works now
 
-- **Popup** (toolbar icon or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd>): a manual entry form for job title, company, job URL and an optional deadline (date, plus an optional time). The URL and page title are prefilled from the current tab. On browser pages that aren't regular websites (for example `chrome://` pages) nothing is prefilled, and the form still works.
+- **Popup** (toolbar icon or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd>): on an Internshala, LinkedIn or Naukri job page, the extension reads the listing in the tab you already have open and shows an editable preview. Missing fields are named. Nothing is saved until you press Save. You can change every detected value, including India eligibility. If the page is not a supported listing, or the read fails, the same manual form is there: URL and page title prefilled, company empty. On browser pages that aren't regular websites (for example `chrome://` pages) nothing is prefilled, and the form still works.
 - **Validation:** title, company and URL are required. Only `http://` and `https://` links are accepted. Errors appear next to each field, and focus moves to the first problem.
 - **Drafts:** whatever you type in the popup is kept in `chrome.storage.session` for that tab. If the popup closes before you save, reopening it restores the entry. The draft is cleared on save, and session storage is wiped when Chrome quits.
 - **No deadline is fine:** a job without a deadline is saved with `deadline: null` and shown as "No deadline provided". Deadlines are never guessed.
@@ -26,19 +26,16 @@ Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship �
   - The dashboard updates live when a job is saved, edited or deleted, including from the popup.
   - Calendar and Settings are honest placeholders that say which phase brings their features.
 - **Applications:** a Kanban board with four stages — Saved, Applied, Interview and Result. A card shows the job title, company, deadline (or "No deadline provided"), India eligibility and source. Drag a card onto another stage, or change the stage with the card's Move to list. With the card focused, <kbd>[</kbd> and <kbd>]</kbd> move it one stage backward or forward. The first move into Applied records the applied date. A move into Interview can record an interview date, and Skip leaves that date empty. A move into Result asks for an outcome (Selected, Rejected, Withdrawn or No response); Leave unset keeps the card in Result and shows "Outcome not set". On a narrow window, a stage switcher shows one column at a time; dragging reveals every column so a card can still be dropped. Stage changes are written through the job repository into `chrome.storage.local` and stay there across a dashboard reload. Open a card for the existing details, editor and delete confirmation.
-- **Editing:** a right-hand sheet edits every stored field: title, company, URL, source, description, location, work arrangement, India eligibility (chosen by you, never classified automatically), employment, pay, skills, status, result, applied and interview dates, deadline, notes and contact. Clearing the deadline stores `null` and shows "No deadline provided". Status changes are appended to the job's history.
+- **Editing:** a right-hand sheet edits every stored field: title, company, URL, source, description, location, work arrangement, India eligibility, employment, pay, skills, status, result, applied and interview dates, deadline, notes and contact. The popup can suggest India eligibility from the page. The sheet keeps whatever you save, and changing the value there marks it as your correction. Clearing the deadline stores `null` and shows "No deadline provided". Status changes are appended to the job's history.
 - **Delete:** Delete asks for confirmation and names the job. Cancel leaves it in place.
 - **Duplicates:** links are compared after normalisation (host case, a leading `www.`, tracking parameters, and the LinkedIn and Indeed shapes in the spec). The same link, or the same site job id, shows "Already saved on …". A very similar company and title saved within 60 days is called out too. You can open the existing application, edit it, or save a separate copy. Nothing is overwritten silently. An edit made from an older copy is refused if the stored job changed in the meantime.
 - **Storage:** each job is stored under its own `job:<uuid>` key in `chrome.storage.local`, with IDs from `crypto.randomUUID()`. Default settings and a schema version are written on install. Existing data is kept on update. Schema version stays 1; the migration runner is a no-op until a later version needs a step.
 
-## What it will do
+## Still ahead
 
-- Save the job you are viewing in one click: role, company, link and deadline.
-- Detect job details automatically on supported sites, and always fall back to manual entry on every other website.
-- Let you edit every saved field.
 - Send real Chrome notifications before deadlines, recovering reminders after Chrome restarts and extension updates.
 - Search, filter and sort applications, and export all or filtered applications to CSV.
-- Classify India eligibility from evidence on the page (India on-site or hybrid, Remote — India eligible, Remote — Worldwide, Remote — Restricted region, International — Relocation required, or Unknown). A "Remote" label alone never counts as India-eligible.
+- More job sites after the first three. Wellfound and Y Combinator Jobs were reachable on 2026-11-22 and are not built yet. Indeed answered with a Cloudflare challenge and was left alone.
 
 It runs entirely in your browser: no backend, no login, no paid API, no cloud service.
 
@@ -48,7 +45,7 @@ It runs entirely in your browser: no backend, no login, no paid API, no cloud se
 
 | Feature | Status | Planned phase |
 | --- | --- | --- |
-| One-click save of role, company, link and deadline | Manual entry implemented (Phase 1), not yet manually tested in Chrome; auto-detect Planned | 1 (manual), 4 (auto-detect) |
+| One-click save of role, company, link and deadline | Manual entry and a detection preview are implemented. The preview was checked against public page HTML, not in an installed extension | 1 (manual), 4 (detect) |
 | Every saved field editable | Implemented (Phase 2), not yet manually tested in Chrome | 2 |
 | Kanban board: Saved, Applied, Interview, Result | Implemented (Phase 3), not yet manually tested in Chrome | 3 |
 | Reminder before an application deadline | Planned | 5 |
@@ -58,29 +55,29 @@ It runs entirely in your browser: no backend, no login, no paid API, no cloud se
 
 | Criterion | Status |
 | --- | --- |
-| Works on three different job websites | Not yet tested |
+| Works on three different job websites | Adapters for Internshala, LinkedIn Jobs and Naukri read public pages on 2026-11-22. Not run inside Chrome as an installed extension, so this is not Verified |
 | Manual entry when details cannot be detected | Implemented and covered by automated tests; not yet manually tested in Chrome |
 | A deadline reminder actually appears | Not yet tested |
 | Exported CSV opens correctly in a spreadsheet | Not yet tested |
 
 ### Additional planned features
 
-Automatic India eligibility classification, calendar view, JSON backup and import. Duplicate warnings are implemented. See [`PROJECT_SPEC.md`](PROJECT_SPEC.md) for details. The Northline-inspired dark dashboard and popup are implemented.
+India eligibility is suggested in the popup from evidence on the page, and you can correct it before saving. Calendar view and JSON backup and import are still planned. Duplicate warnings are implemented. See [`PROJECT_SPEC.md`](PROJECT_SPEC.md) for details. The Northline-inspired dark dashboard and popup are implemented.
 
 ## Job site support
 
 Listed in integration priority order. A site is marked **Verified** only after its adapter has been tested on at least three real, accessible listings, with the date and Chrome version recorded in the verification log below. Manual entry works on every website regardless of this table.
 
-The first milestone (Phase 4) is three genuinely tested sites: Internshala, LinkedIn Jobs and Naukri. If one of them can't be accessed reliably, the next site in order takes its place.
+The first three sites were readable on 2026-11-22, so Wellfound and Y Combinator Jobs were not built. None of the rows below is Verified: that status needs the installed extension, a Chrome version, and at least three listings checked in that Chrome.
 
 | # | Site | Tier | Status |
 | --- | --- | --- | --- |
-| 1 | Internshala | 1 | Planned |
-| 2 | LinkedIn Jobs | 1 | Planned |
-| 3 | Naukri | 1 | Planned |
-| 4 | Wellfound | 1 | Planned |
-| 5 | Indeed | 1 | Planned |
-| 6 | Y Combinator Jobs | 1 | Planned |
+| 1 | Internshala | 1 | In development. Public detail pages returned HTTP 200 and the adapter read title, company, Apply By, location, stipend or CTC, skills and description. |
+| 2 | LinkedIn Jobs | 1 | In development. Guest job pages returned HTTP 200. The adapter read title, company, location and employment type. No Apply By label on the pages checked. |
+| 3 | Naukri | 1 | In development. A direct download is an empty client-rendered shell. In a browser, after the page rendered, the adapter read title, company, experience, location, salary when it was stated, skills and description. |
+| 4 | Wellfound | 1 | Planned. A public listing returned HTTP 200 on 2026-11-22. Not implemented. |
+| 5 | Indeed | 1 | Manual entry only. On 2026-11-22 a request returned HTTP 403 with a Cloudflare challenge. It was not bypassed. |
+| 6 | Y Combinator Jobs | 1 | Planned. A public listing returned HTTP 200 on 2026-11-22. Not implemented. |
 | 7 | Himalayas | 2 | Planned |
 | 8 | We Work Remotely | 2 | Planned |
 | 9 | Unstop | 2 | Planned |
@@ -100,17 +97,17 @@ Possible statuses: Planned, In development, Verified, Manual entry only (with a 
 
 ## Permissions
 
-The extension requests only the permissions its shipped features use. Phase 1 requests two:
+The extension requests only the permissions its shipped features use. This build requests three:
 
 | Permission | Status | Why |
 | --- | --- | --- |
 | `storage` | Requested (Phase 1) | Save jobs and settings locally (`chrome.storage.local`) and keep popup drafts (`chrome.storage.session`). |
 | `activeTab` | Requested (Phase 1) | Read the current tab's URL and title to prefill the popup, only when you click the extension icon or press its shortcut. |
-| `scripting` | Planned (Phase 4) | Run the read-only job detector in that tab after you click. |
+| `scripting` | Requested (Phase 4) | After you open the popup, inject the read-only extractor into that tab. |
 | `alarms` | Planned (Phase 5) | Schedule deadline reminders that survive the background worker being suspended. |
 | `notifications` | Planned (Phase 5) | Show deadline reminder notifications. |
 
-The Phase 0 plan lists all five. The last three are added in the phases that use them, so Phase 1 doesn't ask for access it never exercises. Adding them later makes Chrome show a permission prompt when the extension updates.
+The Phase 0 plan lists all five. `alarms` and `notifications` stay out until Phase 5 uses them. Updating from 0.3.0 to 0.4.0 asks Chrome to grant `scripting`. Reload the unpacked extension after building.
 
 Deliberately **not** requested: access to all websites (`host_permissions`), `tabs`, `downloads`, `cookies`, `unlimitedStorage`. The extension makes no network requests, and its content security policy (`script-src 'self'`) allows only its own bundled scripts.
 
@@ -126,11 +123,14 @@ Deliberately **not** requested: access to all websites (`host_permissions`), `ta
 ### Current build
 
 - There is no search, filter or sort control. Cards in a column are ordered by the approaching deadline. Jobs with no deadline stay at the bottom of their column. Search was listed with Phase 3 in the specification; it is not in this build.
-- Nothing is read from the page except the tab's URL and title. Company, description and deadline are typed. India eligibility is a manual choice, not a classifier.
+- Detection runs only for Internshala, LinkedIn and Naukri, and only after you open the popup. A deadline is stored from the page only when a label such as "Apply By" sits next to the date. Listing expiry (`validThrough`), a start date, and a date written in a sentence are ignored.
+- Work arrangement and India applicant eligibility are separate. A generic "Remote" label, including Remote next to an Indian office, is Unknown — verify manually. "Work from home" only sets the arrangement to remote. On its own it never establishes Remote — India eligible, including on Internshala, Naukri, Unstop, and Cutshort. That outcome requires an applicant-location requirement of India, a phrase such as "Remote (India)" or "Anywhere in India", or India in the eligible-country list. An Indian city with no on-site, hybrid, or remote word stays Unknown. LinkedIn's guest location line often has the city and not the arrangement, even when the description says on-site. That description sentence is not used.
+- Naukri's first HTML response is a loading shell. The extractor waits briefly for the rendered listing. If you open the popup before that paint, you get the manual form.
+- "Clip another" returns to the tab's URL and title. It does not read the page again until you close and reopen the popup.
 - Reminders are stored with the job but are not scheduled or shown. No calendar, CSV export or backup yet.
 - "Explore opportunities" scrolls to the Overview panels.
 - A similar title and company is only flagged for jobs saved in the last 60 days. Older ones are left alone unless the link matches.
-- Not yet manually tested in Chrome (see the checklists below).
+- Not yet manually tested as an installed extension (see the checklists below). The page reads in the verification log used saved public HTML and a browser tab, not `chrome.scripting`.
 
 ### Planned behaviour
 
@@ -188,30 +188,35 @@ public/            manifest.json and toolbar icons (copied into dist/)
 popup.html         popup entry page
 dashboard.html     dashboard entry page
 src/
-  background/      service worker: install/update initialisation
+  adapters/        one file per job site, plus the merge of adapter, JSON-LD, meta and headings
+  background/      service worker: install/update, and injection of the extractor
+  content/         read-only extractor (built as dist/extractor.js, an IIFE)
   core/            pure logic, no Chrome APIs: data model, validation, URL and text
-                   normalisation, duplicate detection, deadline formatting, overview statistics
+                   normalisation, India eligibility, duplicate detection, deadline formatting
+  messaging/       the popup-to-background message, checked and rebuilt before use
   storage/         typed chrome.storage wrapper, job repository (create, read, update,
                    delete), settings, migrations, popup drafts
-  popup/           popup app: tab context, clip form, duplicate warning, saved state
+  popup/           popup app: detection preview, manual entry, duplicate warning, saved state
   dashboard/       dashboard app: hash router, layout, Overview, Kanban board,
                    job sheet (details, edit, delete)
   ui/              shared components, hooks, design tokens and global styles
-tests/             test setup, in-memory chrome.* fake, test data factory
-scripts/           icon generator
+tests/fixtures/    trimmed HTML used by the parser tests, not a live-site proof
+scripts/           icon generator and the two-watch dev build
 ```
 
 ## Automated tests
 
-`npm test` runs 123 tests in 16 files against an in-memory fake of the `chrome.*` APIs (`tests/fakes/chrome.ts`). They cover:
+`npm test` runs 220 tests in 24 files against an in-memory fake of the `chrome.*` APIs (`tests/fakes/chrome.ts`). They cover:
 
 - **Repository:** creating, updating and deleting jobs, refusing a duplicate link unless the save is intentional, refusing an edit that would overwrite a different job, refusing a stale edit, listing newest first, and live subscriptions. Moving a job to a stage, including rejecting a stage or outcome that is not on the board, and keeping that change for a later read.
 - **Board:** four columns, card title, company, deadline and India eligibility, Move to, the bracket-key move, the result outcome, the optional interview date, a reload that still shows the new stage, and the Overview counts after a move. Opening a card still edits it.
 - **Duplicates and URLs:** canonical links (www, tracking parameters, LinkedIn job id, Indeed job id) and probable company-and-title matches.
 - **Validation:** required fields, non-http(s) URLs, optional deadlines, impossible dates, and the full edit form (including a required result).
-- **Popup:** manual entry, prefill, restricted pages, saving without a deadline, drafts, and the duplicate warning.
+- **Popup:** manual entry, prefill, restricted pages, saving without a deadline, drafts, the duplicate warning, a detection preview that saves nothing until you confirm, an edited deadline stored as yours, and the manual form when the read fails.
+- **Extraction:** trimmed fixtures for Internshala, LinkedIn and Naukri, including a missing deadline, a JSON-LD expiry, a date written in a sentence, broken markup, and an unsupported site. These fixtures are not a live compatibility test.
+- **India eligibility:** on-site and hybrid cities in India, offices outside India, a bare Remote label, Remote with India named, worldwide, a restricted region, conflicting sentences, "Work from home" alone on an India-focused site (Unknown), "Work from home" plus "Anywhere in India", and a correction you make by hand.
 - **Dashboard:** statistics from real data, empty states, live updates, the add dialog, opening a job, editing it, delete confirmation, and hash routing.
-- **Background:** install initialisation and preservation of existing data on update.
+- **Background:** install initialisation, preservation of existing data on update, and rejection of an extraction message that did not come from this extension.
 
 ## Manual verification checklist (Phase 1)
 
@@ -258,6 +263,20 @@ These checks need a real Chrome profile and **have not been performed yet**. Poi
 | 5 | After each move, Overview's Interviews count, Applied this week, Due in 7 days and the pipeline counts match the columns. A card in Result no longer counts as due. | Not yet performed |
 | 6 | Narrow the window to 360 px. One stage shows at a time, the stage switcher changes column, and nothing overflows. With reduced motion on, the card does not scale while dragging. | Not yet performed |
 
+## Manual verification checklist (Phase 4)
+
+These checks need the extension installed in Chrome. **They have not been performed.** The HTML reads in the verification log are not a substitute.
+
+| # | Check | Result |
+| --- | --- | --- |
+| 1 | `npm run build`, then reload the unpacked `dist/`. Accept the new `scripting` permission. The extension card has no errors, the service worker is active, and `dist/extractor.js` is present. | Not yet performed |
+| 2 | Open an Internshala internship detail page that shows Apply By. The popup badge says Internshala, the fields are editable, the missing ones are named, and the deadline line quotes the label. Nothing appears on the dashboard until you press Save. | Not yet performed |
+| 3 | Change the company and the India eligibility, leave the date, and save. The dashboard shows your company and your eligibility. The stored deadline still says it came from the page label. | Not yet performed |
+| 4 | Open a public LinkedIn job (`/jobs/view/…`) with no Apply By. The deadline stays empty. A date in the description is not filled in. | Not yet performed |
+| 5 | Open a Naukri `/job-listings-…` page and wait until the title is visible, then open the popup. Title, company and experience are filled. "Not disclosed" stays missing. A Remote label with only an Indian city stays "Unknown — verify manually". | Not yet performed |
+| 6 | On an Internshala listing index, on a site that is not one of the three, and on `chrome://extensions`, the popup stays on manual entry and a typed job still saves. | Not yet performed |
+| 7 | On the dashboard, drag or move a card between Saved, Applied, Interview and Result, edit it, and delete one with the confirmation. Overview counts follow the board. | Not yet performed |
+
 ## Verification log
 
 Real test results only, added as each phase is completed. Each entry records the date, Chrome version, macOS version, what was tested and the outcome, including failures.
@@ -284,7 +303,40 @@ Real test results only, added as each phase is completed. Each entry records the
 - `npm run check`: passed. That runs typecheck (0 errors), ESLint (0 errors, 0 warnings), Prettier, Vitest (16 files, 123 tests, all passed) and the production build.
 - No manual test in an installed extension was performed. The Phase 1, Phase 2 and Phase 3 checklists above are still open. Pointer drag, touch drag and VoiceOver were not run.
 
-_No manual tests in Chrome have been performed yet._
+### 2026-11-22 — Phase 4, public pages (not an installed extension)
+
+- Environment: macOS 26 (Darwin 25.6), Node 25.9.0, npm 11.12.1.
+- `npm run check`: passed. Typecheck 0 errors, ESLint 0 errors and 0 warnings, Prettier, Vitest (24 files, 220 tests, all passed), and the production build. `dist/extractor.js` is the read-only extractor. `dist/manifest.json` requests `storage`, `activeTab` and `scripting`.
+- No Chrome version is recorded, because the extension was not installed.
+
+Internshala detail pages were downloaded the same day (HTTP 200) and passed through the adapter:
+
+- Codeatrix, Data Science, Work from home, internship, stipend ₹ 20,000–27,000 /month, skills including Python and SQL, description present. Label "APPLY BY 18 Dec' 26" became 2026-12-18. The page does not say that applicants in India can apply, so the suggestion is Unknown — verify manually.
+- Career Solutions, Chennai, on-site, "APPLY BY 20 Dec' 26".
+- Krriwin, Surat, on-site, "APPLY BY 13 Dec' 26".
+- SoftSensor.ai, Gurgaon and Jaipur, full-time, no experience required, CTC ₹ 5,00,000–6,00,000 /year (the page prints that amount twice, for desktop and mobile; one copy is kept), "Apply By 17 Dec' 26".
+- Simpli Intern, Work from home, part-time, "Apply By 9 Dec' 26".
+- An Internshala internship index was left on manual entry.
+
+Those pages also contain a JobPosting `validThrough` and, in at least one description, a "Deadline:" line. The deadline stored from the adapter was the Apply By value, not those.
+
+LinkedIn guest job pages (HTTP 200, no JobPosting block on the three detail pages):
+
+- Healthcare Data Analyst-Intern at Milliman India, Gurgaon. Employment type internship. No Apply By. The location line does not say on-site, hybrid, or remote, so eligibility stays Unknown.
+- Intern - Data Analyst at Amber, Pune. The description says on-site. The location line does not, and the description was not used for the arrangement.
+- Intern, Analytics at Synchrony, Delhi. No Apply By.
+- The LinkedIn jobs search page was left on manual entry.
+
+Naukri's downloaded HTML is a client-rendered shell with no listing. It is not a captcha page. In the Cursor browser, after the listing painted, the adapter read:
+
+- Capgemini, Data Analyst, 4–9 years, Hybrid, Chennai, Delhi / NCR and Mumbai, salary not disclosed, skills including SQL and Power BI, no Apply By. JSON-LD `validThrough` was present and was not used. Suggested eligibility: India — hybrid.
+- Kolte-Patil Developers, Mumbai, 2–5 years, 10–15 Lacs P.A., no arrangement word and no Apply By. Suggested eligibility: Unknown.
+- Kairos Technologies, Bengaluru, 2–4 years, 4–6 Lacs P.A., no arrangement word and no Apply By. Suggested eligibility: Unknown.
+- U.S. Bancorp India, Chennai, 8–13 years, salary "Not Disclosed", was inspected in the rendered page. There was no Hybrid, Remote, or Work from home label.
+
+Indeed returned HTTP 403 with `cf-mitigated: challenge`. Nothing was done to get past it, and there is no Indeed adapter. Wellfound and Y Combinator Jobs returned HTTP 200 with public job data and were not implemented.
+
+_The extension has still not been tested as an installed extension in Chrome. The Phase 1, Phase 2, Phase 3 and Phase 4 checklists are open._
 
 ## Design reference
 

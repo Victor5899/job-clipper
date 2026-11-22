@@ -676,21 +676,25 @@ interface SiteAdapter {
 
 ## 13. India eligibility classification
 
-The classifier is a pure function: `classify(input, siteContext) -> { value, confidence, reasons[], evidence[] }`. Rules are evaluated in this order:
+The classifier is a pure function: `classify(input, siteContext) -> { value, confidence, reasons[], evidence[] }`.
+
+Work arrangement and applicant eligibility are separate fields. "On-site", "Hybrid", "Remote", and "Work from home" describe where the work happens. They do not say which applicants may apply. "Work from home" is recorded as a remote arrangement. That label never, by itself, establishes that applicants in India are eligible. The platform does not change this, including India-focused sites such as Internshala, Naukri, Unstop, and Cutshort.
+
+Rules are evaluated in this order:
 
 1. **User override** (`overridden: true`) is always kept; re-classification never touches it.
 2. **On-site or hybrid** with a location in India (country code IN, or an Indian city from a dictionary of about 60 cities with aliases such as Bengaluru/Bangalore, Gurugram/Gurgaon, NCR) gives **India — On-site** or **India — Hybrid** (high confidence).
-3. **Remote** with explicit India eligibility gives **Remote — India eligible**. Explicit means JSON-LD `applicantLocationRequirements` includes India, or phrases such as "remote (India)", "anywhere in India", or "India" in the eligible country list. India-only sites (Internshala, Naukri, Unstop, Cutshort) with "Work from home" give medium confidence, with that reason stated.
-4. **Remote** with worldwide phrases ("anywhere in the world", "worldwide", "work from anywhere", WWR "Anywhere in the World", Himalayas "Worldwide") **and** no restriction phrases gives **Remote — Worldwide**.
+3. **Remote** with explicit India applicant eligibility gives **Remote — India eligible**. The only evidence that counts is a JSON-LD `applicantLocationRequirements` entry that includes India, a phrase such as "Remote (India)" or "Anywhere in India", or India in the eligible-country list. "Work from home", a bare "Remote" label, and the fact that the site lists roles for applicants in India are not this evidence.
+4. **Remote** with worldwide phrases ("anywhere in the world", "worldwide", "work from anywhere", WWR "Anywhere in the World", Himalayas "Worldwide") **and** no restriction phrases gives **Remote — Worldwide**. "Work from anywhere" is a worldwide applicant statement. It is not the same label as "Work from home".
 5. **Remote** with restriction signals ("US only", "must reside in", "EU/EEA/UK only", "Americas", "authorized to work in the United States", a country list without India) gives **Remote — Restricted region**. Time-zone overlap requirements are recorded as a note, not as a restriction.
 6. **On-site or hybrid outside India** gives **International — Relocation required**, with `visaSponsorship` set from phrases ("visa sponsorship available", "will sponsor", "no sponsorship", "US citizens only").
-7. **Remote with no further signal, conflicting signals, or no location** gives **Unknown — Verify manually**. A job is never classified India-eligible just because it says "Remote".
+7. **Remote or work-from-home with no explicit India applicant evidence, conflicting signals, or no location** gives **Unknown — Verify manually**. A job is never classified India-eligible just because it says "Remote" or "Work from home".
 
 **Batch matching:** the same module extracts graduation years ("2026/2027 batch", "graduating in 2027") and student status ("currently pursuing", "final-year"). It compares them with the profile setting (2027) to show "Matches 2027 batch", "Excludes 2027", or nothing.
 
 **UI:** the badge shows a tooltip with reasons and evidence snippets (120 characters or fewer). Unknown is styled neutral with a "Verify" action, and the badge is editable everywhere.
 
-**Tests:** table-driven, with 40+ cases including tricky ones such as "Remote, APAC" (gives Unknown unless India is listed), "Remote US or India", and "Bangalore, Karnataka" without a country.
+**Tests:** table-driven, with 40+ cases including tricky ones such as "Remote, APAC" (gives Unknown unless India is listed), "Remote US or India", "Bangalore, Karnataka" without a country, and "Work from home" on an India-focused site (Unknown unless one of the explicit India applicant statements above is also present).
 
 ## 14. Kanban and drag-and-drop
 
@@ -938,7 +942,7 @@ flowchart LR
   - exactly the milestone: **three sites `Verified`** per the definition in section 12, with any substitution and its reason recorded;
   - on every other site, and on verified sites when detection fails, the manual form always appears, prefilled with whatever was safely found;
   - no deadline is ever populated except from an explicit page label;
-  - eligibility falls back to Unknown when evidence is insufficient, and "Remote" alone never yields India-eligible.
+  - eligibility falls back to Unknown when evidence is insufficient. "Remote" alone never yields India-eligible. "Work from home" alone never does either, including on India-focused platforms. Only an India applicant-location requirement, a phrase such as "Remote (India)" or "Anywhere in India", or India in the eligible-country list yields Remote — India eligible.
 - **Manual tests:**
   - 3+ live listings per milestone site (logged in where the user normally is), including at least one Internshala listing with "Apply By" and one LinkedIn listing that shows "No deadline provided";
   - a listing removed mid-session; a split-pane job change on LinkedIn;

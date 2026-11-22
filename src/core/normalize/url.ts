@@ -86,6 +86,25 @@ export function canonicalizeUrl(url: URL): { canonicalUrl: string; sourceJobId?:
     }
   }
 
+  if (host === "internshala.com" || host.endsWith(".internshala.com")) {
+    host = "internshala.com";
+    const detail = path.match(/^\/(?:internship|job)\/detail\/([^/]+)$/);
+    const id = detail?.[1]?.match(/(\d{6,})$/)?.[1];
+    if (id) {
+      sourceJobId = id;
+      for (const key of [...params.keys()]) params.delete(key);
+    }
+  }
+
+  if (host === "naukri.com" || host.endsWith(".naukri.com")) {
+    host = "naukri.com";
+    const id = path.match(/\/job-listings-.+-(\d{6,})$/)?.[1];
+    if (id) {
+      sourceJobId = id;
+      for (const key of [...params.keys()]) params.delete(key);
+    }
+  }
+
   const query = [...params.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
