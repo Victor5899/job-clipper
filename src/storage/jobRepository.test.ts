@@ -4,7 +4,17 @@ import { chromeFake } from "../../tests/fakes/chrome";
 import { makeJob } from "../../tests/factories";
 import type { JobApplication } from "../core/model/types";
 import { jobKey } from "./chromeStorage";
-import { createJob, listJobs, ManualEntryValidationError, subscribeJobs } from "./jobRepository";
+import { jobToForm } from "../core/model/jobForm";
+import {
+  createJob,
+  deleteJob,
+  DuplicateJobError,
+  JobConflictError,
+  listJobs,
+  ManualEntryValidationError,
+  subscribeJobs,
+  updateJob,
+} from "./jobRepository";
 
 const entry = {
   title: "Python Developer Intern",
@@ -48,6 +58,79 @@ describe("createJob", () => {
       createJob({ ...entry, title: "", url: "javascript:alert(1)" }),
     ).rejects.toBeInstanceOf(ManualEntryValidationError);
     expect(chromeFake().storage.local.snapshot()).toEqual({});
+  });
+});
+
+describe("updateJob and deleteJob", () => {
+  it("persists an edit and removes the job after deletion", async () => {
+    const created = await createJob(entry, new Date("2026-11-22T06:00:00.000Z"));
+    const updated = await updateJob(
+      created.id,
+      { ...jobToForm(created), title: "Edited title", notes: "Bring a portfolio" },
+      new Date("2026-11-22T07:00:00.000Z"),
+      { expectedUpdatedAt: created.updatedAt },
+    );
+
+    expect(updated.title).toBe("Edited title");
+    expect(updated.notes).toBe("Bring a portfolio");
+    expect(updated.savedAt).toBe(created.savedAt);
+    expect((await listJobs())[0]).toMatchObject({ title: "Edited title", deadline: null });
+
+    await deleteJob(created.id);
+    expect(await listJobs()).toEqual([]);
+  });
+
+  it("refuses a second application with the same link unless saving is intentional", async () => {
+    await createJob(entry);
+    await expect(createJob({ ...entry, title: "Same link, new title" })).rejects.toBeInstanceOf(
+      DuplicateJobError,
+    );
+    expect(await listJobs()).toHaveLength(1);
+
+    const second = await createJob({ ...entry, title: "Same link, new title" }, new Date(), {
+      allowDuplicate: true,
+    });
+    const ids = (await listJobs()).map((job) => job.id);
+    expect(ids).toHaveLength(2);
+    expect(ids).toContain(second.id);
+    expect(new Set(ids).size).toBe(2);
+  });
+
+  it("does not overwrite a different application when an edit reuses its link", async () => {
+    const first = await createJob(entry);
+    const second = await createJob({
+      ...entry,
+      url: "https://example.com/jobs/43",
+      title: "Other role",
+    });
+
+    await expect(
+      updateJob(second.id, { ...jobToForm(second), url: entry.url }),
+    ).rejects.toBeInstanceOf(DuplicateJobError);
+
+    const stored = await listJobs();
+    expect(stored.find((job) => job.id === first.id)?.title).toBe(entry.title);
+    expect(stored.find((job) => job.id === second.id)?.url).toBe("https://example.com/jobs/43");
+  });
+
+  it("refuses a stale edit and leaves the newer copy in storage", async () => {
+    const created = await createJob(entry, new Date("2026-11-22T06:00:00.000Z"));
+    const newer = await updateJob(
+      created.id,
+      { ...jobToForm(created), notes: "Newer note" },
+      new Date("2026-11-22T08:00:00.000Z"),
+    );
+
+    await expect(
+      updateJob(created.id, { ...jobToForm(created), notes: "Stale note" }, new Date(), {
+        expectedUpdatedAt: created.updatedAt,
+      }),
+    ).rejects.toBeInstanceOf(JobConflictError);
+
+    expect((await listJobs())[0]).toMatchObject({
+      notes: "Newer note",
+      updatedAt: newer.updatedAt,
+    });
   });
 });
 

@@ -6,7 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-Phase 2 (editing saved jobs) is pending approval of Phase 1.
+Phase 3 (Kanban, drag-and-drop, search and filters) is pending approval of Phase 2.
+
+## [0.2.0] — 2026-11-22 — Phase 2: complete job management
+
+Automated checks pass (101 tests). Not yet manually tested in Chrome.
+
+### Added
+
+- Job sheet on the dashboard: view details, edit every stored field, and delete after a confirmation that names the job.
+- Applications list. The Kanban board remains Phase 3. Opening a row, or a Recently saved row, opens the sheet. `#/applications?job=<id>` reopens it, and `&edit=1` opens the editor.
+- Full edit form: basics, location, manual India eligibility, employment, tracking (status, result, dates, deadline, notes) and contact. Status changes are appended to `statusHistory`. A cleared deadline is stored as `null`.
+- Duplicate detection. URLs are canonicalised (lowercase host, leading `www.` removed, fragment and tracking parameters dropped, LinkedIn `/jobs/view/<id>` and Indeed `viewjob?jk=` shapes). The same canonical URL or the same source job id is an exact match. A company and title with at least 0.9 token overlap, saved within 60 days, is a probable match.
+- Duplicate warning in the popup and in Add application, with Open existing, Update existing, Save anyway and Back. Save anyway writes a new job. Existing jobs are not overwritten.
+- `updateJob` refuses the write when `expectedUpdatedAt` is older than the stored job, and when the new URL belongs to a different saved job.
+- Migration runner. Schema version stays 1, so it does not rewrite existing data.
+- Tests for canonical URLs, the duplicate matrix, form validation, edits, deletion, conflicts and the dashboard update path.
+
+### Changed
+
+- Extension version is 0.2.0.
+- `createJob` stores the canonical URL and, when the link has one, a source job id. An exact duplicate throws `DuplicateJobError` unless `allowDuplicate` is set.
+- Overview statistics, Recently saved and the applications list refresh after create, update and delete through the existing storage subscription.
 
 ## [0.1.0] — 2026-11-22 — Phase 1: foundation, design system, dashboard shell and manual entry
 

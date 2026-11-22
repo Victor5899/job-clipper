@@ -103,7 +103,7 @@ export function createChromeFake() {
     runtime: {
       id: "test-extension-id",
       getURL: (path: string) => `chrome-extension://test-extension-id/${path.replace(/^\//, "")}`,
-      getManifest: () => ({ manifest_version: 3, name: "Job Clipper", version: "0.1.0" }),
+      getManifest: () => ({ manifest_version: 3, name: "Job Clipper", version: "0.2.0" }),
       onInstalled: new FakeEvent<(details: chrome.runtime.InstalledDetails) => void>(),
     },
     tabs: {

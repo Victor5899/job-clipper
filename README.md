@@ -4,8 +4,8 @@ An offline-first Chrome extension for clipping, tracking and getting reminded ab
 
 Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship — Week 2, Project 10.
 
-> **Current status: Phase 1 (foundation, design system, dashboard shell and manual entry) implemented, awaiting review.**
-> Automated checks pass (type checking, ESLint, Prettier, 77 Vitest tests, production build). The extension has **not yet been manually tested in Chrome**; see the [manual verification checklist](#manual-verification-checklist-phase-1). Features from later phases are still **Planned**. This file is updated at the end of each phase with real results only.
+> **Current status: Phase 2 (complete job management) implemented, awaiting review.**
+> Automated checks pass (type checking, ESLint, Prettier, 101 Vitest tests, production build). The extension has **not yet been manually tested in Chrome**; see the [Phase 1](#manual-verification-checklist-phase-1) and [Phase 2](#manual-verification-checklist-phase-2) checklists. Features from later phases are still **Planned**. This file is updated at the end of each phase with real results only.
 
 ## Documents
 
@@ -23,9 +23,13 @@ Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship �
   - **Overview** has the "Your next opportunity starts here." hero, four statistics (Tracked, Applied this week, Interviews, Due in 7 days), and three panels: Recently saved, Application overview (weekly saves chart and pipeline), and Upcoming deadlines (14-day timeline).
   - Every number is calculated from your saved jobs. With nothing saved, the panels show empty states, never sample data.
   - **Add application** opens the same manual form in a dialog, with no job page needed.
-  - The dashboard updates live when the popup saves a job.
-  - Applications, Calendar and Settings are honest placeholders that say which phase brings their features.
-- **Storage:** each job is stored under its own `job:<uuid>` key in `chrome.storage.local`, with IDs from `crypto.randomUUID()`. Default settings and a schema version are written on install. Existing data is kept on update.
+  - The dashboard updates live when a job is saved, edited or deleted, including from the popup.
+  - Calendar and Settings are honest placeholders that say which phase brings their features.
+- **Applications:** a list of every saved job (the Kanban board is still Phase 3). Open one to see its details.
+- **Editing:** a right-hand sheet edits every stored field: title, company, URL, source, description, location, work arrangement, India eligibility (chosen by you, never classified automatically), employment, pay, skills, status, result, applied and interview dates, deadline, notes and contact. Clearing the deadline stores `null` and shows "No deadline provided". Status changes are appended to the job's history.
+- **Delete:** Delete asks for confirmation and names the job. Cancel leaves it in place.
+- **Duplicates:** links are compared after normalisation (host case, a leading `www.`, tracking parameters, and the LinkedIn and Indeed shapes in the spec). The same link, or the same site job id, shows "Already saved on …". A very similar company and title saved within 60 days is called out too. You can open the existing application, edit it, or save a separate copy. Nothing is overwritten silently. An edit made from an older copy is refused if the stored job changed in the meantime.
+- **Storage:** each job is stored under its own `job:<uuid>` key in `chrome.storage.local`, with IDs from `crypto.randomUUID()`. Default settings and a schema version are written on install. Existing data is kept on update. Schema version stays 1; the migration runner is a no-op until a later version needs a step.
 
 ## What it will do
 
@@ -46,7 +50,7 @@ It runs entirely in your browser: no backend, no login, no paid API, no cloud se
 | Feature | Status | Planned phase |
 | --- | --- | --- |
 | One-click save of role, company, link and deadline | Manual entry implemented (Phase 1), not yet manually tested in Chrome; auto-detect Planned | 1 (manual), 4 (auto-detect) |
-| Every saved field editable | Planned | 2 |
+| Every saved field editable | Implemented (Phase 2), not yet manually tested in Chrome | 2 |
 | Kanban board: Saved, Applied, Interview, Result | Planned | 3 |
 | Reminder before an application deadline | Planned | 5 |
 | Search and CSV export | Planned | 3 (search), 6 (CSV) |
@@ -62,7 +66,7 @@ It runs entirely in your browser: no backend, no login, no paid API, no cloud se
 
 ### Additional planned features
 
-India eligibility classification, duplicate detection, calendar view, JSON backup and import. See [`PROJECT_SPEC.md`](PROJECT_SPEC.md) for details. The Northline-inspired dark dashboard and popup are implemented in Phase 1.
+Automatic India eligibility classification, calendar view, JSON backup and import. Duplicate warnings are implemented. See [`PROJECT_SPEC.md`](PROJECT_SPEC.md) for details. The Northline-inspired dark dashboard and popup are implemented.
 
 ## Job site support
 
@@ -120,14 +124,14 @@ Deliberately **not** requested: access to all websites (`host_permissions`), `ta
 
 ## Known limitations
 
-### Phase 1 (current build)
+### Current build
 
-- Saved jobs can't be edited, deleted or moved between stages yet. Editing arrives in Phase 2, the Kanban board in Phase 3. To start over, remove and reinstall the extension (this deletes all saved jobs).
-- Saving the same link twice creates two entries; duplicate detection comes later.
-- Nothing is detected from the page except the tab's URL and title. Company and deadline are always typed by hand.
-- "Explore opportunities" on the Overview scrolls to your dashboard panels; the feature it is named for comes later.
-- Applications, Calendar and Settings are placeholder pages. No search, filters, reminders, CSV export or backup yet.
-- Not yet manually tested in Chrome (see the checklist below).
+- There is no Kanban board, drag-and-drop, or search. Applications is a list. Status is changed in the editor.
+- Nothing is read from the page except the tab's URL and title. Company, description and deadline are typed. India eligibility is a manual choice, not a classifier.
+- Reminders are stored with the job but are not scheduled or shown. No calendar, CSV export or backup yet.
+- "Explore opportunities" scrolls to the Overview panels.
+- A similar title and company is only flagged for jobs saved in the last 60 days. Older ones are left alone unless the link matches.
+- Not yet manually tested in Chrome (see the checklists below).
 
 ### Planned behaviour
 
@@ -187,10 +191,12 @@ dashboard.html     dashboard entry page
 src/
   background/      service worker: install/update initialisation
   core/            pure logic, no Chrome APIs: data model, validation, URL and text
-                   normalisation, deadline formatting, overview statistics
-  storage/         typed chrome.storage wrapper, job repository, settings, popup drafts
-  popup/           popup app: tab context, clip form, saved state
-  dashboard/       dashboard app: hash router, layout, Overview and placeholder pages
+                   normalisation, duplicate detection, deadline formatting, overview statistics
+  storage/         typed chrome.storage wrapper, job repository (create, read, update,
+                   delete), settings, migrations, popup drafts
+  popup/           popup app: tab context, clip form, duplicate warning, saved state
+  dashboard/       dashboard app: hash router, layout, Overview, application list,
+                   job sheet (details, edit, delete)
   ui/              shared components, hooks, design tokens and global styles
 tests/             test setup, in-memory chrome.* fake, test data factory
 scripts/           icon generator
@@ -198,12 +204,13 @@ scripts/           icon generator
 
 ## Automated tests
 
-`npm test` runs 77 tests in 10 files against an in-memory fake of the `chrome.*` APIs (`tests/fakes/chrome.ts`). They cover:
+`npm test` runs 101 tests in 13 files against an in-memory fake of the `chrome.*` APIs (`tests/fakes/chrome.ts`). They cover:
 
-- **Repository:** creating jobs (stored under `job:<uuid>`), listing them newest first, and subscribing to live updates, including unsubscribing and ignoring unrelated keys.
-- **Validation:** required fields, non-http(s) URLs (`javascript:`, `chrome://`, `file:`, `ftp:`, `data:` and others), overlong URLs, optional deadlines, impossible dates and times.
-- **Popup:** manual entry, prefill from the tab, restricted pages and the no-tab case, saving without a deadline ("No deadline provided"), and draft persistence, restoration and clearing.
-- **Dashboard:** statistics computed from real data, empty states, live updates when another page saves, the Add application dialog, and hash routing.
+- **Repository:** creating, updating and deleting jobs, refusing a duplicate link unless the save is intentional, refusing an edit that would overwrite a different job, refusing a stale edit, listing newest first, and live subscriptions.
+- **Duplicates and URLs:** canonical links (www, tracking parameters, LinkedIn job id, Indeed job id) and probable company-and-title matches.
+- **Validation:** required fields, non-http(s) URLs, optional deadlines, impossible dates, and the full edit form (including a required result).
+- **Popup:** manual entry, prefill, restricted pages, saving without a deadline, drafts, and the duplicate warning.
+- **Dashboard:** statistics from real data, empty states, live updates, the add dialog, opening a job, editing it, delete confirmation, and hash routing.
 - **Background:** install initialisation and preservation of existing data on update.
 
 ## Manual verification checklist (Phase 1)
@@ -224,6 +231,20 @@ These checks need a real Chrome profile and **have not been performed yet**. Rec
 | 10 | Using only the keyboard (<kbd>Tab</kbd>, <kbd>Enter</kbd>, <kbd>Esc</kbd>): Dashboard → Add application opens the dialog with focus in Job title, Escape closes it, and a saved entry appears on the Overview with a confirmation message. Focus outlines are visible throughout. | Not yet performed |
 | 11 | Overview, Applications, Calendar and Settings links work, as do browser back/forward and reloading on a `#/…` URL. At 360 px wide nothing overflows, and the menu button shows the navigation. With DevTools → Network set to Offline, a reload looks identical (fonts included) and no requests go anywhere except the extension's own files. With reduced motion on (macOS System Settings → Accessibility → Display), the animations stop. | Not yet performed |
 
+## Manual verification checklist (Phase 2)
+
+These checks need a real Chrome profile and **have not been performed yet**.
+
+| # | Check | Result |
+| --- | --- | --- |
+| 1 | Save a job, then click it in Recently saved and on Applications. The sheet shows the title, company, link and "No deadline provided" when the deadline was left empty. | Not yet performed |
+| 2 | Edit the title, city, India eligibility, status and notes. Save. The sheet, the list and the Overview statistics show the new values without a reload. Quit Chrome, reopen the dashboard, and the edit is still there. | Not yet performed |
+| 3 | Add a deadline, save, and see it under Upcoming deadlines when it is within 14 days. Clear the deadline, save, and see "No deadline provided" again. | Not yet performed |
+| 4 | Click Delete, then Cancel. The job remains. Click Delete, then Delete application. It disappears from the list, Recently saved and the statistics. | Not yet performed |
+| 5 | Save the same URL a second time from the popup and from Add application (try a `www.` or `utm_` variant of the link). Both show "Already saved on …". Save anyway creates a second entry and leaves the first unchanged. Open existing opens that job. | Not yet performed |
+| 6 | Save the same company and title with a different URL. A similar-application warning appears. A different title at that company does not. | Not yet performed |
+| 7 | Open the dashboard in two windows, edit the same job in both, and save the second window last. It reports that the application changed elsewhere and does not replace the first save until you choose "Show the latest version". | Not yet performed |
+
 ## Verification log
 
 Real test results only, added as each phase is completed. Each entry records the date, Chrome version, macOS version, what was tested and the outcome, including failures.
@@ -237,6 +258,12 @@ Real test results only, added as each phase is completed. Each entry records the
 - `npm test`: 10 files, 77 tests, all passed.
 - `npm run build`: passed. `dist/` contains `manifest.json`, `background.js`, `popup.html`, `dashboard.html`, the icons and the bundled assets, with no inline scripts and no remote URLs loaded.
 - In-browser preview: the built pages were opened from a local server in a browser with a stand-in for the `chrome.*` APIs, to check layout and interaction (popup at 380 px, dashboard at desktop and phone widths, validation, saved state, dialog). This is **not** a test of the installed extension, and none of the manual checklist items above count as performed.
+
+### 2026-11-22 — Phase 2, automated checks
+
+- Environment: macOS 26 (Darwin 25.6), Node 25.9.0, npm 11.12.1.
+- `npm run check`: passed. That runs typecheck (0 errors), ESLint (0 errors, 0 warnings), Prettier, Vitest (13 files, 101 tests, all passed) and the production build.
+- No manual test in an installed extension was performed. The Phase 1 and Phase 2 checklists above are still open.
 
 _No manual tests in Chrome have been performed yet._
 

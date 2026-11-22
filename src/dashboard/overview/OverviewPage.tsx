@@ -21,9 +21,10 @@ function scrollToPanels() {
 interface OverviewPageProps {
   jobsState: JobsState;
   onAddApplication: () => void;
+  onOpenJob: (id: string) => void;
 }
 
-export function OverviewPage({ jobsState, onAddApplication }: OverviewPageProps) {
+export function OverviewPage({ jobsState, onAddApplication, onOpenJob }: OverviewPageProps) {
   const now = useNow();
   const stats = useMemo(() => computeOverviewStats(jobsState.jobs, now), [jobsState.jobs, now]);
   const ready = jobsState.status !== "loading";
@@ -54,6 +55,7 @@ export function OverviewPage({ jobsState, onAddApplication }: OverviewPageProps)
             recent={stats.recent}
             now={now}
             onAddApplication={onAddApplication}
+            onOpenJob={onOpenJob}
             className="origin-right xl:motion-safe:[transform:perspective(1600px)_rotateY(5deg)]"
           />
           <ProgressPanel stats={stats} className="max-lg:order-first" />

@@ -748,3 +748,72 @@ To-do's from the plan have already been created. Do not create them again. Mark 
 ````text
 [PASTE THE EXACT PHASE 1 PROMPT HERE — it begins "# JOB CLIPPER — PHASE 1: FOUNDATION, DESIGN SYSTEM, DASHBOARD SHELL & MANUAL ENTRY" and ends "Stop after Phase 1. Wait for my review and explicit approval before proceeding to Phase 2."]
 ````
+
+---
+
+## Prompt 5 — Phase 2: Complete job management
+
+- **Date:** 2026-11-22
+- **Phase:** 2 (implementation)
+- **Outcome:** Phase 2 implemented: view, edit and delete with confirmation; canonical URL and probable duplicate warnings with Save anyway; live Overview updates. 101 automated tests. `npm run check` result is recorded in the README verification log. Not committed.
+
+````text
+# Job Clipper — Phase 2: Complete Job Management
+
+Read `PROJECT_SPEC.md` and inspect the existing Phase 1 implementation before making changes.
+
+Implement Phase 2 only: complete job application management.
+
+### Requirements
+
+1. Implement complete CRUD operations:
+   - Create applications.
+   - View application details.
+   - Edit every supported saved field.
+   - Delete applications with a confirmation dialog.
+
+2. Implement duplicate detection:
+   - Normalise job URLs before comparison.
+   - Detect existing applications with the same job URL.
+   - Show a useful duplicate warning.
+   - Allow the user to intentionally save a duplicate when appropriate.
+   - Do not silently overwrite existing applications.
+
+3. Preserve the approved data model:
+   - Job title, company and URL.
+   - Source and description, where available.
+   - Location and employment details.
+   - India eligibility fields, when present.
+   - Deadline (optional).
+   - Application status, dates and notes.
+
+   Do not prematurely implement automatic eligibility classification or website extraction.
+
+4. Persist all changes through the existing typed Chrome Storage repository.
+
+5. Ensure the Overview, Recently Saved panel and dashboard statistics update immediately after creating, editing or deleting an application.
+
+6. Preserve existing popup functionality and the Northline-inspired design system. Reuse existing components rather than rebuilding them.
+
+7. Handle missing deadlines correctly. Jobs without deadlines must remain valid and display "No deadline provided".
+
+8. Add automated tests for CRUD operations, duplicate detection, URL normalisation, validation, deletion confirmation, storage persistence and dashboard updates.
+
+9. Update README.md, CHANGELOG.md and append this exact prompt to prompts.md.
+
+### Restrictions
+
+- Do not implement the Kanban board.
+- Do not implement website extraction adapters.
+- Do not implement deadline notifications or calendar scheduling.
+- Do not implement CSV export.
+- Do not introduce a backend or external services.
+- Do not rewrite working Phase 1 functionality unnecessarily.
+- Do not commit or push to GitHub.
+
+Run `npm run check`, fix errors introduced by this phase, and report actual results.
+
+At completion, provide changed files, implemented features, test results, known limitations and manual verification steps.
+
+Stop after Phase 2. Wait for my review before proceeding to Phase 3.
+````

@@ -1,4 +1,4 @@
-import { parseHttpUrl, sourceFromUrl } from "../normalize/url";
+import { canonicalizeUrl, parseHttpUrl, sourceFromUrl } from "../normalize/url";
 import type { ValidManualEntry } from "./manualEntry";
 import type { JobApplication, Settings } from "./types";
 
@@ -21,6 +21,7 @@ export function createJobFromManualEntry(
   const timestamp = now.toISOString();
   const url = parseHttpUrl(entry.url);
   if (!url) throw new Error("createJobFromManualEntry requires a validated http(s) URL");
+  const canonical = canonicalizeUrl(url);
 
   return {
     id,
@@ -28,8 +29,9 @@ export function createJobFromManualEntry(
     title: entry.title,
     company: entry.company,
     url: url.href,
-    canonicalUrl: url.href,
+    canonicalUrl: canonical.canonicalUrl,
     source: sourceFromUrl(url),
+    ...(canonical.sourceJobId ? { sourceJobId: canonical.sourceJobId } : {}),
     location: {},
     workArrangement: "unknown",
     eligibleCountries: [],

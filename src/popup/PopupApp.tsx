@@ -7,9 +7,16 @@ import {
   type ManualEntryValues,
 } from "../core/model/manualEntry";
 import type { JobApplication } from "../core/model/types";
-import { createJob, ManualEntryValidationError } from "../storage/jobRepository";
+import type { DuplicateMatch } from "../core/duplicates";
+import {
+  createJob,
+  DuplicateJobError,
+  findManualDuplicates,
+  ManualEntryValidationError,
+} from "../storage/jobRepository";
 import { clearDraft, loadDraft, saveDraft } from "../storage/popupDraft";
 import { BrandLockup } from "../ui/components/BrandMark";
+import { DuplicateNotice } from "../ui/components/DuplicateNotice";
 import { focusFirstError } from "../ui/components/ManualEntryForm";
 import { CLIP_FIELD_PREFIX, ClipForm } from "./ClipForm";
 import { openDashboard } from "./openDashboard";
@@ -26,6 +33,7 @@ export function PopupApp() {
   const [draftRestored, setDraftRestored] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [duplicates, setDuplicates] = useState<DuplicateMatch[] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -52,7 +60,7 @@ export function PopupApp() {
     saveDraft(context.tabId, next).catch(() => {});
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (allowDuplicate = false) => {
     const result = validateManualEntry(values);
     if (!result.ok) {
       setErrors(result.errors);
@@ -62,11 +70,20 @@ export function PopupApp() {
     setSaving(true);
     setSaveError(null);
     try {
-      const job = await createJob(values);
+      if (!allowDuplicate) {
+        const matches = await findManualDuplicates(values);
+        if (matches.length > 0) {
+          setDuplicates(matches);
+          return;
+        }
+      }
+      const job = await createJob(values, new Date(), { allowDuplicate });
       await clearDraft(context.tabId).catch(() => {});
+      setDuplicates(null);
       setPhase({ kind: "saved", job });
     } catch (error) {
       if (error instanceof ManualEntryValidationError) setErrors(error.errors);
+      else if (error instanceof DuplicateJobError) setDuplicates(error.matches);
       else setSaveError("Couldn't save this job. Please try again.");
     } finally {
       setSaving(false);
@@ -77,6 +94,7 @@ export function PopupApp() {
     setValues(context.prefill);
     setErrors({});
     setDraftRestored(false);
+    setDuplicates(null);
     setPhase({ kind: "editing" });
   };
 
@@ -116,7 +134,26 @@ export function PopupApp() {
           Loading…
         </p>
       )}
-      {phase.kind === "editing" && (
+      {phase.kind === "editing" && duplicates && (
+        <div className="flex-1 overflow-y-auto px-5 py-5">
+          <DuplicateNotice
+            matches={duplicates}
+            onOpen={(job) => {
+              openDashboard({ jobId: job.id }).catch(() =>
+                setSaveError("Couldn't open the dashboard."),
+              );
+            }}
+            onUpdate={(job) => {
+              openDashboard({ jobId: job.id, edit: true }).catch(() =>
+                setSaveError("Couldn't open the dashboard."),
+              );
+            }}
+            onSaveAnyway={() => void handleSubmit(true)}
+            onBack={() => setDuplicates(null)}
+          />
+        </div>
+      )}
+      {phase.kind === "editing" && !duplicates && (
         <ClipForm
           values={values}
           errors={errors}
@@ -125,7 +162,7 @@ export function PopupApp() {
           saving={saving}
           saveError={saveError}
           onChange={handleChange}
-          onSubmit={handleSubmit}
+          onSubmit={() => void handleSubmit(false)}
           onOpenDashboard={handleOpenDashboard}
         />
       )}

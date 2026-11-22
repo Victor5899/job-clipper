@@ -30,7 +30,20 @@ export function routeHref(name: RouteName): string {
 }
 
 export function navigate(name: RouteName): void {
-  window.location.hash = routeHref(name);
+  replaceHash(routeHref(name));
+}
+
+/** Sets the hash and notifies listeners. jsdom does not always emit hashchange itself. */
+export function replaceHash(hash: string): void {
+  const next = hash.startsWith("#") ? hash : `#${hash}`;
+  if (window.location.hash !== next) window.location.hash = next;
+  window.dispatchEvent(new HashChangeEvent("hashchange"));
+}
+
+export function hashForJob(route: RouteName, jobId: string, edit = false): string {
+  const params = new URLSearchParams({ job: jobId });
+  if (edit) params.set("edit", "1");
+  return `#/${route}?${params.toString()}`;
 }
 
 function subscribe(onChange: () => void): () => void {

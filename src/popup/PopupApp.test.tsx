@@ -149,6 +149,27 @@ describe("PopupApp", () => {
     expect(chromeFake().storage.session.snapshot()).toEqual({});
   });
 
+  it("warns when the link is already saved and only writes a second job on Save anyway", async () => {
+    chromeFake().setActiveTab({ id: 8, url: "https://example.com/jobs/42", title: "Analyst" });
+    const first = await renderPopup();
+    await first.user.type(screen.getByLabelText(/company/i), "Acme");
+    await first.user.click(screen.getByRole("button", { name: /save to job clipper/i }));
+    await screen.findByRole("heading", { name: /saved to job clipper/i });
+    expect(storedJobs()).toHaveLength(1);
+
+    await first.user.click(screen.getByRole("button", { name: /clip another/i }));
+    await first.user.type(screen.getByLabelText(/company/i), "Acme");
+    await first.user.click(screen.getByRole("button", { name: /save to job clipper/i }));
+
+    expect(await screen.findByText(/already saved on/i)).toBeInTheDocument();
+    expect(storedJobs()).toHaveLength(1);
+
+    await first.user.click(screen.getByRole("button", { name: /save anyway/i }));
+    await screen.findByRole("heading", { name: /saved to job clipper/i });
+    expect(storedJobs()).toHaveLength(2);
+    expect(new Set(storedJobs().map((job) => job.id)).size).toBe(2);
+  });
+
   it("opens the dashboard in a new tab", async () => {
     const close = vi.spyOn(window, "close").mockImplementation(() => {});
     const { user } = await renderPopup();
