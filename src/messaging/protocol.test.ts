@@ -1,5 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { parseExtractRequest, parseExtractionPayload } from "./protocol";
+import { isExtensionPageSender, parseExtractRequest, parseExtractionPayload } from "./protocol";
+
+describe("isExtensionPageSender", () => {
+  it("accepts only pages that belong to this extension", () => {
+    const id = chrome.runtime.id;
+    expect(isExtensionPageSender({ id, url: `chrome-extension://${id}/popup.html` })).toBe(true);
+    expect(
+      isExtensionPageSender({ id, url: `chrome-extension://${id}/dashboard.html#/applications` }),
+    ).toBe(true);
+    expect(isExtensionPageSender({ id, url: "https://example.com/" })).toBe(false);
+    expect(isExtensionPageSender({ id: "other", url: `chrome-extension://${id}/popup.html` })).toBe(
+      false,
+    );
+    expect(isExtensionPageSender({ id, url: `chrome-extension://${id}.evil/popup.html` })).toBe(
+      false,
+    );
+    expect(isExtensionPageSender({ id })).toBe(false);
+    expect(isExtensionPageSender(undefined)).toBe(false);
+  });
+});
 
 describe("parseExtractRequest", () => {
   it("accepts only an integer tab id", () => {

@@ -4,16 +4,48 @@ All notable changes to Job Clipper are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] — 2026-11-23 — Phase 8: QA, security, documentation and packaging
 
-Documentation status update. No application code, tests, permissions or extension behaviour changed. Phase 8 has not started.
+Automated checks from the 2026-11-23 session passed. Those results are unchanged and are listed under Recorded results. The project owner's earlier manual test of Phases 1–7 is unchanged and is not a result of that session. The project owner later reported that Phase 8 manual acceptance is complete. The test date, Chrome version and macOS version for that manual pass were not supplied. v1.0.0 is not committed and is not tagged. No integration is Verified.
+
+### Added
+
+- Playwright tests that load the unpacked extension and use the dashboard: manual create, edit, delete, status change, search, filters, CSV export, deadlines, navigation, and axe checks. They do not cover the toolbar popup, content-script injection, or operating-system notifications.
+- A 2,000-job benchmark. `npm run bench` writes `reports/performance.json`. `npm run test:e2e` writes `reports/performance-browser.json`.
+- `npm run security` and `npm run package`. The package command rebuilds and writes `release/job-clipper-1.0.0.zip`.
+- A VoiceOver checklist and a v1.0.0 checklist in the README. The project owner later reported the VoiceOver checklist completed. Exact announcements were not supplied. The release checklist still has the git commit and the `v1.0.0` tag outstanding. Verified-site evidence was not supplied.
 
 ### Changed
 
-- The project owner reported a manual Chrome test of Phases 1–7 and confirmed that the implemented functionality works. The README and `PROJECT_SPEC.md` now record that status. Phase 8 is the remaining phase.
-- The tested scope is the foundation and manual entry, job management, the four-stage Kanban board, Internshala, LinkedIn and Naukri, deadline management, reminders and the calendar, search, filters, sorting, CSV export and data management, and the Wellfound, Y Combinator Jobs, Himalayas, We Work Remotely, Unstop and Cutshort integrations.
-- Indeed, HiringCafe, Glassdoor and ZipRecruiter stay manual-entry only. They are not part of the manually tested integrations.
-- No integration is marked Verified. The test date, Chrome version, macOS version and listing counts were not supplied, and the formal verification criteria are unchanged.
+- Runtime messages are accepted only from this extension's own pages, so a content script cannot drive the background worker.
+- Extraction is refused when the tab URL is visible and is not `http` or `https`. Opening a saved listing checks the same rule again.
+- A Kanban column with more than 40 cards shows the first 40 and a Show more control. The heading still counts the whole column.
+- Deadline ordering uses a small cache. Company and title ordering share one collator. A burst of job writes runs one reminder reconciliation, then a follow-up if those writes changed reminders, instead of a full pass per write.
+- Extension version is 1.0.0. No permission was added.
+
+### Recorded results
+
+- `npm run check`: passed. Vitest 41 files, 334 tests.
+- `npm run test:e2e`: 5 passed.
+- `npm run security`: 18 passed, 0 failed.
+- `npm run package`: `release/job-clipper-1.0.0.zip`, 619,135 bytes, 38 files.
+- The timings are in the README Phase 8 automated log. That log is the automated session. VoiceOver was not run in that session. The owner's test date, Chrome version and listing counts were not supplied.
+- The project owner's manual Chrome test of Phases 1–7 remains the earlier installed-extension record. Indeed, HiringCafe, Glassdoor and ZipRecruiter stay manual-entry only.
+
+### Manual acceptance reported later
+
+Reported by the project owner. This is not part of the 2026-11-23 automated session. The test date, Chrome version and macOS version were not supplied. The README verification log is the full record.
+
+- Clean Chrome profile installation: passed.
+- Manual regression testing: passed.
+- macOS VoiceOver checklist: completed. [Placeholder: what VoiceOver announced on each checklist row.]
+- Backup and restore: tested. Step-by-step observations were not supplied.
+- Delete-all: tested. Step-by-step observations were not supplied.
+- CSV compatibility: tested in the applications the project owner used. [Placeholder: name each spreadsheet application.] Apple Numbers remains the earlier recorded result. Google Sheets, LibreOffice and Excel are not claimed.
+- Chrome notification testing: completed. No screenshot was supplied.
+- Phase 8 manual acceptance testing: completed.
+
+The git commit and the `v1.0.0` tag have not been performed.
 
 ## [0.7.0] — 2026-11-23 — Phase 7: additional job-site adapters
 

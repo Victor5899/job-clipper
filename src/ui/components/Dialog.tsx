@@ -22,6 +22,7 @@ export function Dialog({
   footer,
 }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
+  const descriptionId = `${titleId}-description`;
 
   useEffect(() => {
     const dialog = ref.current;
@@ -37,6 +38,7 @@ export function Dialog({
     <dialog
       ref={ref}
       aria-labelledby={titleId}
+      aria-describedby={description ? descriptionId : undefined}
       onClose={onClose}
       onCancel={(event) => {
         event.preventDefault();
@@ -49,7 +51,11 @@ export function Dialog({
           <h2 id={titleId} className="font-serif text-[28px] leading-tight">
             {title}
           </h2>
-          {description && <p className="mt-1 text-sm text-text-muted">{description}</p>}
+          {description && (
+            <p id={descriptionId} className="mt-1 text-sm text-text-muted">
+              {description}
+            </p>
+          )}
         </div>
         <button
           type="button"

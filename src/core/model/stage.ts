@@ -79,11 +79,23 @@ export function applyInterviewDate(job: JobApplication, date: string, now: Date)
   return { ...job, interviewAt, updatedAt: now.toISOString() };
 }
 
+const deadlineTimeCache = new Map<string, number>();
+
+/** Parsed once per distinct deadline. Sorting a large board otherwise reparses the same date. */
+function deadlineSortTime(job: JobApplication): number {
+  if (!job.deadline) return Number.POSITIVE_INFINITY;
+  const key = job.deadline.time ? `${job.deadline.date} ${job.deadline.time}` : job.deadline.date;
+  const cached = deadlineTimeCache.get(key);
+  if (cached !== undefined) return cached;
+  if (deadlineTimeCache.size > 4000) deadlineTimeCache.clear();
+  const time = deadlineMoment(job.deadline).getTime();
+  deadlineTimeCache.set(key, time);
+  return time;
+}
+
 /** Soonest deadline first. Jobs with no deadline stay at the bottom of the column. */
 export function compareForBoard(a: JobApplication, b: JobApplication): number {
-  const time = (job: JobApplication) =>
-    job.deadline ? deadlineMoment(job.deadline).getTime() : Number.POSITIVE_INFINITY;
-  const byDeadline = time(a) - time(b);
+  const byDeadline = deadlineSortTime(a) - deadlineSortTime(b);
   if (byDeadline !== 0) return byDeadline;
   return b.savedAt.localeCompare(a.savedAt);
 }

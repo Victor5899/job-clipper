@@ -163,7 +163,7 @@ function JobCardView({
           <label className="mt-1 flex flex-col gap-1">
             <span className="text-[11px] text-text-subtle">Move to</span>
             <select
-              aria-label={`Move ${job.title} at ${job.company}`}
+              aria-label={`Move to ${job.title} at ${job.company}`}
               value={job.status}
               onChange={(event) => onMove(job.id, event.target.value)}
               className="h-8 w-full rounded-[8px] border border-border-strong bg-surface-1 px-2 text-[12.5px] text-text"

@@ -1,6 +1,6 @@
 {
   "name": "job-clipper",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Offline-first Chrome extension for clipping and tracking internships and entry-level jobs.",
   "license": "MIT",
@@ -9,12 +9,16 @@
     "dev": "node scripts/dev.mjs",
     "build": "vite build && vite build --config vite.content.config.ts",
     "build:content": "vite build --config vite.content.config.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.e2e.json",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "bench": "vitest run src/dashboard/performance.bench.test.tsx",
+    "security": "node scripts/security-audit.mjs",
+    "package": "node scripts/package.mjs",
     "icons": "node scripts/generate-icons.mjs",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run test && npm run build"
   },
@@ -29,7 +33,9 @@
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^8.0.0",

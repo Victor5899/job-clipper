@@ -1,7 +1,11 @@
 import { useDroppable } from "@dnd-kit/core";
+import { useState } from "react";
 import { STATUS_LABELS, type JobStatus } from "../../core/model/enums";
 import type { JobApplication } from "../../core/model/types";
 import { JobCard } from "./JobCard";
+
+/** Enough for a normal column. Larger columns render in pages so 2,000 cards do not mount at once. */
+const PAGE_SIZE = 40;
 
 interface KanbanColumnProps {
   status: JobStatus;
@@ -17,6 +21,10 @@ export function KanbanColumn({ status, jobs, now, visible, onOpen, onMove }: Kan
   const { setNodeRef, isOver } = useDroppable({ id: status });
   const count = jobs.length;
   const noun = count === 1 ? "application" : "applications";
+  const windowKey = `${count}:${jobs[0]?.id ?? ""}:${jobs[count - 1]?.id ?? ""}`;
+  const [extra, setExtra] = useState<{ key: string; shown: number } | null>(null);
+  const shown = extra?.key === windowKey ? extra.shown : Math.min(PAGE_SIZE, count);
+  const visibleJobs = jobs.slice(0, shown);
 
   return (
     <section
@@ -36,14 +44,30 @@ export function KanbanColumn({ status, jobs, now, visible, onOpen, onMove }: Kan
         <span className="font-mono text-xs text-text-muted tabular-nums">{count}</span>
       </header>
       <ul className="flex flex-1 flex-col gap-2 px-2 pb-2">
-        {jobs.length === 0 ? (
+        {count === 0 ? (
           <li className="px-2 py-8 text-center text-[13px] text-text-subtle">No applications</li>
         ) : (
-          jobs.map((job) => (
+          visibleJobs.map((job) => (
             <li key={job.id}>
               <JobCard job={job} now={now} onOpen={onOpen} onMove={onMove} />
             </li>
           ))
+        )}
+        {shown < count && (
+          <li className="px-1 pt-1">
+            <p className="px-1 pb-1 text-center text-[12px] text-text-subtle">
+              Showing {shown} of {count}
+            </p>
+            <button
+              type="button"
+              className="w-full rounded-full py-2 text-[13px] text-text-muted hover:bg-surface-2/70 hover:text-text"
+              onClick={() =>
+                setExtra({ key: windowKey, shown: Math.min(count, shown + PAGE_SIZE) })
+              }
+            >
+              Show more
+            </button>
+          </li>
         )}
       </ul>
     </section>

@@ -1,4 +1,4 @@
-import { parseTestNotificationRequest } from "../messaging/protocol";
+import { isExtensionPageSender, parseTestNotificationRequest } from "../messaging/protocol";
 import { handleRuntimeMessage } from "./extract";
 import { handleInstalled } from "./lifecycle";
 import {
@@ -42,7 +42,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (!sender.id || sender.id !== chrome.runtime.id) return undefined;
+  if (!isExtensionPageSender(sender)) return undefined;
   const pending = handleRuntimeMessage(message, sender);
   if (pending) {
     pending.then(sendResponse).catch((error: unknown) => {

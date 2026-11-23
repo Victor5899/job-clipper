@@ -22,6 +22,8 @@ import {
 import { ensureReconcileAlarm, putAlarm, readAlarms, removeAlarm } from "./reminders";
 
 let tail: Promise<void> = Promise.resolve();
+/** The newest requested clock. Storage writes during a pass collapse into one follow-up pass. */
+let rerunAt: Date | null = null;
 
 /** One reconcile or delivery at a time, so a startup pass and an alarm cannot both notify. */
 function enqueue(task: () => Promise<void>): Promise<void> {
@@ -107,7 +109,14 @@ async function reconcileOnce(now: Date): Promise<void> {
 }
 
 export function reconcileReminders(now: Date = new Date()): Promise<void> {
-  return enqueue(() => reconcileOnce(now));
+  rerunAt = now;
+  return enqueue(async () => {
+    while (rerunAt) {
+      const at = rerunAt;
+      rerunAt = null;
+      await reconcileOnce(at);
+    }
+  });
 }
 
 export function handleStorageChanged(

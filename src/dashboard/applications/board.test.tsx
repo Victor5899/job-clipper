@@ -84,13 +84,13 @@ describe("Kanban board", () => {
       within(saved).getByRole("button", { name: "Drag Data Analyst Intern at Zomato" }),
     ).toBeInTheDocument();
     expect(
-      within(saved).getByRole("combobox", { name: "Move Data Analyst Intern at Zomato" }),
+      within(saved).getByRole("combobox", { name: "Move to Data Analyst Intern at Zomato" }),
     ).toHaveValue("saved");
 
     const applied = screen.getByRole("region", { name: /applied, 1 application/i });
     expect(within(applied).getByText("Groww")).toBeInTheDocument();
     expect(within(applied).getByText(/^Due /)).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /saved/i })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("button", { name: /^Saved/ })).toHaveAttribute("aria-pressed", "true");
   });
 
   it("persists a stage change from Move to, and the overview follows it after a reload", async () => {
@@ -102,7 +102,7 @@ describe("Kanban board", () => {
     await go(user, "Applications");
 
     await user.selectOptions(
-      await screen.findByRole("combobox", { name: "Move Data Analyst Intern at Zomato" }),
+      await screen.findByRole("combobox", { name: "Move to Data Analyst Intern at Zomato" }),
       "applied",
     );
 
@@ -165,7 +165,7 @@ describe("Kanban board", () => {
     await go(user, "Applications");
 
     await user.selectOptions(
-      await screen.findByRole("combobox", { name: "Move Data Analyst Intern at Zomato" }),
+      await screen.findByRole("combobox", { name: "Move to Data Analyst Intern at Zomato" }),
       "result",
     );
     const picker = await screen.findByRole("dialog", { name: /record an outcome/i });
@@ -197,7 +197,7 @@ describe("Kanban board", () => {
     await go(user, "Applications");
 
     await user.selectOptions(
-      await screen.findByRole("combobox", { name: "Move Data Analyst Intern at Zomato" }),
+      await screen.findByRole("combobox", { name: "Move to Data Analyst Intern at Zomato" }),
       "interview",
     );
     const dialog = await screen.findByRole("dialog", { name: /add an interview date/i });
@@ -217,7 +217,7 @@ describe("Kanban board", () => {
     render(<App />);
     await go(user, "Applications");
     await user.selectOptions(
-      await screen.findByRole("combobox", { name: "Move Data Analyst Intern at Zomato" }),
+      await screen.findByRole("combobox", { name: "Move to Data Analyst Intern at Zomato" }),
       "interview",
     );
     const dialog = await screen.findByRole("dialog", { name: /add an interview date/i });

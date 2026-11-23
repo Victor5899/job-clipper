@@ -1,7 +1,7 @@
 # Job Clipper — Phase 0 Specification
 
 > BSERC GenAI Internship — Week 2, Project 10.
-> Status: **Phases 1–7 are implemented and were manually tested in Chrome by the project owner. Phase 8 is the remaining phase.**
+> Status: **Phases 1–8 are complete. Automated QA and manual QA are complete. The release zip was generated, and the project owner reported that a clean Chrome profile installation passed. v1.0.0 has not been committed or tagged.**
 > The sections below are the Phase 0 specification of intended behaviour. The live record of what shipped, what was tested, and what is still manual entry is in [`README.md`](README.md). No integration is marked Verified: the formal criteria in section 12 need a recorded date, a Chrome version, and at least three live listings, and those details were not supplied.
 
 ## 0. Project state
@@ -30,7 +30,7 @@ Architecture, eligibility approach and visual direction are unchanged.
 - Phase 6: search, filters, sorting, CSV export and data management.
 - Phase 7: Wellfound, Y Combinator Jobs, Himalayas, We Work Remotely, Unstop and Cutshort integrations.
 - Indeed, HiringCafe, Glassdoor and ZipRecruiter have no adapter. They stay manual-entry only because of access restrictions or unsupported pages. They are not part of the manually tested integrations.
-- Phase 8 (hardening, security review, documentation and packaging) has not started.
+- Phase 8 is complete as QA, documentation and packaging. The 2026-11-23 automated results are unchanged and are in the README verification log: Playwright dashboard tests, an axe pass, a 2,000-job benchmark, a security audit, and `npm run package` (`release/job-clipper-1.0.0.zip`, 619,135 bytes, 38 files). The project owner later reported that manual acceptance is complete: the clean-profile install passed, manual regression passed, the VoiceOver checklist was completed, backup and restore were tested, delete-all was tested, CSV compatibility was tested in the applications they used, and Chrome notification testing was completed. The test date, Chrome version, macOS version, VoiceOver announcements and spreadsheet names were not supplied. No site was marked Verified. Backup validation still does not use `zod`. The remaining repository actions are a git commit and a `v1.0.0` tag. Neither has been performed: there are no tags, and HEAD is the Phase 7 commit.
 
 ---
 
@@ -865,7 +865,7 @@ flowchart TD
 
 ## 21. Implementation roadmap
 
-**Progress:** Phases 1–7 are implemented and were manually tested in Chrome by the project owner, at the level listed in section 0. Phase 8 is the remaining phase. The acceptance criteria below are the original plan. A phase-level confirmation does not by itself satisfy a criterion that asks for a date, a Chrome version, a listing count, a screenshot, or a named spreadsheet. Those details were not supplied, so no site is Verified.
+**Progress:** Phases 1–8 are complete. Phases 1–7 were manually tested in Chrome by the project owner, at the level listed in section 0. Phase 8 automated checks from 2026-11-23 are logged in the README and are unchanged. The project owner later reported that Phase 8 manual acceptance is complete, including a clean-profile install that passed. The acceptance criteria below are the original plan. A phase-level confirmation does not by itself satisfy a criterion that asks for a date, a Chrome version, a listing count, a screenshot, or a named spreadsheet. Those details were not supplied, so no site is Verified. The remaining repository release actions are the git commit and the `v1.0.0` tag. Neither has been performed.
 
 One deliberate change from the originally suggested sequence: **reminders and CSV export move ahead of the remaining integrations**.
 - Phase 4 delivers only the first integration milestone (three genuinely tested sites).
@@ -1030,18 +1030,17 @@ flowchart LR
 
 ### Phase 8 — Hardening, security review, documentation, packaging
 
-- **Progress:** Remaining. Not started.
+- **Progress:** Complete as QA and manual acceptance. Automated checks from 2026-11-23 are logged and unchanged. The project owner later reported that the clean Chrome profile installation passed, manual regression passed, the VoiceOver checklist was completed, backup and restore were tested, delete-all was tested, CSV compatibility was tested in the applications they used, and Chrome notification testing was completed. Exact VoiceOver announcements and the spreadsheet names were not supplied. Placeholders for those are in the README. No site is Verified. The zip exists at `release/job-clipper-1.0.0.zip`. It has not been committed or tagged.
 - **Objective:** a portfolio-ready v1.0.0.
-- **Work:**
-  - Playwright end-to-end suite;
-  - accessibility audit (axe plus a manual VoiceOver pass);
-  - performance check with 2,000 jobs;
-  - security review against section 18 (permissions diff, no `innerHTML`, message validation, URL validation);
-  - final README (features, install, permissions rationale, privacy, verified-sites table, limitations, screenshots), PROJECT_SPEC update, CHANGELOG;
-  - `npm run package` produces the zip.
-- **Acceptance criteria:** all tests green; the manual matrix completed and logged with real results; zero console errors; the documentation matches the actual behavior.
+- **Work done in the 2026-11-23 automated session:**
+  - Playwright loads the unpacked extension and exercises the dashboard: create, edit, delete, status, search, filters, CSV, deadlines and navigation. It does not exercise the popup or content-script injection.
+  - axe on the dashboard pages, dialog and job sheet, plus a keyboard check of the skip link. The VoiceOver checklist was written in that session and marked not run. The project owner later reported that the checklist was completed. The announcements were not supplied.
+  - A 2,000-job in-memory benchmark and a Playwright benchmark of the Applications page. Columns longer than 40 cards render a page at a time. Reminder reconciliation collapses a burst of storage writes into one pass plus a follow-up.
+  - Security: extension-page sender check, http(s) checks before injection and before opening a listing, the existing CSV formula prefix, and `npm run security` (18 passed). No permission was added.
+  - README, this file and CHANGELOG updated from that session. `npm run package` wrote the zip (619,135 bytes, 38 files).
+- **Acceptance criteria:** the automated tests that were run are green and logged. The project owner reported Phase 8 manual acceptance complete. The dashboard end-to-end tests asserted an empty console-error list. VoiceOver was completed without recorded announcements. The clean-profile install was reported passed. Spreadsheet names for the Phase 8 CSV check were not supplied. Verified-site evidence is still absent. The git commit and `v1.0.0` tag have not been performed.
 - **Risks:** scope creep (frozen feature list).
-- **Definition of done:** a tagged v1.0.0 release zip that installs on a clean Chrome profile.
+- **Definition of done:** a tagged v1.0.0 release zip that installs on a clean Chrome profile. The install was reported passed. The tag has not been created, so this definition is not met. The remaining repository actions are the commit and the tag.
 
 ## 22. Honest limitations
 

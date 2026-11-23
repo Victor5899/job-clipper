@@ -234,15 +234,14 @@ export function KanbanBoard({
 
   return (
     <div>
-      <div className="mb-3 flex gap-1 overflow-x-auto md:hidden" role="tablist" aria-label="Stages">
+      <div className="mb-3 flex gap-1 overflow-x-auto md:hidden" role="group" aria-label="Stages">
         {JOB_STATUSES.map((status) => {
           const selected = status === mobileStage;
           return (
             <button
               key={status}
               type="button"
-              role="tab"
-              aria-selected={selected}
+              aria-pressed={selected}
               onClick={() => setMobileStage(status)}
               className={[
                 "shrink-0 rounded-full px-3 py-1.5 text-[12.5px]",

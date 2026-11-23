@@ -20,6 +20,15 @@ export function parseTestNotificationRequest(message: unknown): TestNotification
   return { type: "jc:test-notification" };
 }
 
+/**
+ * Popup and dashboard pages only. A content script has this extension's id but a page URL,
+ * and that page must not be able to ask the worker to inject a script.
+ */
+export function isExtensionPageSender(sender: { id?: string; url?: string } | undefined): boolean {
+  if (!sender?.id || !sender.url || sender.id !== chrome.runtime.id) return false;
+  return sender.url.startsWith(`chrome-extension://${chrome.runtime.id}/`);
+}
+
 export function parseExtractRequest(message: unknown): ExtractRequest | null {
   if (typeof message !== "object" || message === null) return null;
   const record = message as Record<string, unknown>;

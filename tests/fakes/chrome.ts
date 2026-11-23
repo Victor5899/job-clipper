@@ -117,6 +117,11 @@ export function createChromeFake() {
   const onChanged = new FakeEvent<(changes: StorageChanges, areaName: string) => void>();
   const broadcast = (changes: StorageChanges, area: AreaName) => onChanged.emit(changes, area);
   let activeTab: FakeTab | undefined = { id: 1, url: "https://example.com/", title: "Example" };
+  const knownTabs = new Map<number, FakeTab>();
+  const rememberTab = (tab: FakeTab | undefined) => {
+    if (tab?.id !== undefined) knownTabs.set(tab.id, tab);
+  };
+  rememberTab(activeTab);
   const alarms = new Map<string, FakeAlarm>();
   const notifications = new Map<string, FakeNotification>();
   const notificationCalls: FakeNotification[] = [];
@@ -130,7 +135,7 @@ export function createChromeFake() {
     runtime: {
       id: "test-extension-id",
       getURL: (path: string) => `chrome-extension://test-extension-id/${path.replace(/^\//, "")}`,
-      getManifest: () => ({ manifest_version: 3, name: "Job Clipper", version: "0.6.0" }),
+      getManifest: () => ({ manifest_version: 3, name: "Job Clipper", version: "1.0.0" }),
       onInstalled: new FakeEvent<(details: chrome.runtime.InstalledDetails) => void>(),
       onStartup: new FakeEvent<() => void>(),
       onMessage: new FakeEvent<
@@ -147,6 +152,11 @@ export function createChromeFake() {
     },
     tabs: {
       query: vi.fn(async (): Promise<FakeTab[]> => (activeTab ? [activeTab] : [])),
+      get: vi.fn(async (tabId: number): Promise<FakeTab> => {
+        const tab = knownTabs.get(tabId);
+        if (!tab) throw new Error(`No tab with id: ${tabId}`);
+        return { ...tab };
+      }),
       create: vi.fn(async (props: { url?: string }) => ({ id: 99, ...props })),
     },
     alarms: {
@@ -195,6 +205,12 @@ export function createChromeFake() {
     /** Test helper: what chrome.tabs.query returns as the active tab (undefined = no tab). */
     setActiveTab(tab: FakeTab | undefined) {
       activeTab = tab;
+      rememberTab(tab);
+    },
+    /** Test helper: a tab chrome.tabs.get can see, including one that is not active. */
+    setTab(tab: FakeTab) {
+      if (tab.id === undefined) throw new Error("setTab requires a tab id");
+      rememberTab(tab);
     },
   };
 }

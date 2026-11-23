@@ -4,8 +4,8 @@ An offline-first Chrome extension for clipping, tracking and getting reminded ab
 
 Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship — Week 2, Project 10.
 
-> **Current status: Phases 1–7 implemented and manually tested in Chrome by the project owner. Phase 8 is the remaining phase.**
-> The project owner confirmed that the implemented functionality works. The test date, Chrome version, macOS version and listing counts were not supplied, so no integration is Verified. Automated checks, public-page inspection and installed-extension checks stay separate entries in the [verification log](#verification-log). Indeed, HiringCafe, Glassdoor and ZipRecruiter remain manual-entry only. See [What was manually tested](#what-was-manually-tested).
+> **Current status: Phases 1–8 are complete. Automated QA and manual QA are complete. The release zip has been generated, and a clean Chrome profile installation was reported passed. v1.0.0 has not been committed or tagged.**
+> The project owner confirmed that the implemented functionality works, and later reported that Phase 8 manual acceptance testing is complete. The test date, Chrome version, macOS version and listing counts were not supplied, so no integration is Verified. Automated checks, public-page inspection and installed-extension checks stay separate entries in the [verification log](#verification-log). Indeed, HiringCafe, Glassdoor and ZipRecruiter remain manual-entry only. See [What was manually tested](#what-was-manually-tested).
 
 ## Documents
 
@@ -27,7 +27,7 @@ Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship �
   - Upcoming deadlines on the Overview open that job. The line about jobs with no deadline opens Applications with the "No deadline provided" filter.
 - **Reminders:** a job is reminded only when it has a valid deadline and its reminder is on. The default is 1 day before at 09:00, changeable in Settings and per job (same day, or 1, 2, 3 or 7 days before, or a specific time before the deadline). Adding a deadline later schedules the reminder. Clearing the deadline, turning the reminder off, or deleting the job removes it. The background worker uses `chrome.alarms` and `chrome.notifications`. Clicking a reminder opens the dashboard on that job. If Chrome was closed when a reminder was due, the next launch shows a missed reminder while the deadline is still ahead, or marks it expired once the deadline has passed. "Remind me in 1 minute" on a job with a future deadline uses this same path, then schedules the job's previous reminder again if it is still due. "Send test notification" in Settings only checks that the operating system will show a Chrome notification.
 - **Calendar:** a month grid of deadlines, interviews and reminders. Jobs with no deadline are listed under "No deadline provided" and are not placed on a day. On a narrow window the month is an agenda list.
-- **Applications:** a Kanban board with four stages — Saved, Applied, Interview and Result. A card shows the job title, company, deadline (or "No deadline provided"), India eligibility and source. Drag a card onto another stage, or change the stage with the card's Move to list. With the card focused, <kbd>[</kbd> and <kbd>]</kbd> move it one stage backward or forward. The first move into Applied records the applied date. A move into Interview can record an interview date, and Skip leaves that date empty. A move into Result asks for an outcome (Selected, Rejected, Withdrawn or No response); Leave unset keeps the card in Result and shows "Outcome not set". On a narrow window, a stage switcher shows one column at a time; dragging reveals every column so a card can still be dropped. Stage changes are written through the job repository into `chrome.storage.local` and stay there across a dashboard reload. Open a card for the existing details, editor and delete confirmation.
+- **Applications:** a Kanban board with four stages — Saved, Applied, Interview and Result. A card shows the job title, company, deadline (or "No deadline provided"), India eligibility and source. Drag a card onto another stage, or change the stage with the card's Move to list. With the card focused, <kbd>[</kbd> and <kbd>]</kbd> move it one stage backward or forward. The first move into Applied records the applied date. A move into Interview can record an interview date, and Skip leaves that date empty. A move into Result asks for an outcome (Selected, Rejected, Withdrawn or No response); Leave unset keeps the card in Result and shows "Outcome not set". On a narrow window, a stage switcher shows one column at a time; dragging reveals every column so a card can still be dropped. A column with more than 40 cards paints the first 40 and a Show more control. The column heading still counts every card in that stage. Stage changes are written through the job repository into `chrome.storage.local` and stay there across a dashboard reload. Open a card for the existing details, editor and delete confirmation. Opening a saved link checks again that it is `http://` or `https://`. Anything else stays closed and the sheet says "This link can't be opened."
 - **Search, filters and sort:** the Applications page searches title, company, location, city, country, skills, description and notes. Every word must match. Filters for status, result, source, employment type, category, India eligibility, work arrangement, experience and deadline combine with OR inside a filter and AND across filters. Deadline choices are Overdue, Next 7 days, Next 30 days, No deadline provided, and a custom range. A date range does not include a job with no deadline. Sort is deadline approaching by default (jobs with no deadline go last), or recently saved, recently updated, company A–Z, or job title A–Z. The choice is stored in the page hash, so a reload keeps it. Clear all resets it. <kbd>/</kbd> or <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>K</kbd> focuses the search box. Cards inside a column follow the selected sort.
 - **Editing:** a right-hand sheet edits every stored field: title, company, URL, source, description, location, work arrangement, India eligibility, employment, pay, skills, status, result, applied and interview dates, deadline, notes and contact. The popup can suggest India eligibility from the page. The sheet keeps whatever you save, and changing the value there marks it as your correction. Clearing the deadline stores `null` and shows "No deadline provided". Status changes are appended to the job's history.
 - **Delete:** Delete asks for confirmation and names the job. Cancel leaves it in place.
@@ -38,15 +38,25 @@ Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship �
 
 ## Still ahead
 
-- Phase 8: hardening, a security review, packaging and a portfolio-ready 1.0.0. It has not started.
+Phases 1–8 are complete. Automated QA, manual QA, the clean Chrome profile installation and the release zip are done. The [release checklist](#v100-release-checklist) is the row-by-row record. The remaining repository release actions have not been performed. This documentation update did not commit, push, or create a tag, and it did not rebuild the zip.
+
+- Commit the Phase 8 work and tag `v1.0.0`. No git tag exists, and `HEAD` is still the Phase 7 commit.
+
+These are unrecorded details, not open tests. They are not claimed:
+
 - Formal Verified status for the nine integrations. That still needs a recorded date, a Chrome version, and at least three live listings per site.
 - Indeed, HiringCafe, Glassdoor and ZipRecruiter stay on manual entry. The reasons are in the integration table.
+- The spreadsheet applications used for the Phase 8 CSV check. Apple Numbers remains an earlier owner report. Google Sheets, LibreOffice and Excel are not claimed.
+- The exact VoiceOver announcements. The checklist was completed. The observations were not supplied. Placeholders are in that checklist.
+- A notification screenshot, and the Chrome version used for the manual checks. Chrome notification testing was completed. No screenshot was supplied.
 
 It runs entirely in your browser: no backend, no login, no paid API, no cloud service.
 
 ## What was manually tested
 
 The project owner tested the installed extension in Chrome through Phase 7 and confirmed that the implemented functionality works. The test date, Chrome version, macOS version and listing counts were not supplied. This confirmation does not mark any integration Verified. The definition of Verified is unchanged: at least three live listings, with the date and Chrome version written in the verification log.
+
+The project owner later reported that Phase 8 manual acceptance testing is complete. That report is separate from the Phase 1–7 confirmation and from the automated checks on 2026-11-23. The test date, Chrome version and macOS version for the Phase 8 pass were not supplied.
 
 | Phase | Tested functionality |
 | --- | --- |
@@ -57,10 +67,11 @@ The project owner tested the installed extension in Chrome through Phase 7 and c
 | 5 | Deadline management, reminders and calendar. |
 | 6 | Search, filters, sorting, CSV export and data management. |
 | 7 | Wellfound, Y Combinator Jobs, Himalayas, We Work Remotely, Unstop and Cutshort integrations. |
+| 8 | Manual acceptance. Clean Chrome profile installation passed. Manual regression testing passed. The macOS VoiceOver checklist was completed. Backup and restore were tested. Delete-all was tested. CSV compatibility was tested in the applications the project owner used. Chrome notification testing was completed. Automated QA is a separate record. |
 
 Indeed, HiringCafe, Glassdoor and ZipRecruiter are not in that list. They have no adapter and remain manual-entry only because of access restrictions or unsupported pages. Manual entry itself is part of the Phase 1 functionality that was tested.
 
-Checklist rows in the sections below stay "Not recorded" when the project owner did not describe that specific step. An earlier report confirmed a CSV in Apple Numbers. It did not include Google Sheets, LibreOffice, Excel, or a step-by-step backup, restore and delete-all record. This later confirmation does not add those details.
+Checklist rows in the Phase 1–7 sections below stay "Not recorded" when the project owner did not describe that specific step. The Phase 8 report does not rewrite those rows. An earlier report confirmed a CSV in Apple Numbers. It did not include Google Sheets, LibreOffice, Excel, or a step-by-step backup, restore and delete-all record. The Phase 1–7 confirmation does not add those details. The Phase 8 report says backup, restore, delete-all and CSV compatibility were tested. It does not name the spreadsheet applications, and it does not describe each backup, restore or delete-all step. Google Sheets, LibreOffice and Excel are not claimed.
 
 ## Status
 
@@ -71,8 +82,8 @@ Checklist rows in the sections below stay "Not recorded" when the project owner 
 | One-click save of role, company, link and deadline | Implemented. Manually tested in Chrome by the project owner, including manual entry and detection on the supported sites. Test date, Chrome version and macOS version were not supplied | 1 (manual), 4 (detect) |
 | Every saved field editable | Implemented. Job management was manually tested in Chrome by the project owner. Test date, Chrome version and macOS version were not supplied | 2 |
 | Kanban board: Saved, Applied, Interview, Result | Implemented. The four-stage board was manually tested in Chrome by the project owner. Test date, Chrome version and macOS version were not supplied | 3 |
-| Reminder before an application deadline | Implemented. Deadline management, reminders and the calendar were manually tested in Chrome by the project owner. Test date, Chrome version and macOS version were not supplied. No screenshot was provided | 5 |
-| Search and CSV export | Implemented. Search, filters, sorting, CSV export and data management were manually tested in Chrome by the project owner. An earlier report confirmed a CSV in Apple Numbers. Google Sheets, LibreOffice and Excel were not part of that report. Test date, Chrome version and macOS version were not supplied | 3 (search), 6 (CSV) |
+| Reminder before an application deadline | Implemented. Deadline management, reminders and the calendar were manually tested in Chrome by the project owner. Test date, Chrome version and macOS version were not supplied. No screenshot was provided. Phase 8 Chrome notification testing was later completed. A screenshot and the Chrome version were still not supplied | 5 |
+| Search and CSV export | Implemented. Search, filters, sorting, CSV export and data management were manually tested in Chrome by the project owner. An earlier report confirmed a CSV in Apple Numbers. Phase 8 later reported that CSV compatibility was tested in the applications the project owner used. Those names were not supplied. Google Sheets, LibreOffice and Excel are not claimed. Test date, Chrome version and macOS version were not supplied | 3 (search), 6 (CSV) |
 
 ### BSERC completion criteria
 
@@ -80,12 +91,12 @@ Checklist rows in the sections below stay "Not recorded" when the project owner 
 | --- | --- |
 | Works on three different job websites | Internshala, LinkedIn and Naukri were manually tested in Chrome by the project owner, as were the six Phase 7 integrations. The test date, Chrome version and listing count were not supplied, so none of these sites are Verified. Automated fixture tests are a separate record |
 | Manual entry when details cannot be detected | Manually tested in Chrome by the project owner as part of Phase 1. Indeed, HiringCafe, Glassdoor and ZipRecruiter stay manual-entry only and were not part of the tested integrations. Test date, Chrome version and macOS version were not supplied |
-| A deadline reminder actually appears | Manually tested in Chrome by the project owner. Test date, Chrome version and macOS version were not supplied. No screenshot was provided. Automated tests schedule alarms in memory and are a separate record |
-| Exported CSV opens correctly in a spreadsheet | An earlier manual check opened a CSV in Apple Numbers, and the data and columns displayed correctly. The project owner later confirmed CSV export as part of the Phase 6 test. Test date, Chrome version and macOS version were not supplied. Google Sheets, LibreOffice and Excel were not part of the earlier report. Automated tests cover encoding, quoting, Unicode and an empty deadline cell, and are a separate record |
+| A deadline reminder actually appears | Manually tested in Chrome by the project owner. Test date, Chrome version and macOS version were not supplied. No screenshot was provided. Phase 8 Chrome notification testing was later completed. A screenshot and the Chrome version were still not supplied. Automated tests schedule alarms in memory and are a separate record |
+| Exported CSV opens correctly in a spreadsheet | An earlier manual check opened a CSV in Apple Numbers, and the data and columns displayed correctly. The project owner later confirmed CSV export as part of the Phase 6 test. Phase 8 later reported that CSV compatibility was tested in the applications the project owner used. Those application names were not supplied. Test date, Chrome version and macOS version were not supplied. Google Sheets, LibreOffice and Excel are not claimed. Automated tests cover encoding, quoting, Unicode and an empty deadline cell, and are a separate record |
 
 ### Additional planned features
 
-India eligibility is suggested in the popup from evidence on the page, and you can correct it before saving. The calendar, reminder Settings, and the Settings and data-management interface were confirmed in the installed extension. Search, filters, sorting, and filtered and full CSV downloads were confirmed there too, and a CSV opened in Apple Numbers with the data and columns displaying correctly. Existing application, calendar and reminder functionality was still working during that check. JSON backup is implemented. Duplicate warnings are implemented. See [`PROJECT_SPEC.md`](PROJECT_SPEC.md) for details. The Northline-inspired dark dashboard and popup are implemented. Google Sheets, LibreOffice and Excel were not part of the manual check, so the specification's three-application spreadsheet check is not fully recorded. That earlier report did not include a step-by-step backup, restore or delete-all record. Schema version is still 1, so an older backup shape is refused and is not migrated. The project owner later confirmed that the implemented Phases 1–7 functionality, including data management, works in Chrome. The nine integrations are not Verified, because the test date, Chrome version and listing count were not supplied. Indeed, HiringCafe, Glassdoor and ZipRecruiter remain manual-entry only. Automated tests and the public-page inspection are separate records.
+India eligibility is suggested in the popup from evidence on the page, and you can correct it before saving. The calendar, reminder Settings, and the Settings and data-management interface were confirmed in the installed extension. Search, filters, sorting, and filtered and full CSV downloads were confirmed there too, and a CSV opened in Apple Numbers with the data and columns displaying correctly. Existing application, calendar and reminder functionality was still working during that check. JSON backup is implemented. Duplicate warnings are implemented. See [`PROJECT_SPEC.md`](PROJECT_SPEC.md) for details. The Northline-inspired dark dashboard and popup are implemented. Google Sheets, LibreOffice and Excel were not part of the manual check, so the specification's three-application spreadsheet check is not fully recorded. That earlier report did not include a step-by-step backup, restore or delete-all record. Schema version is still 1, so an older backup shape is refused and is not migrated. The project owner later confirmed that the implemented Phases 1–7 functionality, including data management, works in Chrome. The nine integrations are not Verified, because the test date, Chrome version and listing count were not supplied. Indeed, HiringCafe, Glassdoor and ZipRecruiter remain manual-entry only. Automated tests and the public-page inspection are separate records. A later Phase 8 report says manual acceptance is complete, including a clean-profile install, regression, the VoiceOver checklist, backup and restore, delete-all, CSV compatibility in applications that were not named, and Chrome notifications. That report supplied no test date, Chrome version, macOS version, screenshot, VoiceOver announcements or spreadsheet names. Google Sheets, LibreOffice and Excel are still not claimed.
 
 ## Job site support
 
@@ -128,7 +139,7 @@ The extension requests only the permissions its shipped features use. This build
 | `activeTab` | Requested (Phase 1) | Read the current tab's URL and title to prefill the popup, only when you click the extension icon or press its shortcut. |
 | `scripting` | Requested (Phase 4) | After you open the popup, inject the read-only extractor into that tab. |
 
-Updating from 0.4.0 to 0.5.0 asks Chrome to grant `alarms` and `notifications`. Versions 0.6.0 and 0.7.0 do not add a permission. Reload the unpacked extension after building.
+Updating from 0.4.0 to 0.5.0 asks Chrome to grant `alarms` and `notifications`. Versions 0.6.0, 0.7.0 and 1.0.0 do not add a permission. Reload the unpacked extension after building.
 
 Deliberately **not** requested: access to all websites (`host_permissions`), `tabs`, `downloads`, `cookies`, `unlimitedStorage`. The extension makes no network requests, and its content security policy (`script-src 'self'`) allows only its own bundled scripts.
 
@@ -155,12 +166,13 @@ Deliberately **not** requested: access to all websites (`host_permissions`), `ta
 - Spreadsheet apps that expect a semicolon between columns, rather than a comma, are not given a separate file. The export is comma-separated, which is what Excel and Google Sheets use for a UTF-8 CSV in most locales.
 - Backup validation is written in this project. `zod` is not a dependency. A backup from a future schema version is rejected. Schema version is still 1. A backup that says schema 0 is rejected, because no older job shape was ever stored, and that "import an older version" check cannot be demonstrated.
 - Import writes the new jobs and a journal in one storage call, then deletes the old keys. `chrome.storage.local.set` is atomic, so a failed set leaves the previous data. If the delete fails, both the old and the new jobs can be present until the journal runs. The page says so, and the next launch finishes the delete. A file that fails the check before that first write changes nothing.
-- A CSV was opened in Apple Numbers, and the data and columns displayed correctly. Google Sheets, LibreOffice and Excel were not part of that check. The automated tests check the file bytes, not those applications.
+- A CSV was opened in Apple Numbers, and the data and columns displayed correctly. Google Sheets, LibreOffice and Excel were not part of that check. Phase 8 later reported that CSV compatibility was tested in the applications the project owner used. Those names were not supplied, so Google Sheets, LibreOffice and Excel are still not claimed. The automated tests check the file bytes, not those applications.
 - Reminders use this computer's local time zone. A deadline date means that local calendar day, ending at 23:59 when no time is set. There is no per-job time zone.
 - Only the soonest 400 future reminders are armed at once. An hourly alarm fills in the rest. A job with no deadline, an impossible date, a passed deadline, or a reminder time that is not before the deadline gets no alarm.
-- Deadline reminders and Chrome notifications were confirmed in the installed extension. The automated tests still use an in-memory stand-in for `chrome.alarms` and `chrome.notifications`, and no notification screenshot was provided.
+- Deadline reminders and Chrome notifications were confirmed in the installed extension. Phase 8 Chrome notification testing was later completed. The automated tests still use an in-memory stand-in for `chrome.alarms` and `chrome.notifications`, and no notification screenshot was provided.
 - "Explore opportunities" scrolls to the Overview panels.
 - A similar title and company is only flagged for jobs saved in the last 60 days. Older ones are left alone unless the link matches.
+- A column with more than 40 cards shows the first 40, the line "Showing 40 of …", and Show more. Search, filters and the column count still use every saved job. Drag-and-drop moves a card that is on screen.
 - The project owner manually tested Phases 1–7 in Chrome and confirmed that the implemented functionality works. Checklist rows stay "Not recorded" where that specific step was not described. An earlier report did not include Google Sheets, LibreOffice, Excel, or a step-by-step backup, restore and delete-all record. Automated page reads used saved public HTML, not `chrome.scripting`. Automated tests, the public-page inspection and the installed-extension checks are separate records. No integration is Verified.
 
 ### Planned behaviour
@@ -173,11 +185,13 @@ Deliberately **not** requested: access to all websites (`host_permissions`), `ta
 
 ## Tech stack
 
-In use: Chrome Extension Manifest V3, React 19, TypeScript 6 (strict), Vite 8, Tailwind CSS 4, date-fns, lucide-react icons, `@dnd-kit/core` (the Kanban board), Vitest 5 with Testing Library and jsdom, ESLint 10 and Prettier.
+In use: Chrome Extension Manifest V3, React 19, TypeScript 6 (strict), Vite 8, Tailwind CSS 4, date-fns, lucide-react icons, `@dnd-kit/core` (the Kanban board), Vitest 5 with Testing Library and jsdom, Playwright with axe-core for the dashboard checks below, ESLint 10 and Prettier.
 
 Fonts (Instrument Serif, Inter and JetBrains Mono, via Fontsource) and icons are bundled into the build, so the extension makes no remote requests and works offline.
 
-Planned for later phases: `zod` (the specification names it for import validation; this build checks backups without it), Playwright (end-to-end tests).
+The specification names `zod` for import validation. This build checks backups in project code and does not depend on it.
+
+The extension is three pages plus a read-only extractor. The popup and the dashboard are React apps. The background service worker schedules reminders and injects the extractor only after you open the popup on a normal `http` or `https` tab. Messages are accepted only from this extension's own pages. Jobs and settings stay in `chrome.storage.local`. There is no backend.
 
 TypeScript is pinned to 6.0.x because `typescript-eslint` does not yet support TypeScript 7.
 
@@ -209,7 +223,11 @@ After changing the code, run `npm run build` again and click the reload icon on 
 | `npm run lint` | ESLint |
 | `npm run format:check` / `npm run format` | Check / apply Prettier formatting |
 | `npm test` | Run the Vitest suite once |
-| `npm run check` | All of the above, in order |
+| `npm run test:e2e` | Playwright against the built extension. Run `npm run build` first |
+| `npm run bench` | The 2,000-job Vitest timings in `reports/performance.json` |
+| `npm run security` | Static check of the manifest and of `src/` |
+| `npm run package` | Rebuild, then write `release/job-clipper-1.0.0.zip` |
+| `npm run check` | Typecheck, lint, format check, Vitest and the production build. It does not run Playwright |
 | `npm run icons` | Regenerate the toolbar icons in `public/icons/` |
 
 ## Project structure
@@ -234,12 +252,16 @@ src/
                    job sheet (details, edit, delete)
   ui/              shared components, hooks, design tokens and global styles
 tests/fixtures/    trimmed HTML used by the parser tests, not a live-site proof
-scripts/           icon generator and the two-watch dev build
+tests/seeds/       the 2,000-job benchmark data
+e2e/               Playwright tests of the built dashboard inside the extension
+scripts/           icon generator, the two-watch dev build, the security audit and the zip
+reports/           timings written by the benchmarks. Not part of the extension
+release/           `job-clipper-1.0.0.zip` from `npm run package`. Not committed
 ```
 
 ## Automated tests
 
-`npm test` runs 301 tests in 36 files against an in-memory fake of the `chrome.*` APIs (`tests/fakes/chrome.ts`). They cover:
+`npm test` runs 334 tests in 41 files against an in-memory fake of the `chrome.*` APIs (`tests/fakes/chrome.ts`). That count is from `npm run check` on 2026-11-23 in this Phase 8 session. They cover:
 
 - **Repository:** creating, updating and deleting jobs, refusing a duplicate link unless the save is intentional, refusing an edit that would overwrite a different job, refusing a stale edit, listing newest first, and live subscriptions. Moving a job to a stage, including rejecting a stage or outcome that is not on the board, and keeping that change for a later read.
 - **Board:** four columns, card title, company, deadline and India eligibility, Move to, the bracket-key move, the result outcome, the optional interview date, a reload that still shows the new stage, and the Overview counts after a move. Opening a card still edits it.
@@ -256,6 +278,10 @@ scripts/           icon generator and the two-watch dev build
 - **Board filters:** a status filter kept in the hash across a reload, the result count, Clear all, and an export whose rows are the jobs on screen.
 - **CSV:** quoting of commas, quotes and line breaks, a UTF-8 BOM, CRLF rows, ₹, Devanagari, Tamil and emoji, an empty deadline cell, a leading `=`, a 10,000-character note, 1,000 aligned rows, the description column staying off unless it is requested, and the filtered filename.
 - **Backup:** a round trip of jobs and settings, rejection of a file over 5 MB, duplicate ids, a non-http link, an unknown field, a bad reminder lead and a newer schema version. Merge can skip or overwrite by id or link, and a link that matches more than one application is left unchanged. Replace removes applications that are only on the device. A restore keeps the saved fields and, after reconciliation, the matching alarm. An invalid file leaves the existing alarm in place. Delete all data clears jobs, resets settings and drops the alarm. A failed delete during replace is retried, and a journal left behind is finished by the migration runner.
+- **Security and contrast:** the static audit (Manifest V3, the five permissions, no remote script APIs in `src/`) and a check that the design-token text colours clear WCAG AA 4.5:1 against the panel backgrounds.
+- **Performance:** search, filter, sort and column grouping for 2,000 in-memory jobs. The medians are in the [Phase 8 log](#2026-11-23--phase-8-automated-checks). That file does not render the board. Rendering 2,000 draggable cards in jsdom did not finish within 3 minutes, so that render is not claimed as a passing test.
+
+`npm run test:e2e` loads the unpacked `dist/` in Playwright's Chromium and opens the dashboard at `chrome-extension://…/dashboard.html`. On 2026-11-23 it ran 5 tests and all 5 passed. They cover dashboard navigation, a rejected `javascript:` link, saving with and without a deadline, the matching reminder alarm, edit, Move to, search, a status filter, filtered and full CSV download (including a formula-like company prefixed with `'`), reload, and delete with Cancel then confirm. A separate test runs axe on the skip link, the add dialog, Overview, Applications, Calendar, Settings and an open job sheet. Another seeds 2,000 jobs and times the board. These tests do not open the toolbar popup, do not inject the extractor into a job site, and do not show an operating-system notification. They are not a Verified-site check.
 
 ## Manual verification checklist (Phase 1)
 
@@ -318,7 +344,7 @@ Internshala, LinkedIn Jobs and Naukri extraction workflows were confirmed in the
 
 ## Manual verification checklist (Phase 5)
 
-Deadline reminders, notification functionality, Calendar and reminder Settings were confirmed in the installed extension. The test date, Chrome version and macOS version were not recorded. No notification screenshot was provided. Automated alarm tests remain a separate, in-memory check.
+Deadline reminders, notification functionality, Calendar and reminder Settings were confirmed in the installed extension. The test date, Chrome version and macOS version were not recorded. No notification screenshot was provided. Automated alarm tests remain a separate, in-memory check. Phase 8 later completed Chrome notification testing. No screenshot was supplied with that report. These rows stay as written for the earlier check.
 
 | # | Check | Result |
 | --- | --- | --- |
@@ -333,7 +359,7 @@ Deadline reminders, notification functionality, Calendar and reminder Settings w
 
 ## Manual verification checklist (Phase 6)
 
-The extension was tested in Chrome. A row is confirmed only for the behaviour that was reported. Other details in that row are not recorded, which is not a recorded failure. Automated tests check the file bytes and are a separate record. They did not open a spreadsheet.
+The extension was tested in Chrome. A row is confirmed only for the behaviour that was reported. Other details in that row are not recorded, which is not a recorded failure. Automated tests check the file bytes and are a separate record. They did not open a spreadsheet. A later Phase 8 report says backup, restore, delete-all and CSV compatibility were tested. These rows stay as they were written for the Phase 6 check. The Phase 8 result is in the release checklist and the verification log.
 
 | # | Check | Result |
 | --- | --- | --- |
@@ -365,11 +391,51 @@ The project owner manually tested the Phase 7 integrations in Chrome and confirm
 | 7 | Open three live Cutshort `/job/` pages. "Remote only" without an India requirement stays Unknown. "NA" is not treated as a country. A "Posted" date is not the deadline. The rupee range in the summary is kept when it is shown. | Not recorded |
 | 8 | Open an Indeed listing, a Glassdoor listing, a ZipRecruiter listing and a HiringCafe page. Each stays on manual entry. A typed job still saves. Confirm an existing Internshala, LinkedIn or Naukri preview still appears, and that search, the board, a CSV download and a reminder still work. | Not recorded |
 
+## Manual macOS VoiceOver checklist
+
+Completed by the project owner as part of Phase 8 manual acceptance. The test date, Chrome version and macOS version were not supplied, and the exact announcements were not written down. Automated axe and keyboard checks are in the Phase 8 log. They do not replace this manual pass, and this manual pass does not replace those automated checks.
+
+| # | Check | Result |
+| --- | --- | --- |
+| 1 | Turn on VoiceOver (Command-F5). Open the dashboard. The skip link is announced, and activating it moves to the main content. | Completed. [Placeholder: what VoiceOver announced for the skip link, and where focus moved.] |
+| 2 | Move through Overview, Applications, Calendar and Settings with Tab and Shift-Tab. Every control has a name, and the focus ring is visible. | Completed. [Placeholder: any control whose name or focus ring was wrong, or "none" if every control was named.] |
+| 3 | Open Add application. VoiceOver announces the dialog and its description. Focus starts on Job title. Escape closes the dialog and returns focus. | Completed. [Placeholder: the dialog announcement, the first focused field, and where focus returned.] |
+| 4 | On Applications, open a card. The sheet is announced. Edit, Save, Delete and Cancel are reachable. The Move to list names the job and company. | Completed. [Placeholder: the sheet announcement, and the names VoiceOver used for Edit, Save, Delete, Cancel and Move to.] |
+| 5 | On Calendar, the month is announced as a grid. Days are reachable and a day with entries includes the count. | Completed. [Placeholder: how the month grid and day counts were announced.] |
+| 6 | On a column with more than 40 cards, Show more is a button and the column heading still speaks the full count. | Completed. [Placeholder: how Show more and the full column count were announced.] |
+
+## v1.0.0 release checklist
+
+`npm run package` writes `release/job-clipper-1.0.0.zip`. On 2026-11-23 that file was 619,135 bytes and contained 38 files, with `manifest.json` at the archive root, Manifest V3, version 1.0.0, and no source files. The project owner later reported that installing this zip in a clean Chrome profile passed. The test date, Chrome version and macOS version for that install were not supplied. This documentation update did not rebuild the zip.
+
+To install the zip in a clean profile:
+
+1. Unzip `release/job-clipper-1.0.0.zip` into an empty folder. `manifest.json` must sit in that folder, not inside another `dist` directory.
+2. Quit other Chrome windows you care about, or use a separate profile: Chrome → Profile → Add.
+3. Open `chrome://extensions`, turn on Developer mode, and click Load unpacked. Choose the unzipped folder.
+4. Confirm the card says version 1.0.0, lists no errors, and shows the service worker. The permissions should be storage, alarms, notifications, active tab and scripting. There should be no site-access permission.
+5. Open the dashboard from the card's service worker or the first-install tab. Add one application, reload the dashboard, and confirm it is still there.
+6. Remove the extension from that profile when you are finished. That deletes its local data.
+
+| # | Check | Result |
+| --- | --- | --- |
+| 1 | `npm run check` passes. | Passed on 2026-11-23. 334 Vitest tests in 41 files. See the Phase 8 log. |
+| 2 | `npm run test:e2e` passes against `dist/`. | Passed on 2026-11-23. 5 tests. Dashboard only. |
+| 3 | `npm run security` passes. | Passed on 2026-11-23. 18 checks, 0 failed. |
+| 4 | `npm run package` writes the zip, and the zip's manifest is MV3 version 1.0.0. | Passed on 2026-11-23. `release/job-clipper-1.0.0.zip`, 619,135 bytes, 38 files. |
+| 5 | Load that zip in a clean Chrome profile and complete the steps above. | Passed. Reported by the project owner. Test date, Chrome version and macOS version were not supplied. |
+| 6 | VoiceOver checklist. | Completed. Exact announcements were not supplied. Placeholders are in the VoiceOver checklist. |
+| 7 | Open a CSV in Google Sheets, LibreOffice and Excel. | CSV compatibility was tested in the applications the project owner used. Those names were not supplied. [Placeholder: name each spreadsheet application and what it showed.] Apple Numbers remains the earlier recorded result. Google Sheets, LibreOffice and Excel are not claimed. |
+| 8 | Save a notification screenshot and record the Chrome version. | Chrome notification testing completed. A screenshot was not supplied, and the Chrome version was not recorded. |
+| 9 | Record a date, Chrome version and at least three live listings before marking any site Verified. | Not supplied. No site is Verified. Internshala, LinkedIn, Naukri, Wellfound, Y Combinator Jobs, Himalayas, We Work Remotely, Unstop and Cutshort stay manually tested. |
+| 10 | Walk through backup, restore and delete-all and write down what happened. | Tested. Backup and restore were tested. Delete-all was tested. The step-by-step observations were not supplied. |
+| 11 | Commit and tag `v1.0.0`. | Not done. No git tag exists. HEAD is the Phase 7 commit. This documentation update did not commit or push. |
+
 ## Verification log
 
 Real test results only, added as each phase is completed. Each entry records the date, Chrome version, macOS version, what was tested and the outcome, including failures.
 
-Entries titled "automated checks" or "public pages" describe that session only. They used an in-memory Chrome stand-in, a normal browser, or saved HTML. The installed-extension results are [Manual Chrome verification reported for Phases 1–5](#manual-chrome-verification-reported-for-phases-15), [Manual Chrome verification reported for Phase 6](#manual-chrome-verification-reported-for-phase-6), and [Manual Chrome confirmation reported for Phases 1–7](#manual-chrome-confirmation-reported-for-phases-17). Where an entry says a detail was not recorded, this log does not fill it in.
+Entries titled "automated checks" or "public pages" describe that session only. They used an in-memory Chrome stand-in, a normal browser, or saved HTML. The installed-extension results are [Manual Chrome verification reported for Phases 1–5](#manual-chrome-verification-reported-for-phases-15), [Manual Chrome verification reported for Phase 6](#manual-chrome-verification-reported-for-phase-6), [Manual Chrome confirmation reported for Phases 1–7](#manual-chrome-confirmation-reported-for-phases-17), and [Manual Phase 8 acceptance reported by the project owner](#manual-phase-8-acceptance-reported-by-the-project-owner). Where an entry says a detail was not recorded, this log does not fill it in. The Phase 8 manual entry does not rewrite earlier rows.
 
 ### 2026-11-22 — Phase 1, automated checks
 
@@ -533,6 +599,68 @@ This entry is the project owner's confirmation. It does not replace the automate
 - Checklist rows whose specific steps were not described stay "Not recorded".
 
 _The phase-level functionality above was confirmed in the installed extension. Environment metadata for this check was not supplied._
+
+### 2026-11-23 — Phase 8, automated checks
+
+This entry is the automated session. It does not replace the project owner's manual confirmation of Phases 1–7, and it does not mark any site Verified. The owner's Chrome version was not supplied. Playwright used its own Chromium, headless, with the unpacked `dist/`. This session did not install the zip in a clean profile and did not commit.
+
+- Environment: macOS 26 (Darwin 25.6), Node 25.9.0, npm 11.12.1.
+- `npm run check`: passed. Typecheck 0 errors, ESLint 0 errors and 0 warnings, Prettier, Vitest (41 files, 334 tests, all passed), and the production build. `dist/manifest.json` is Manifest V3 version 1.0.0 and still requests `storage`, `alarms`, `notifications`, `activeTab` and `scripting`. No `host_permissions`.
+- `npm run security`: 18 passed, 0 failed. The script checks the manifest and scans `src/` (not test files) for `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, `dangerouslySetInnerHTML`, `eval`, `new Function`, `fetch`, `XMLHttpRequest`, `sendBeacon` and `WebSocket`.
+- `npm run test:e2e`: 5 passed, 0 failed, about 32 seconds. Coverage is the extension dashboard, plus one service-worker alarm read. It does not cover the toolbar popup, content-script injection, or an operating-system notification. axe (`wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`) reported no violations on the add dialog, Overview, Applications, Calendar, Settings and an open job sheet. The skip link took keyboard focus and was wider than 20 pixels.
+- `npm run package`: wrote `release/job-clipper-1.0.0.zip` (619,135 bytes, 38 files). `manifest.json` is at the zip root.
+
+In-memory benchmark, median of 5 runs, written to `reports/performance.json` at `2026-11-23T18:39:02.011Z` during `npm test`. These are not Chrome render times.
+
+| Operation | Median |
+| --- | --- |
+| Build 2,000 records | 24.97 ms |
+| Write them to the in-memory store | 13.01 ms |
+| Search "zephyr warehouse" (1 match) | 3.49 ms (min 1.28, max 14.06) |
+| Same search, cache warm | 0.57 ms |
+| Filter status Saved (500 matches) | 1.07 ms |
+| Filter deadline = none | 22.99 ms (min 17.49, max 64.48) |
+| Sort company A–Z | 2.54 ms |
+| Group into columns | 1.24 ms |
+
+Chrome dashboard benchmark, one Playwright run, written to `reports/performance-browser.json` at `2026-11-23T18:39:50.814Z`. Times include painting. The seed writes 2,000 jobs into `chrome.storage.local` and waits until storage writes go quiet before the board is opened.
+
+| Operation | Time |
+| --- | --- |
+| Seed 2,000 jobs | 21,121 ms |
+| Wait until reminder writes go quiet | 2,606 ms |
+| Open Applications | 4,025 ms |
+| Search to 1 match | 50 ms |
+| Filter status Saved | 126 ms |
+| Sort company A–Z while filtered | 25 ms |
+| Move the matching card to Applied | 7 ms |
+
+Earlier runs in the same session, after the column window and the reminder coalesce, opened Applications in 3,551 ms and, once, in 25,221 ms. Search, filter, sort and move in those settled runs stayed under 200 ms. Before the column window, one Playwright run opened Applications in 9,275 ms, searched in 1,290 ms, filtered in 712 ms, sorted in 310 ms and moved a card in 391 ms. A jsdom render of all 2,000 cards was stopped after 3 minutes and is not a result.
+
+Fixes recorded with those measurements: deadline comparisons are cached, company and title sorts share one collator, a column paints 40 cards at a time, and a burst of storage writes schedules one reminder pass plus a follow-up instead of one full pass per write.
+
+_This entry is the automated session only. VoiceOver, the clean-profile zip install, and the git tag were not run in this session. The next entry is the project owner's later manual acceptance. The numbers above are unchanged._
+
+### Manual Phase 8 acceptance reported by the project owner
+
+This entry is the project owner's manual report. It does not replace the 2026-11-23 automated entry above, and it does not mark any site Verified. It also does not rewrite Phase 1–7 checklist rows that were left "Not recorded". This confirmation was written down on 2026-11-24. That is the date it was reported. It is not a recorded test date. The Chrome version and the macOS version were not supplied. The zip was not rebuilt for this record.
+
+- Clean Chrome profile installation of `release/job-clipper-1.0.0.zip`: passed.
+- Manual regression testing: passed.
+- macOS VoiceOver checklist: completed. Exact announcements were not supplied. The placeholders are in the [VoiceOver checklist](#manual-macos-voiceover-checklist).
+- Backup and restore: tested. What happened at each step was not supplied.
+- Delete-all: tested. What happened after the typed confirmation was not supplied.
+- CSV compatibility: tested in the spreadsheet applications the project owner used. Those names were not supplied. [Placeholder: name each application and what it showed.] Apple Numbers stays the earlier recorded result. Google Sheets, LibreOffice and Excel are not claimed from this report.
+- Chrome notification testing: completed. No screenshot was supplied. The Chrome version was not recorded.
+- Phase 8 manual acceptance testing: completed.
+
+The 2026-11-23 automated results stay as recorded in the previous entry: `npm run check` passed with 334 Vitest tests in 41 files, `npm run test:e2e` passed 5 tests, `npm run security` passed 18 checks, and `release/job-clipper-1.0.0.zip` was 619,135 bytes and 38 files.
+
+Internshala, LinkedIn, Naukri, Wellfound, Y Combinator Jobs, Himalayas, We Work Remotely, Unstop and Cutshort stay manually tested, not Verified. Indeed, HiringCafe, Glassdoor and ZipRecruiter stay manual-entry only.
+
+The git commit and the `v1.0.0` tag have not been performed. No git tag exists, and HEAD is the Phase 7 commit.
+
+_The checks listed above were reported by the project owner. Environment metadata and the placeholders were not supplied._
 
 ## Design reference
 

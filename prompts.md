@@ -1263,3 +1263,110 @@ Do not start Phase 8. Do not commit or push.
 
 Stop and wait for my review.
 ````
+
+---
+
+## Prompt 12 — Phase 8: Final QA, security, documentation and release preparation
+
+- **Date:** 2026-11-23
+- **Phase:** 8
+- **Outcome:** Playwright dashboard tests, axe checks, a 2,000-job benchmark, security fixes, documentation, and `release/job-clipper-1.0.0.zip`. `npm run check` passed (41 files, 334 tests). `npm run test:e2e` passed (5 tests). `npm run security` passed (18 checks). VoiceOver, a clean-profile install, and a git tag were not done. No site is Verified. Not committed.
+
+````text
+We are starting Phase 8 — Final QA, Security, Documentation & Release Preparation of Job Clipper.
+
+The project has completed Phases 1–7. I have manually tested the implemented functionality in Chrome and confirmed that it works.
+
+This is the FINAL phase. Focus exclusively on quality assurance, hardening, documentation and release preparation. Do not introduce new product features or change existing behavior unnecessarily.
+
+First, inspect:
+- PROJECT_SPEC.md
+- README.md
+- CHANGELOG.md
+- prompts.md
+- package.json
+- Existing source code, tests and build configuration.
+
+Then implement Phase 8 in the following areas:
+
+1. END-TO-END TESTING
+- Set up Playwright using a configuration compatible with the existing Vite/React/Chrome extension project.
+- Add end-to-end coverage for critical workflows: manual job creation, editing, deletion, status changes, search, filters, CSV export, deadline handling and dashboard navigation.
+- Reuse existing test infrastructure where practical.
+- Do not claim browser-extension E2E coverage if tests only exercise the web dashboard.
+
+2. ACCESSIBILITY
+- Integrate axe accessibility checks where compatible.
+- Check keyboard navigation, focus visibility, labels, semantic structure, contrast and dialogs.
+- Provide a manual macOS VoiceOver testing checklist.
+- Fix genuine accessibility issues without changing the visual design unnecessarily.
+
+3. PERFORMANCE
+- Create a reproducible performance test or benchmark using 2,000 realistic job records.
+- Measure important operations such as dashboard rendering, search, filtering, sorting and Kanban interactions.
+- Identify and fix significant performance bottlenecks.
+- Report actual measurements. Do not invent performance results.
+
+4. SECURITY AUDIT
+Review:
+- Chrome Manifest V3 permissions and whether each is necessary.
+- Content-script and service-worker message validation.
+- URL validation and external navigation.
+- Unsafe HTML rendering, including innerHTML usage.
+- Storage validation and backup/restore handling.
+- CSV formula injection protection.
+- Sensitive information and accidental data transmission.
+- Extension security and privacy implications.
+
+Fix confirmed vulnerabilities. Do not weaken existing restrictions or add unnecessary permissions.
+
+5. DOCUMENTATION
+Finalize README.md, PROJECT_SPEC.md and CHANGELOG.md.
+Include:
+- Project overview and features.
+- Technology stack and architecture.
+- Installation and development instructions.
+- Permission explanations.
+- Privacy and local-storage behavior.
+- Website integration support and limitations.
+- Testing instructions and actual test results.
+- Release and packaging instructions.
+
+Accurately record that Phases 1–7 have been manually tested by me. Do not invent testing dates, browser versions, listing counts or verification evidence. Distinguish manually tested integrations from formally verified adapters and manual-entry-only websites.
+
+6. RELEASE PACKAGING
+- Add or verify a reliable npm run package command.
+- Generate a production-ready Chrome extension ZIP containing only the required distributable files.
+- Ensure the package contains the correct Manifest V3 configuration and production assets.
+- Provide instructions for installing and testing the ZIP in a clean Chrome profile.
+- Prepare a v1.0.0 release checklist.
+
+IMPORTANT CONSTRAINTS:
+- No backend, authentication, cloud sync or paid APIs.
+- Preserve the existing Northline-inspired visual design.
+- Preserve local-first storage and existing functionality.
+- Do not add unnecessary dependencies.
+- Do not commit or push changes.
+- Do not claim that a test passed unless it was actually executed.
+- Do not mark websites formally verified without satisfying the documented verification criteria.
+
+After implementation:
+- Run the complete test suite.
+- Run npm run check.
+- Run npm run build.
+- Run the performance benchmark.
+- Run the security and accessibility checks that can be automated.
+- Run npm run package.
+- Report passed, failed, skipped and manual-only checks separately.
+
+Finally, provide:
+1. Summary of changes.
+2. Files modified or added.
+3. Test results with actual numbers.
+4. Security and accessibility findings.
+5. Performance benchmark results.
+6. Generated ZIP location.
+7. Remaining manual testing required before v1.0.0.
+
+Do not declare Phase 8 complete until all acceptance criteria have been addressed and outstanding manual checks are clearly documented.
+````

@@ -16,8 +16,10 @@ export function isSortId(value: string): value is SortId {
   return (SORTS as readonly string[]).includes(value);
 }
 
+const textOrder = new Intl.Collator(undefined, { sensitivity: "base" });
+
 function byText(a: string, b: string): number {
-  return a.localeCompare(b, undefined, { sensitivity: "base" });
+  return textOrder.compare(a, b);
 }
 
 /** Deadline approaching puts jobs with no deadline last. The other orders do not. */

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { openListing } from "../openListing";
 import type { JobFormErrors, JobFormValues } from "../../core/model/jobForm";
 import { jobToForm } from "../../core/model/jobForm";
 import { deadlineEnd, SOON_DELAY_MS } from "../../core/reminders/computeRemindAt";
@@ -195,6 +196,8 @@ export function JobDrawer({
 }: JobDrawerProps) {
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [linkError, setLinkError] = useState<{ id: string; message: string } | null>(null);
+  const listingError = linkError && job && linkError.id === job.id ? linkError.message : null;
 
   const remove = async () => {
     if (!job) return;
@@ -219,13 +222,22 @@ export function JobDrawer({
         footer={
           job && !editing ? (
             <>
+              {listingError && (
+                <p role="alert" className="w-full text-[12.5px] text-danger">
+                  {listingError}
+                </p>
+              )}
               <Button variant="danger" onClick={() => setConfirming(true)}>
                 Delete
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => {
-                  chrome.tabs.create({ url: job.url }).catch(() => {});
+                  const id = job.id;
+                  setLinkError(null);
+                  void openListing(job.url).then((opened) => {
+                    if (!opened) setLinkError({ id, message: "This link can't be opened." });
+                  });
                 }}
               >
                 Open listing

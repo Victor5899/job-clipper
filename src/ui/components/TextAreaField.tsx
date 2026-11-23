@@ -37,7 +37,7 @@ export function TextAreaField({
         {...props}
       />
       {error && (
-        <p id={errorId} className="text-[12.5px] text-danger">
+        <p id={errorId} role="alert" className="text-[12.5px] text-danger">
           {error}
         </p>
       )}
