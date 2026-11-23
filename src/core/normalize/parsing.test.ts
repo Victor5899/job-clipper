@@ -12,6 +12,8 @@ describe("parseExplicitDate", () => {
     expect(parseExplicitDate("9 Jan 2027")).toBe("2027-01-09");
     expect(parseExplicitDate("2026-12-18")).toBe("2026-12-18");
     expect(parseExplicitDate("1st December 2026")).toBe("2026-12-01");
+    expect(parseExplicitDate("Dec 10, 2026")).toBe("2026-12-10");
+    expect(parseExplicitDate("Dec 2th, 2026")).toBe("2026-12-02");
     expect(parseExplicitDate("Immediately")).toBeNull();
     expect(parseExplicitDate("Apply by 18 Dec 2026")).toBeNull();
     expect(parseExplicitDate("The deadline is 18 Dec 2026")).toBeNull();

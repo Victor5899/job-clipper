@@ -150,4 +150,58 @@ describe("popup detection", () => {
     expect(screen.queryByText(/doesn't look like a job listing/i)).not.toBeInTheDocument();
     expect(screen.getByLabelText(/^company/i)).toHaveValue("");
   });
+
+  it("shows a Wellfound preview and saves only after the user confirms", async () => {
+    const user = userEvent.setup();
+    const url = "https://wellfound.com/jobs/4981464-software-engineer";
+    const html = readFileSync(
+      join(
+        dirname(fileURLToPath(import.meta.url)),
+        "../../tests/fixtures/sites/wellfound/remote-india.html",
+      ),
+      "utf8",
+    );
+    const detected = extractFromDocument(new DOMParser().parseFromString(html, "text/html"), url);
+    chromeFake().setActiveTab({ id: 12, url, title: "Software Engineer" });
+    chromeFake().runtime.sendMessage.mockImplementation(async () => detected);
+
+    render(<PopupApp />);
+
+    expect(await screen.findByDisplayValue("Vested Finance")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Software Engineer")).toBeInTheDocument();
+    expect(screen.getByText(/missing:/i).closest("p")).toHaveTextContent(/deadline/i);
+    expect(screen.getByText(/missing:/i).closest("p")).toHaveTextContent(/salary/i);
+    expect(screen.getByLabelText(/india eligibility/i)).toHaveValue("remote_india");
+    expect(storedJobs()).toHaveLength(0);
+
+    await user.clear(screen.getByLabelText(/^company/i));
+    await user.type(screen.getByLabelText(/^company/i), "Vested");
+    await user.click(screen.getByRole("button", { name: /save to job clipper/i }));
+
+    expect(
+      await screen.findByRole("heading", { name: /saved to job clipper/i }),
+    ).toBeInTheDocument();
+    const [job] = storedJobs();
+    expect(job?.company).toBe("Vested");
+    expect(job?.deadline).toBeNull();
+    expect(job?.source).toBe("wellfound");
+  });
+
+  it("keeps Indeed on manual entry", async () => {
+    const url = "https://in.indeed.com/viewjob?jk=abc123";
+    const detected = extractFromDocument(
+      new DOMParser().parseFromString("<html><h1>Analyst</h1></html>", "text/html"),
+      url,
+    );
+    chromeFake().setActiveTab({ id: 13, url, title: "Analyst at Indeed" });
+    chromeFake().runtime.sendMessage.mockImplementation(async () => detected);
+
+    render(<PopupApp />);
+
+    expect(await screen.findByDisplayValue("Analyst at Indeed")).toBeInTheDocument();
+    expect(screen.getByText("Manual entry")).toBeInTheDocument();
+    expect(screen.getByLabelText(/^company/i)).toHaveValue("");
+    expect(screen.queryByText(/missing:/i)).not.toBeInTheDocument();
+    expect(storedJobs()).toHaveLength(0);
+  });
 });

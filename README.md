@@ -4,8 +4,8 @@ An offline-first Chrome extension for clipping, tracking and getting reminded ab
 
 Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship — Week 2, Project 10.
 
-> **Current status: Phase 6 (CSV export, search, and data management) implemented, with the reported manual checks recorded.**
-> Automated checks and the installed-extension checks are separate entries in the [verification log](#verification-log). Phases 1–6 were confirmed in the installed extension for the workflows named there. The test date, Chrome version and macOS version were not recorded. Google Sheets, LibreOffice, Excel, backup/restore and delete-all were not part of that report. See the [Phase 6 checklist](#manual-verification-checklist-phase-6). This file is updated at the end of each phase with real results only.
+> **Current status: Phases 1–7 implemented and manually tested in Chrome by the project owner. Phase 8 is the remaining phase.**
+> The project owner confirmed that the implemented functionality works. The test date, Chrome version, macOS version and listing counts were not supplied, so no integration is Verified. Automated checks, public-page inspection and installed-extension checks stay separate entries in the [verification log](#verification-log). Indeed, HiringCafe, Glassdoor and ZipRecruiter remain manual-entry only. See [What was manually tested](#what-was-manually-tested).
 
 ## Documents
 
@@ -15,7 +15,7 @@ Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship �
 
 ## What works now
 
-- **Popup** (toolbar icon or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd>): on an Internshala, LinkedIn or Naukri job page, the extension reads the listing in the tab you already have open and shows an editable preview. Missing fields are named. Nothing is saved until you press Save. You can change every detected value, including India eligibility. If the page is not a supported listing, or the read fails, the same manual form is there: URL and page title prefilled, company empty. On browser pages that aren't regular websites (for example `chrome://` pages) nothing is prefilled, and the form still works.
+- **Popup** (toolbar icon or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd>): on an Internshala, LinkedIn, Naukri, Wellfound, Y Combinator, Himalayas, We Work Remotely, Unstop or Cutshort job page, the extension reads the listing in the tab you already have open and shows an editable preview. Missing fields are named. Nothing is saved until you press Save. You can change every detected value, including India eligibility. Those nine integrations were manually tested in Chrome. They are not Verified. If the page is not a supported listing, or the read fails, the same manual form is there: URL and page title prefilled, company empty. Indeed, HiringCafe, Glassdoor and ZipRecruiter stay on that form. On browser pages that aren't regular websites (for example `chrome://` pages) nothing is prefilled, and the form still works.
 - **Validation:** title, company and URL are required. Only `http://` and `https://` links are accepted. Errors appear next to each field, and focus moves to the first problem.
 - **Drafts:** whatever you type in the popup is kept in `chrome.storage.session` for that tab. If the popup closes before you save, reopening it restores the entry. The draft is cleared on save, and session storage is wiped when Chrome quits.
 - **No deadline is fine:** a job without a deadline is saved with `deadline: null` and shown as "No deadline provided". Deadlines are never guessed.
@@ -31,16 +31,36 @@ Built for the Bharat Space Education Research Centre (BSERC) GenAI Internship �
 - **Search, filters and sort:** the Applications page searches title, company, location, city, country, skills, description and notes. Every word must match. Filters for status, result, source, employment type, category, India eligibility, work arrangement, experience and deadline combine with OR inside a filter and AND across filters. Deadline choices are Overdue, Next 7 days, Next 30 days, No deadline provided, and a custom range. A date range does not include a job with no deadline. Sort is deadline approaching by default (jobs with no deadline go last), or recently saved, recently updated, company A–Z, or job title A–Z. The choice is stored in the page hash, so a reload keeps it. Clear all resets it. <kbd>/</kbd> or <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>K</kbd> focuses the search box. Cards inside a column follow the selected sort.
 - **Editing:** a right-hand sheet edits every stored field: title, company, URL, source, description, location, work arrangement, India eligibility, employment, pay, skills, status, result, applied and interview dates, deadline, notes and contact. The popup can suggest India eligibility from the page. The sheet keeps whatever you save, and changing the value there marks it as your correction. Clearing the deadline stores `null` and shows "No deadline provided". Status changes are appended to the job's history.
 - **Delete:** Delete asks for confirmation and names the job. Cancel leaves it in place.
-- **Duplicates:** links are compared after normalisation (host case, a leading `www.`, tracking parameters, and the LinkedIn and Indeed shapes in the spec). The same link, or the same site job id, shows "Already saved on …". A very similar company and title saved within 60 days is called out too. You can open the existing application, edit it, or save a separate copy. Nothing is overwritten silently. An edit made from an older copy is refused if the stored job changed in the meantime.
+- **Duplicates:** links are compared after normalisation (host case, a leading `www.`, tracking parameters, and the LinkedIn, Indeed, Wellfound, Y Combinator, Himalayas, We Work Remotely, Unstop and Cutshort shapes). The same link, or the same site job id, shows "Already saved on …". A very similar company and title saved within 60 days is called out too. You can open the existing application, edit it, or save a separate copy. Nothing is overwritten silently. An edit made from an older copy is refused if the stored job changed in the meantime.
 - **Storage:** each job is stored under its own `job:<uuid>` key in `chrome.storage.local`, with IDs from `crypto.randomUUID()`. Default settings and a schema version are written on install. Existing data is kept on update. Schema version stays 1. On update, a CSV preference that was never chosen is recorded as off, which is the specification default. A choice you already saved is left alone.
 - **CSV export:** Settings and the top bar download every saved application as `job-clipper-all-YYYY-MM-DD.csv`. On Applications, Export CSV does the same when nothing is filtering the board. Export filtered downloads the jobs on screen as `job-clipper-filtered-YYYY-MM-DD.csv`. The file is UTF-8 with a BOM and CRLF rows. The description column is off unless you turn it on in Settings. The download message says whether that column was included. Every other stored field stays in the file.
 - **Backup and restore:** Settings downloads a JSON file of every saved application and the reminder, profile and CSV settings. Reading a file shows whether the next step merges or replaces, and both ask you to confirm. Replace and Delete all data also require a typed phrase. A file that is too large, malformed, or from a newer schema is refused and nothing already saved is changed. A schema older than 1 is also refused: this project has only ever stored schema 1, so there is no older shape to migrate. New copies are written together with a short journal. The old keys are removed after that. If the removal fails, the page says the step will finish the next time Job Clipper starts, and the journal completes it. After a successful import or delete, the background worker reconciles reminder alarms with the jobs that remain.
 
 ## Still ahead
 
-- More job sites after the first three. Wellfound and Y Combinator Jobs were reachable on 2026-11-22 and are not built yet. Indeed answered with a Cloudflare challenge and was left alone.
+- Phase 8: hardening, a security review, packaging and a portfolio-ready 1.0.0. It has not started.
+- Formal Verified status for the nine integrations. That still needs a recorded date, a Chrome version, and at least three live listings per site.
+- Indeed, HiringCafe, Glassdoor and ZipRecruiter stay on manual entry. The reasons are in the integration table.
 
 It runs entirely in your browser: no backend, no login, no paid API, no cloud service.
+
+## What was manually tested
+
+The project owner tested the installed extension in Chrome through Phase 7 and confirmed that the implemented functionality works. The test date, Chrome version, macOS version and listing counts were not supplied. This confirmation does not mark any integration Verified. The definition of Verified is unchanged: at least three live listings, with the date and Chrome version written in the verification log.
+
+| Phase | Tested functionality |
+| --- | --- |
+| 1 | Foundation, dashboard and manual entry. |
+| 2 | Job management: create, read, update and delete. |
+| 3 | Four-stage Kanban board: Saved, Applied, Interview and Result. |
+| 4 | Internshala, LinkedIn and Naukri integrations. |
+| 5 | Deadline management, reminders and calendar. |
+| 6 | Search, filters, sorting, CSV export and data management. |
+| 7 | Wellfound, Y Combinator Jobs, Himalayas, We Work Remotely, Unstop and Cutshort integrations. |
+
+Indeed, HiringCafe, Glassdoor and ZipRecruiter are not in that list. They have no adapter and remain manual-entry only because of access restrictions or unsupported pages. Manual entry itself is part of the Phase 1 functionality that was tested.
+
+Checklist rows in the sections below stay "Not recorded" when the project owner did not describe that specific step. An earlier report confirmed a CSV in Apple Numbers. It did not include Google Sheets, LibreOffice, Excel, or a step-by-step backup, restore and delete-all record. This later confirmation does not add those details.
 
 ## Status
 
@@ -48,48 +68,46 @@ It runs entirely in your browser: no backend, no login, no paid API, no cloud se
 
 | Feature | Status | Planned phase |
 | --- | --- | --- |
-| One-click save of role, company, link and deadline | Implemented. One-click save and the manual-entry fallback were confirmed in the installed extension. Test date, Chrome version and macOS version not recorded | 1 (manual), 4 (detect) |
-| Every saved field editable | Implemented. Editing saved fields was confirmed in the installed extension. Test date, Chrome version and macOS version not recorded | 2 |
-| Kanban board: Saved, Applied, Interview, Result | Implemented. The four-stage board and application management were confirmed in the installed extension. Test date, Chrome version and macOS version not recorded | 3 |
-| Reminder before an application deadline | Implemented. Deadline reminders and notification functionality were confirmed in the installed extension. Test date, Chrome version and macOS version not recorded. No screenshot was provided | 5 |
-| Search and CSV export | Implemented. Search, multi-word matching, all filters, combined filters, sorting, and filtered and full CSV downloads were confirmed in the installed extension. A CSV opened in Apple Numbers, and the data and columns displayed correctly. Google Sheets, LibreOffice and Excel were not part of this check. Test date, Chrome version and macOS version not recorded. Automated tests are a separate record | 3 (search), 6 (CSV) |
+| One-click save of role, company, link and deadline | Implemented. Manually tested in Chrome by the project owner, including manual entry and detection on the supported sites. Test date, Chrome version and macOS version were not supplied | 1 (manual), 4 (detect) |
+| Every saved field editable | Implemented. Job management was manually tested in Chrome by the project owner. Test date, Chrome version and macOS version were not supplied | 2 |
+| Kanban board: Saved, Applied, Interview, Result | Implemented. The four-stage board was manually tested in Chrome by the project owner. Test date, Chrome version and macOS version were not supplied | 3 |
+| Reminder before an application deadline | Implemented. Deadline management, reminders and the calendar were manually tested in Chrome by the project owner. Test date, Chrome version and macOS version were not supplied. No screenshot was provided | 5 |
+| Search and CSV export | Implemented. Search, filters, sorting, CSV export and data management were manually tested in Chrome by the project owner. An earlier report confirmed a CSV in Apple Numbers. Google Sheets, LibreOffice and Excel were not part of that report. Test date, Chrome version and macOS version were not supplied | 3 (search), 6 (CSV) |
 
 ### BSERC completion criteria
 
 | Criterion | Status |
 | --- | --- |
-| Works on three different job websites | Internshala, LinkedIn Jobs and Naukri extraction was confirmed in the installed extension. The test date, Chrome version and listing count were not recorded, so the sites are not marked Verified. Automated fixture tests are separate and are not that manual check |
-| Manual entry when details cannot be detected | Confirmed in the installed extension. Test date, Chrome version and macOS version not recorded. Automated tests cover the same fallback separately |
-| A deadline reminder actually appears | Confirmed in the installed extension, including notification functionality. Test date, Chrome version and macOS version not recorded. No screenshot was provided. Automated tests schedule alarms in memory and are not that manual check |
-| Exported CSV opens correctly in a spreadsheet | Manually verified in Apple Numbers: the CSV opened, and the data and columns displayed correctly. Test date, Chrome version and macOS version not recorded. Google Sheets, LibreOffice and Excel were not part of this check. Automated tests cover encoding, quoting, Unicode and an empty deadline cell, and are not that manual check |
+| Works on three different job websites | Internshala, LinkedIn and Naukri were manually tested in Chrome by the project owner, as were the six Phase 7 integrations. The test date, Chrome version and listing count were not supplied, so none of these sites are Verified. Automated fixture tests are a separate record |
+| Manual entry when details cannot be detected | Manually tested in Chrome by the project owner as part of Phase 1. Indeed, HiringCafe, Glassdoor and ZipRecruiter stay manual-entry only and were not part of the tested integrations. Test date, Chrome version and macOS version were not supplied |
+| A deadline reminder actually appears | Manually tested in Chrome by the project owner. Test date, Chrome version and macOS version were not supplied. No screenshot was provided. Automated tests schedule alarms in memory and are a separate record |
+| Exported CSV opens correctly in a spreadsheet | An earlier manual check opened a CSV in Apple Numbers, and the data and columns displayed correctly. The project owner later confirmed CSV export as part of the Phase 6 test. Test date, Chrome version and macOS version were not supplied. Google Sheets, LibreOffice and Excel were not part of the earlier report. Automated tests cover encoding, quoting, Unicode and an empty deadline cell, and are a separate record |
 
 ### Additional planned features
 
-India eligibility is suggested in the popup from evidence on the page, and you can correct it before saving. The calendar, reminder Settings, and the Settings and data-management interface were confirmed in the installed extension. Search, filters, sorting, and filtered and full CSV downloads were confirmed there too, and a CSV opened in Apple Numbers with the data and columns displaying correctly. Existing application, calendar and reminder functionality was still working during that check. JSON backup is implemented. Duplicate warnings are implemented. See [`PROJECT_SPEC.md`](PROJECT_SPEC.md) for details. The Northline-inspired dark dashboard and popup are implemented. Google Sheets, LibreOffice and Excel were not part of the manual check, so the specification's three-application spreadsheet check is not fully recorded. Backup, restore and delete-all were not part of that report. Schema version is still 1, so an older backup shape is refused and is not migrated. The three sites are not marked Verified because the manual report did not include a date, a Chrome version or a listing count. Automated tests are a separate record.
+India eligibility is suggested in the popup from evidence on the page, and you can correct it before saving. The calendar, reminder Settings, and the Settings and data-management interface were confirmed in the installed extension. Search, filters, sorting, and filtered and full CSV downloads were confirmed there too, and a CSV opened in Apple Numbers with the data and columns displaying correctly. Existing application, calendar and reminder functionality was still working during that check. JSON backup is implemented. Duplicate warnings are implemented. See [`PROJECT_SPEC.md`](PROJECT_SPEC.md) for details. The Northline-inspired dark dashboard and popup are implemented. Google Sheets, LibreOffice and Excel were not part of the manual check, so the specification's three-application spreadsheet check is not fully recorded. That earlier report did not include a step-by-step backup, restore or delete-all record. Schema version is still 1, so an older backup shape is refused and is not migrated. The project owner later confirmed that the implemented Phases 1–7 functionality, including data management, works in Chrome. The nine integrations are not Verified, because the test date, Chrome version and listing count were not supplied. Indeed, HiringCafe, Glassdoor and ZipRecruiter remain manual-entry only. Automated tests and the public-page inspection are separate records.
 
 ## Job site support
 
-Listed in integration priority order. A site is marked **Verified** only after its adapter has been tested on at least three real, accessible listings, with the date and Chrome version recorded in the verification log below. Manual entry works on every website regardless of this table.
+Listed in integration priority order. A site is marked **Verified** only after its adapter has been tested on at least three real, accessible listings in the installed Chrome extension, with the date and Chrome version recorded in the verification log below. Fixture tests and a public-page inspection are not that check. Manual entry works on every website regardless of this table.
 
-The first three sites were readable on 2026-11-22, so Wellfound and Y Combinator Jobs were not built. Extraction for Internshala, LinkedIn Jobs and Naukri was later confirmed in the installed extension. They are not marked Verified: the manual report did not include a date, a Chrome version, or how many listings were checked. Automated page reads from 2026-11-22 are a separate record.
+The project owner manually tested these integrations in Chrome and confirmed that they work: Internshala, LinkedIn, Naukri, Wellfound, Y Combinator Jobs, Himalayas, We Work Remotely, Unstop and Cutshort. The test date, Chrome version and listing count were not supplied, so none are Verified. Indeed, HiringCafe, Glassdoor and ZipRecruiter have no adapter and stay manual-entry only. The access notes below come from the 2026-11-22 and 2026-11-23 inspections. They are not a new test.
 
-| # | Site | Tier | Status |
-| --- | --- | --- | --- |
-| 1 | Internshala | 1 | Extraction workflow confirmed in the installed extension. Date, Chrome version and listing count not recorded, so this is not Verified. Public pages on 2026-11-22 also returned HTTP 200 in an automated read. |
-| 2 | LinkedIn Jobs | 1 | Extraction workflow confirmed in the installed extension. Date, Chrome version and listing count not recorded, so this is not Verified. Guest pages on 2026-11-22 also returned HTTP 200 in an automated read. |
-| 3 | Naukri | 1 | Extraction workflow confirmed in the installed extension. Date, Chrome version and listing count not recorded, so this is not Verified. A downloaded shell on 2026-11-22 was empty until the page rendered; that automated read is separate. |
-| 4 | Wellfound | 1 | Planned. A public listing returned HTTP 200 on 2026-11-22. Not implemented. |
-| 5 | Indeed | 1 | Manual entry only. On 2026-11-22 a request returned HTTP 403 with a Cloudflare challenge. It was not bypassed. |
-| 6 | Y Combinator Jobs | 1 | Planned. A public listing returned HTTP 200 on 2026-11-22. Not implemented. |
-| 7 | Himalayas | 2 | Planned |
-| 8 | We Work Remotely | 2 | Planned |
-| 9 | Unstop | 2 | Planned |
-| 10 | Cutshort | 2 | Planned |
-| 11 | HiringCafe | 3 | Planned |
-| 12 | Glassdoor | 3 | Planned |
-| 13 | ZipRecruiter | 3 | Planned |
-
-Possible statuses: Planned, In development, Verified, Manual entry only (with a reason).
+| Website | Adapter status | Fields extracted | Access limitations | Fixture test results | Actual Chrome verification |
+| --- | --- | --- | --- | --- | --- |
+| Internshala | Enabled. Manually tested. Not Verified. | Title, company, location, arrangement, employment, stipend, skills, description, and an Apply By deadline when that label is present. | Public detail pages were readable on 2026-11-22. | Parser fixtures passed in the automated suite. | Manually tested in Chrome by the project owner. Date, Chrome version and listing count were not supplied, so this is not Verified. |
+| LinkedIn Jobs | Enabled. Manually tested. Not Verified. | Title, company, location, employment and description from the guest card. A bare Remote stays Unknown. No deadline is taken from prose. | Guest job pages were readable on 2026-11-22. Logged-in pages are not required and were not used. | Parser fixtures passed in the automated suite. | Manually tested in Chrome by the project owner. Date, Chrome version and listing count were not supplied, so this is not Verified. |
+| Naukri | Enabled. Manually tested. Not Verified. | Title, company, experience, location, arrangement, skills and description after the listing paints. "Not disclosed" stays missing. | The first HTML response is an empty shell. The extractor waits briefly for the rendered listing. | Parser fixtures passed in the automated suite. | Manually tested in Chrome by the project owner. Date, Chrome version and listing count were not supplied, so this is not Verified. |
+| Wellfound | Enabled. Manually tested. Not Verified. | Title, company, the "Hires remotely in" cities, remote policy, employment, experience, skills, description, and a visa-sponsorship line. A deadline is stored only when an explicit label is present. Salary written in prose is not taken. | Two public `/jobs/` listings were readable on 2026-11-23 without a login wall. Neither had a labelled application deadline. "Posted" was ignored. | Parser fixtures passed, including a missing salary, an empty heading, and a non-job URL. | Manually tested in Chrome by the project owner. Date, Chrome version and listing count were not supplied, so this is not Verified. |
+| Indeed | Manual entry only. No adapter. | None. The popup keeps the manual form. | `in.indeed.com` returned HTTP 403 with a Cloudflare challenge on 2026-11-22 and again on 2026-11-23. It was not bypassed. | An Indeed URL stays `unsupported` in the parser tests. | No adapter. Remains manual entry only. Not one of the manually tested integrations. |
+| Y Combinator Jobs | Enabled. Manually tested. Not Verified. | Title, company, the meta location, job type, experience, skills, a real salary line, the visa line and the role description. A `$1` salary is ignored. No deadline was labelled on the inspected pages. | Public `/companies/…/jobs/…` pages returned HTTP 200 with JobPosting data on 2026-11-23. `workatastartup.com` returned HTTP 406 and is not this adapter. | Parser fixtures passed, including the `$1` salary, a city with no arrangement, a broken page, and `validThrough` ignored. | Manually tested in Chrome by the project owner. Date, Chrome version and listing count were not supplied, so this is not Verified. |
+| Himalayas | Enabled. Manually tested. Not Verified. | Title, company, an "India only" badge, Apply before, job type, experience, skill links and the role article. "Posted on" and JSON-LD `validThrough` are ignored. A Worldwide word in the title does not override a country list that excludes India. | A direct download received a Cloudflare check. In a normal browser the check completed and the listing loaded. Nothing was done to defeat it. | Parser fixtures passed, including Apply before, a country list, a page with no deadline, and an empty heading. | Manually tested in Chrome by the project owner. Date, Chrome version and listing count were not supplied, so this is not Verified. |
+| We Work Remotely | Enabled. Manually tested. Not Verified. | Title, company, remote, Apply before, job type, salary, country or region, skills and the role text. "Posted on" and `validThrough` are ignored. "Anywhere in the World" is worldwide. A country list that does not include India is restricted. | A direct download of a detail page received a Cloudflare check. In a normal browser the listing loaded. Nothing was done to defeat it. The two inspected listings named countries. They did not say "Anywhere in the World". | Parser fixtures passed, including the "Dec 2th, 2026" label, a country list, the worldwide phrase, a posted date, and an empty heading. | Manually tested in Chrome by the project owner. Date, Chrome version and listing count were not supplied, so this is not Verified. |
+| Unstop | Enabled. Manually tested. Not Verified. | Title, company, in-office or remote chip, location, eligibility, skills and description. An `/internships/` URL is an internship even when JSON-LD says full-time. "Unpaid" salary and `validThrough` are ignored. A deadline is stored only from an explicit label. | The first download is an Angular shell with no heading. The extractor waits until a heading is painted. Three rendered listings on 2026-11-23 had no application-deadline label. Competition pages are not job pages. | Parser fixtures passed, including the shell, an internship, a labelled deadline that the live pages did not have, and `validThrough` ignored. | Manually tested in Chrome by the project owner. Date, Chrome version and listing count were not supplied, so this is not Verified. |
+| Cutshort | Enabled. Manually tested. Not Verified. | Title, company, the job-summary arrangement, experience and rupee range, plus JSON-LD skills, employment and description. "Posted" is not a deadline. An applicant location of "NA" is ignored, so a bare "Remote only" stays Unknown. | Public `/job/` pages returned HTTP 200 on 2026-11-23. The site's robots file disallows `/view/j/` and `/apply/`. Those paths were not fetched. | Parser fixtures passed, including undisclosed pay, the NA location, a posted date, an empty heading, and the jobs index. | Manually tested in Chrome by the project owner. Date, Chrome version and listing count were not supplied, so this is not Verified. |
+| HiringCafe | Manual entry only. No adapter. | None. | Time-boxed on 2026-11-23. A direct download received a Cloudflare check. The browse page that then loaded was a directory, not job details. The robots file disallows `/viewjob/`. That path was not fetched. | A HiringCafe URL stays `unsupported` in the parser tests. | No adapter. Remains manual entry only. Not one of the manually tested integrations. |
+| Glassdoor | Manual entry only. No adapter. | None. Search results are not scraped. | Time-boxed on 2026-11-23. The home page was a security check. A search URL showed a results page. A direct job-listing URL returned a Cloudflare "Humans only" block. It was not bypassed. The robots file disallows `/jobview/` and `/search/`. | A Glassdoor URL stays `unsupported` in the parser tests. | No adapter. Remains manual entry only. Not one of the manually tested integrations. |
+| ZipRecruiter | Manual entry only. No adapter. | None. | Time-boxed on 2026-11-23. A direct download redirected to `ziprecruiter.in` and then returned HTTP 403. In a browser, a search for a role in India landed on a US "jobs near me" page. No job detail was opened. | A ZipRecruiter URL stays `unsupported` in the parser tests. | No adapter. Remains manual entry only. Not one of the manually tested integrations. |
 
 ## Deadlines
 
@@ -110,7 +128,7 @@ The extension requests only the permissions its shipped features use. This build
 | `activeTab` | Requested (Phase 1) | Read the current tab's URL and title to prefill the popup, only when you click the extension icon or press its shortcut. |
 | `scripting` | Requested (Phase 4) | After you open the popup, inject the read-only extractor into that tab. |
 
-Updating from 0.4.0 to 0.5.0 asks Chrome to grant `alarms` and `notifications`. Version 0.6.0 does not add a permission. Reload the unpacked extension after building.
+Updating from 0.4.0 to 0.5.0 asks Chrome to grant `alarms` and `notifications`. Versions 0.6.0 and 0.7.0 do not add a permission. Reload the unpacked extension after building.
 
 Deliberately **not** requested: access to all websites (`host_permissions`), `tabs`, `downloads`, `cookies`, `unlimitedStorage`. The extension makes no network requests, and its content security policy (`script-src 'self'`) allows only its own bundled scripts.
 
@@ -126,8 +144,10 @@ Deliberately **not** requested: access to all websites (`host_permissions`), `ta
 ### Current build
 
 - The default sort is deadline approaching. Jobs with no deadline stay at the bottom of their column for that sort only. The other four sorts do not do that.
-- Detection runs only for Internshala, LinkedIn and Naukri, and only after you open the popup. A deadline is stored from the page only when a label such as "Apply By" sits next to the date. Listing expiry (`validThrough`), a start date, and a date written in a sentence are ignored.
-- Work arrangement and India applicant eligibility are separate. A generic "Remote" label, including Remote next to an Indian office, is Unknown — verify manually. "Work from home" only sets the arrangement to remote. On its own it never establishes Remote — India eligible, including on Internshala, Naukri, Unstop, and Cutshort. That outcome requires an applicant-location requirement of India, a phrase such as "Remote (India)" or "Anywhere in India", or India in the eligible-country list. An Indian city with no on-site, hybrid, or remote word stays Unknown. LinkedIn's guest location line often has the city and not the arrangement, even when the description says on-site. That description sentence is not used.
+- Detection runs for Internshala, LinkedIn, Naukri, Wellfound, Y Combinator, Himalayas, We Work Remotely, Unstop and Cutshort, and only after you open the popup. A deadline is stored from the page only when the evidence starts with a label such as "Apply by", "Apply before", "Application deadline", "Registration deadline", "Last date to apply" or "Deadline". Listing expiry (`validThrough`), "Posted on", and a date written in a sentence are ignored. A month-first date such as "Dec 10, 2026" is accepted only after that label.
+- Work arrangement and India applicant eligibility are separate. A generic "Remote" label, including Remote next to an Indian office, is Unknown — verify manually. "Work from home" only sets the arrangement to remote. On its own it never establishes Remote — India eligible, including on Internshala, Naukri, Unstop, and Cutshort. That outcome requires an applicant-location requirement of India, a phrase such as "Remote (India)" or "Anywhere in India", or India in the eligible-country list. A structured country list that does not include India, such as "US" or "Denmark, Germany", is Remote — restricted region. "NA" and any token that is not a recognised country are ignored. An Indian city with no on-site, hybrid, or remote word stays Unknown. A city outside India does not become International — relocation required unless the page says on-site or hybrid. LinkedIn's guest location line often has the city and not the arrangement, even when the description says on-site. That description sentence is not used.
+- Unstop often paints the listing after the first HTML response. If the popup opens before the heading is there, you get the manual form. The three Unstop listings inspected on 2026-11-23 had no labelled application deadline, even though JSON-LD included `validThrough`.
+- Himalayas and We Work Remotely can put "Worldwide" in a title while the country list excludes India. The country list is what is classified. You can correct it before saving.
 - Naukri's first HTML response is a loading shell. The extractor waits briefly for the rendered listing. If you open the popup before that paint, you get the manual form.
 - "Clip another" returns to the tab's URL and title. It does not read the page again until you close and reopen the popup.
 - The description column is off unless you check Include job description in Settings. Turning it on adds that one column. The other stored fields are always exported, and the download message says whether descriptions were included.
@@ -141,7 +161,7 @@ Deliberately **not** requested: access to all websites (`host_permissions`), `ta
 - Deadline reminders and Chrome notifications were confirmed in the installed extension. The automated tests still use an in-memory stand-in for `chrome.alarms` and `chrome.notifications`, and no notification screenshot was provided.
 - "Explore opportunities" scrolls to the Overview panels.
 - A similar title and company is only flagged for jobs saved in the last 60 days. Older ones are left alone unless the link matches.
-- Phases 1–5, and the Phase 6 workflows named in the verification log, were confirmed in the installed extension. Checklist details that were not described are marked not recorded. Backup, restore and delete-all were not part of the reported manual check. Google Sheets, LibreOffice and Excel were not part of it either. Automated page reads used saved public HTML, not `chrome.scripting`. Automated tests and the installed-extension checks are separate records.
+- The project owner manually tested Phases 1–7 in Chrome and confirmed that the implemented functionality works. Checklist rows stay "Not recorded" where that specific step was not described. An earlier report did not include Google Sheets, LibreOffice, Excel, or a step-by-step backup, restore and delete-all record. Automated page reads used saved public HTML, not `chrome.scripting`. Automated tests, the public-page inspection and the installed-extension checks are separate records. No integration is Verified.
 
 ### Planned behaviour
 
@@ -330,11 +350,26 @@ The extension was tested in Chrome. A row is confirmed only for the behaviour th
 | 11 | With that filter on, press Export filtered. The filename is `job-clipper-filtered-YYYY-MM-DD.csv` and the rows are the jobs on the board, not the ones the filter hid. The top bar still downloads every application as `job-clipper-all-YYYY-MM-DD.csv`. | Filtered and full CSV downloads confirmed in the installed extension. Exact filenames, and a check that hidden rows were absent, date, Chrome version and macOS version not recorded. |
 | 12 | Press <kbd>/</kbd> and <kbd>Ctrl</kbd>+<kbd>K</kbd> (or <kbd>Cmd</kbd>+<kbd>K</kbd>). Focus moves to the search box. The Overview line for jobs with no deadline opens Applications with that filter on. | Not recorded |
 
+## Manual verification checklist (Phase 7)
+
+The project owner manually tested the Phase 7 integrations in Chrome and confirmed that they work. The rows below ask for a build reload, three listings per site, field-level results, a date and a Chrome version. Those details were not supplied, so the rows stay not recorded and the sites are not Verified. Public-page inspection and fixture tests are a separate record.
+
+| # | Check | Result |
+| --- | --- | --- |
+| 1 | `npm run build`, then reload the unpacked `dist/` on `chrome://extensions`. No new permission is requested. The service worker stays active. | Not recorded. The project owner confirmed the Phase 7 integrations work. This reload check, the permission prompt and the service-worker state were not described. |
+| 2 | Open three live Wellfound job pages, including one with no labelled deadline. The popup names the detected fields and the missing ones, including salary when the page only mentions pay in prose. Change a field. Nothing is saved until Save. A "Posted" line does not become the deadline. | Not recorded |
+| 3 | Open three live Y Combinator company job pages. A `$1` salary stays empty. A US-only remote listing is Remote — restricted region. A city without the word remote stays Unknown, not International — relocation required. `validThrough` is not the deadline. | Not recorded |
+| 4 | Open three live Himalayas job pages, including one whose title says Worldwide but whose country list does not include India. Apply before is the deadline. Posted on is not. The country list is the eligibility evidence, and you can change it before saving. | Not recorded |
+| 5 | Open three live We Work Remotely job pages, including one with no Apply before. The sidebar date next to Apply before is kept, including a form such as "Dec 2th, 2026". A country list without India is Remote — restricted region. | Not recorded |
+| 6 | Open three live Unstop job or internship pages and wait until the heading is visible. An internship URL is stored as an internship. "Unpaid" and `validThrough` stay empty. If you open the popup before the heading paints, the form is manual. | Not recorded |
+| 7 | Open three live Cutshort `/job/` pages. "Remote only" without an India requirement stays Unknown. "NA" is not treated as a country. A "Posted" date is not the deadline. The rupee range in the summary is kept when it is shown. | Not recorded |
+| 8 | Open an Indeed listing, a Glassdoor listing, a ZipRecruiter listing and a HiringCafe page. Each stays on manual entry. A typed job still saves. Confirm an existing Internshala, LinkedIn or Naukri preview still appears, and that search, the board, a CSV download and a reminder still work. | Not recorded |
+
 ## Verification log
 
 Real test results only, added as each phase is completed. Each entry records the date, Chrome version, macOS version, what was tested and the outcome, including failures.
 
-Entries titled "automated checks" or "public pages" describe that session only. They used an in-memory Chrome stand-in or saved HTML. The installed-extension results are [Manual Chrome verification reported for Phases 1–5](#manual-chrome-verification-reported-for-phases-15) and [Manual Chrome verification reported for Phase 6](#manual-chrome-verification-reported-for-phase-6). Where an entry says a detail was not recorded, this log does not fill it in.
+Entries titled "automated checks" or "public pages" describe that session only. They used an in-memory Chrome stand-in, a normal browser, or saved HTML. The installed-extension results are [Manual Chrome verification reported for Phases 1–5](#manual-chrome-verification-reported-for-phases-15), [Manual Chrome verification reported for Phase 6](#manual-chrome-verification-reported-for-phase-6), and [Manual Chrome confirmation reported for Phases 1–7](#manual-chrome-confirmation-reported-for-phases-17). Where an entry says a detail was not recorded, this log does not fill it in.
 
 ### 2026-11-22 — Phase 1, automated checks
 
@@ -453,6 +488,51 @@ This entry is the manual check of Phase 6 in the installed extension. The Phase 
 - Checklist details that were not described are marked "Not recorded". That is a missing detail, not a recorded failure.
 
 _The workflows listed above were confirmed in the installed extension. Environment metadata for this check was not recorded._
+
+### 2026-11-23 — Phase 7, public-page inspection
+
+This entry is a look at public pages. It is not a fixture test and it is not an installed-extension test. No site below is Verified. Cloudflare checks that a normal browser completed on its own were not treated as a block. A hard block was not bypassed.
+
+- Wellfound: `https://wellfound.com/jobs/4981464-software-engineer` and `https://wellfound.com/jobs/4875063-junior-qa-engineer` returned public HTML. Both were remote, named Indian cities under "Hires remotely in", and had no labelled application deadline. "Posted" was not used. Pay was only in prose, so salary stays missing.
+- Indeed: `in.indeed.com` again returned HTTP 403 with a Cloudflare challenge, the same result as 2026-11-22. No adapter.
+- Y Combinator: `https://www.ycombinator.com/companies/wasmer/jobs/peVgEv8-rust-engineer-distributed-systems` and `https://www.ycombinator.com/companies/turing-labs-inc/jobs/ta5gNnk-senior-software-engineer-full-stack` returned HTTP 200 with JobPosting data. The first hid pay as `$1` and limited applicants to the US. The second listed a real salary and "US citizen/visa only", with a city and no remote word. Neither had a labelled deadline. `workatastartup.com/jobs` returned HTTP 406 and is not part of the adapter.
+- Himalayas: a direct download received a Cloudflare check. In a browser, `https://himalayas.app/companies/nurdsoft/jobs/senior-qa-engineer-india` and `https://himalayas.app/companies/holepunch/jobs/p2p-node-js-engineer-100-remote-worldwide-7428948833` loaded. Both had "Apply before Dec 10, 2026". The first was India only. The second's title said Worldwide while the applicant list was Denmark, Germany, Greece and Switzerland. `validThrough` matched the visible date and is still ignored.
+- We Work Remotely: a direct download of a detail page received a Cloudflare check. In a browser, `https://weworkremotely.com/remote-jobs/welcomehome-software-senior-software-engineer` and `https://weworkremotely.com/remote-jobs/lemon-io-senior-react-full-stack-developer-8` loaded. Apply before was "Dec 2th, 2026" and "Dec 19th, 2026". The first country was the United States. The second was a long country list that did not include India, and the description said visa assistance is not provided. Neither page said "Anywhere in the World".
+- Unstop: a direct download was an Angular shell. In a browser, three listings rendered: `https://unstop.com/jobs/data-scientist-exl-1821516`, `https://unstop.com/internships/power-bi-apprenticeship-crowe-llp-1809168` and `https://unstop.com/internships/software-development-internship-gokwik-1809276`. All were in office in India. None contained an application-deadline label. JSON-LD `validThrough` and a salary value of "Unpaid" were present and are ignored.
+- Cutshort: `https://cutshort.io/job/Senior-Full-stack-Engineer-Sprinto-Rqw1mekJ` and `https://cutshort.io/job/Software-Architect-Reflektive-5Jr0Iim2` returned public HTML. Both said "Remote only". The applicant location in JSON-LD was "NA". The first showed a rupee range. The second said pay was not disclosed. "Posted" was not a deadline. `/view/j/` is disallowed by robots and was not fetched.
+- HiringCafe: time-boxed. The page that loaded was a browse directory, not a job detail. `/viewjob/` is disallowed and was not fetched. No adapter.
+- Glassdoor: time-boxed. A search URL was a results page and was not scraped. A direct job-listing URL returned a Cloudflare "Humans only" block (Ray ID a5f1d3dc0cb37ef8). It was not retried. No adapter.
+- ZipRecruiter: time-boxed. A direct download redirected to `ziprecruiter.in` and returned HTTP 403. A browser search landed on a US "jobs near me" page. No job detail was opened. No adapter.
+
+_No Chrome extension was installed for this inspection. The later confirmation from the project owner is a separate entry._
+
+### 2026-11-23 — Phase 7, automated checks
+
+- Environment: macOS 26 (Darwin 25.6), Node 25.9.0, npm 11.12.1.
+- `npm run check`: passed. Typecheck 0 errors, ESLint 0 errors and 0 warnings, Prettier, Vitest (37 files, 328 tests, all passed), and the production build. `dist/manifest.json` still requests `storage`, `alarms`, `notifications`, `activeTab` and `scripting`. Version is 0.7.0.
+- The new parser fixtures cover missing fields, empty headings, non-job URLs, canonical ids, eligibility, explicit deadlines, and deadlines that must not be invented. Indeed, HiringCafe, Glassdoor and ZipRecruiter stay on manual entry in those tests. A Wellfound preview test confirms nothing is saved until Save, and an Indeed URL stays on the manual form.
+- This session did not install the extension, so it has no Chrome version. No Phase 7 site is Verified. The public-page inspection above is a separate entry.
+
+_This entry is the automated session only._
+
+### Manual Chrome confirmation reported for Phases 1–7
+
+This entry is the project owner's confirmation. It does not replace the automated entries or the public-page inspection above, and it does not fill in details those entries left unrecorded.
+
+- Reported by the project owner. The date of the test, the Chrome version, the macOS version and the listing counts were not supplied.
+- Confirmed working in the installed extension:
+  - Phase 1: foundation, dashboard and manual entry.
+  - Phase 2: job management (create, read, update, delete).
+  - Phase 3: the four-stage Kanban board.
+  - Phase 4: Internshala, LinkedIn and Naukri integrations.
+  - Phase 5: deadline management, reminders and calendar.
+  - Phase 6: search, filters, sorting, CSV export and data management.
+  - Phase 7: Wellfound, Y Combinator Jobs, Himalayas, We Work Remotely, Unstop and Cutshort integrations.
+- Indeed, HiringCafe, Glassdoor and ZipRecruiter were not part of this integration list. They remain manual-entry only.
+- No site is Verified. That label still needs a recorded date, a Chrome version, and at least three listings.
+- Checklist rows whose specific steps were not described stay "Not recorded".
+
+_The phase-level functionality above was confirmed in the installed extension. Environment metadata for this check was not supplied._
 
 ## Design reference
 

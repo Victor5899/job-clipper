@@ -60,6 +60,63 @@ describe("canonicalizeUrl", () => {
     });
   });
 
+  it("collapses Wellfound company and job links onto the job id", () => {
+    const direct = canonicalizeUrl(
+      new URL("https://www.wellfound.com/jobs/4981464-software-engineer?utm_source=x"),
+    );
+    const company = canonicalizeUrl(
+      new URL("https://wellfound.com/company/vested-finance-1/jobs/4981464-software-engineer/"),
+    );
+    expect(direct).toEqual({
+      canonicalUrl: "https://wellfound.com/jobs/4981464-software-engineer",
+      sourceJobId: "4981464",
+    });
+    expect(company.canonicalUrl).toBe(direct.canonicalUrl);
+  });
+
+  it("keeps a Y Combinator company job and its id", () => {
+    const url = new URL(
+      "https://www.ycombinator.com/companies/wasmer/jobs/peVgEv8-rust-engineer-distributed-systems?ref=x",
+    );
+    expect(canonicalizeUrl(url)).toEqual({
+      canonicalUrl:
+        "https://ycombinator.com/companies/wasmer/jobs/peVgEv8-rust-engineer-distributed-systems",
+      sourceJobId: "peVgEv8",
+    });
+  });
+
+  it("keeps Himalayas, We Work Remotely, Unstop and Cutshort ids", () => {
+    expect(
+      canonicalizeUrl(
+        new URL(
+          "https://himalayas.app/companies/holepunch/jobs/p2p-node-js-engineer-100-remote-worldwide-7428948833?utm_source=x",
+        ),
+      ),
+    ).toEqual({
+      canonicalUrl:
+        "https://himalayas.app/companies/holepunch/jobs/p2p-node-js-engineer-100-remote-worldwide-7428948833",
+      sourceJobId: "7428948833",
+    });
+    expect(
+      canonicalizeUrl(
+        new URL(
+          "https://weworkremotely.com/remote-jobs/welcomehome-software-senior-software-engineer/",
+        ),
+      ).sourceJobId,
+    ).toBe("welcomehome-software-senior-software-engineer");
+    expect(
+      canonicalizeUrl(new URL("https://unstop.com/jobs/data-scientist-exl-1821516?trk=1")),
+    ).toEqual({
+      canonicalUrl: "https://unstop.com/jobs/data-scientist-exl-1821516",
+      sourceJobId: "1821516",
+    });
+    expect(
+      canonicalizeUrl(
+        new URL("https://cutshort.io/job/Senior-Full-stack-Engineer-Sprinto-Rqw1mekJ"),
+      ).sourceJobId,
+    ).toBe("Rqw1mekJ");
+  });
+
   it("sorts the remaining query so parameter order does not matter", () => {
     const a = canonicalizeUrl(new URL("https://example.com/job?b=2&a=1"));
     const b = canonicalizeUrl(new URL("https://example.com/job?a=1&b=2"));

@@ -28,6 +28,7 @@ const SOURCE_HOSTS: [SourceId, string][] = [
   ["unstop", "unstop.com"],
   ["cutshort", "cutshort.io"],
   ["hiringcafe", "hiring.cafe"],
+  ["hiringcafe", "hiringcafe.com"],
   ["glassdoor", "glassdoor.com"],
   ["glassdoor", "glassdoor.co.in"],
   ["ziprecruiter", "ziprecruiter.com"],
@@ -99,6 +100,63 @@ export function canonicalizeUrl(url: URL): { canonicalUrl: string; sourceJobId?:
   if (host === "naukri.com" || host.endsWith(".naukri.com")) {
     host = "naukri.com";
     const id = path.match(/\/job-listings-.+-(\d{6,})$/)?.[1];
+    if (id) {
+      sourceJobId = id;
+      for (const key of [...params.keys()]) params.delete(key);
+    }
+  }
+
+  if (host === "wellfound.com" || host.endsWith(".wellfound.com")) {
+    host = "wellfound.com";
+    const slug = path.match(/\/jobs\/(\d+(?:-[^/]+)?)$/)?.[1];
+    const id = slug?.match(/^(\d+)/)?.[1];
+    if (slug && id) {
+      sourceJobId = id;
+      path = `/jobs/${slug}`;
+      for (const key of [...params.keys()]) params.delete(key);
+    }
+  }
+
+  if (host === "ycombinator.com" || host.endsWith(".ycombinator.com")) {
+    host = "ycombinator.com";
+    const slug = path.match(/^\/companies\/[^/]+\/jobs\/([^/]+)$/)?.[1];
+    const id = slug?.split("-")[0];
+    if (slug && id) {
+      sourceJobId = id;
+      for (const key of [...params.keys()]) params.delete(key);
+    }
+  }
+
+  if (host === "himalayas.app" || host.endsWith(".himalayas.app")) {
+    host = "himalayas.app";
+    const slug = path.match(/^\/companies\/[^/]+\/jobs\/([^/]+)$/)?.[1];
+    if (slug) {
+      sourceJobId = slug.match(/(\d{6,})$/)?.[1] ?? slug;
+      for (const key of [...params.keys()]) params.delete(key);
+    }
+  }
+
+  if (host === "weworkremotely.com" || host.endsWith(".weworkremotely.com")) {
+    host = "weworkremotely.com";
+    const slug = path.match(/^\/remote-jobs\/([^/]+)$/)?.[1];
+    if (slug) {
+      sourceJobId = slug;
+      for (const key of [...params.keys()]) params.delete(key);
+    }
+  }
+
+  if (host === "unstop.com" || host.endsWith(".unstop.com")) {
+    host = "unstop.com";
+    const id = path.match(/^\/(?:jobs|internships)\/.+-(\d{5,})$/)?.[1];
+    if (id) {
+      sourceJobId = id;
+      for (const key of [...params.keys()]) params.delete(key);
+    }
+  }
+
+  if (host === "cutshort.io" || host.endsWith(".cutshort.io")) {
+    host = "cutshort.io";
+    const id = path.match(/^\/job\/.+-([A-Za-z0-9]{6,})$/)?.[1];
     if (id) {
       sourceJobId = id;
       for (const key of [...params.keys()]) params.delete(key);

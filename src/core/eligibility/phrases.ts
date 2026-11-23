@@ -23,7 +23,7 @@ export function mentionsWorkFromHome(text: string): boolean {
 export function mentionsRestriction(text: string): boolean {
   return has(
     text,
-    /\b(us|usa|u\.s\.) only\b|\bunited states only\b|\bmust reside in\b|\b(?:eu|eea|uk)(?:\/eea)?(?:\/uk)? only\b|\beurope only\b|\bamericas only\b|\bauthorized to work in the united states\b|\bus citizens only\b|\bcitizens only\b|\bnot available in india\b/i,
+    /\b(us|usa|u\.s\.) only\b|\bunited states only\b|\bmust reside in\b|\b(?:eu|eea|uk)(?:\/eea)?(?:\/uk)? only\b|\beurope only\b|\bamericas only\b|\bauthorized to work in the united states\b|\bus citizens only\b|\bus citizen\/visa only\b|\bcitizens only\b|\bnot available in india\b/i,
   );
 }
 
@@ -37,7 +37,7 @@ export function mentionsVisaYes(text: string): boolean {
 export function mentionsVisaNo(text: string): boolean {
   return has(
     text,
-    /\bno (?:visa )?sponsorship\b|\bcannot sponsor\b|\bwill not sponsor\b|\bnot able to sponsor\b|\bus citizens only\b|\bcitizens only\b/i,
+    /\bno (?:visa )?sponsorship\b|\bcannot sponsor\b|\bwill not sponsor\b|\bnot able to sponsor\b|\bus citizens only\b|\bus citizen\/visa only\b|\bcitizens only\b|\bvisa sponsorship(?: is)? not available\b|\bdo not provide visa assistance\b|\bno visa assistance\b/i,
   );
 }
 

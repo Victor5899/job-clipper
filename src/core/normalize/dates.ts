@@ -48,8 +48,17 @@ export function parseExplicitDate(value: string): string | null {
   }
 
   const named = text.match(/^(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)\.?\s+(\d{2,4})$/);
-  if (!named?.[1] || !named[2] || !named[3]) return null;
-  const month = MONTHS[named[2].toLowerCase()];
-  if (!month) return null;
-  return calendarDate(Number(named[3]), month, Number(named[1]));
+  if (named?.[1] && named[2] && named[3]) {
+    const month = MONTHS[named[2].toLowerCase()];
+    if (!month) return null;
+    return calendarDate(Number(named[3]), month, Number(named[1]));
+  }
+
+  const monthFirst = text.match(/^([A-Za-z]+)\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{2,4})$/);
+  if (monthFirst?.[1] && monthFirst[2] && monthFirst[3]) {
+    const month = MONTHS[monthFirst[1].toLowerCase()];
+    if (!month) return null;
+    return calendarDate(Number(monthFirst[3]), month, Number(monthFirst[2]));
+  }
+  return null;
 }

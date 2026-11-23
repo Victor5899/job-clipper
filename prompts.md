@@ -1152,3 +1152,114 @@ Report completed requirements, remaining deviations and test results.
 
 Do not start Phase 7. Do not commit or push. Stop for review.
 ````
+
+---
+
+## Prompt 11 — Phase 7: Additional job-site integrations
+
+- **Date:** 2026-11-23
+- **Phase:** 7
+- **Outcome:** Adapters for Wellfound, Y Combinator Jobs, Himalayas, We Work Remotely, Unstop and Cutshort. Indeed, HiringCafe, Glassdoor and ZipRecruiter stay on manual entry. `npm run check` passed: 37 files, 328 tests. Public pages were inspected. The extension was not installed, so no new site is Verified. No permission was added. Not committed.
+
+````text
+# Job Clipper — Phase 7: Additional Job-Site Integrations
+
+Read `PROJECT_SPEC.md`, inspect the existing codebase, adapter architecture, README and previous verification logs.
+
+Implement Phase 7 only. Do not rewrite or destabilize the existing application.
+
+### 1. Website integrations
+
+Implement additional modular adapters in the approved priority order:
+
+**Remaining original priority list:**
+1. Wellfound
+2. Indeed
+3. Y Combinator Jobs
+4. Himalayas
+5. We Work Remotely
+6. Unstop
+7. Cutshort
+8. HiringCafe
+9. Glassdoor
+10. ZipRecruiter
+
+The initial Phase 7 focus should be Himalayas, We Work Remotely, Unstop and Cutshort, followed by the Tier 3 sites.
+
+Check existing adapters and verification records before implementing anything. Do not duplicate existing work.
+
+### 2. Access and extraction
+
+For each site:
+- Inspect publicly accessible job detail pages.
+- Determine whether reliable extraction is technically and legally workable.
+- Extract supported fields using the existing Job Clipper data model.
+- Support explicit application deadlines only.
+- Preserve evidence-based India eligibility classification.
+- Reuse existing URL canonicalization and duplicate detection.
+- Keep each adapter isolated and maintainable.
+
+Respect website terms, robots/access restrictions, login walls and anti-bot protections. Never bypass restrictions or scrape private data.
+
+If access is blocked or unreliable, document the reason and retain manual entry. Do not force an adapter merely to meet a numerical target.
+
+### 3. Existing popup workflow
+
+Every new adapter must integrate with the existing editable extraction preview.
+
+- Display detected and missing fields.
+- Allow manual correction before saving.
+- Never silently save partially detected information.
+- Preserve existing manual entry on unsupported or restricted websites.
+- Do not change the existing deadline or eligibility safety rules.
+
+### 4. Testing and verification
+
+- Add representative HTML fixtures and parser tests for every implemented adapter.
+- Test missing fields, malformed pages, URL canonicalization and eligibility classification.
+- Test popup messaging and fallback behaviour.
+- Distinguish fixture tests, public-page inspection and actual Chrome verification.
+- Never mark a site Verified without testing live listings in the installed Chrome extension.
+- Do not claim all websites work based only on HTTP 200 or fixture tests.
+
+For Tier 3 sites, time-box investigation. Document unsupported sites and reasons rather than spending excessive effort bypassing access limitations.
+
+### 5. Regression and permissions
+
+Preserve all existing functionality:
+- Manual entry and extraction.
+- CRUD and Kanban.
+- Search, filters and sorting.
+- CSV export and JSON backup.
+- Calendar and deadline reminders.
+- Settings and data management.
+
+Request only necessary permissions. No backend, account system or paid external APIs.
+
+### 6. Documentation and completion
+
+Update `prompts.md`, README and CHANGELOG.
+
+Maintain an integration table with:
+- Website
+- Adapter status
+- Fields extracted
+- Access limitations
+- Fixture test results
+- Actual Chrome verification status
+
+Run `npm run check` and fix introduced errors.
+
+Report:
+- Adapters implemented.
+- Websites actually inspected.
+- Websites blocked or unsupported and why.
+- Tests and results.
+- Permissions changed.
+- Manual Chrome testing instructions.
+- Remaining limitations.
+
+Do not start Phase 8. Do not commit or push.
+
+Stop and wait for my review.
+````

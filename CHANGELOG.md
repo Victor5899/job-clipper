@@ -6,7 +6,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-Phase 7 has not started. A later manual check confirmed the Phase 6 workflows named in the README verification log, including a CSV opened in Apple Numbers. The test date, Chrome version and macOS version were not recorded. Google Sheets, LibreOffice, Excel, backup, restore and delete-all were not part of that report. Schema version is still 1, so an older backup shape is not migrated.
+Documentation status update. No application code, tests, permissions or extension behaviour changed. Phase 8 has not started.
+
+### Changed
+
+- The project owner reported a manual Chrome test of Phases 1–7 and confirmed that the implemented functionality works. The README and `PROJECT_SPEC.md` now record that status. Phase 8 is the remaining phase.
+- The tested scope is the foundation and manual entry, job management, the four-stage Kanban board, Internshala, LinkedIn and Naukri, deadline management, reminders and the calendar, search, filters, sorting, CSV export and data management, and the Wellfound, Y Combinator Jobs, Himalayas, We Work Remotely, Unstop and Cutshort integrations.
+- Indeed, HiringCafe, Glassdoor and ZipRecruiter stay manual-entry only. They are not part of the manually tested integrations.
+- No integration is marked Verified. The test date, Chrome version, macOS version and listing counts were not supplied, and the formal verification criteria are unchanged.
+
+## [0.7.0] — 2026-11-23 — Phase 7: additional job-site adapters
+
+Public job pages were inspected on 2026-11-23. Six adapters were added and left enabled so they can be tried in the popup. The extension was not installed, so none of these sites are Verified. Fixture tests are a separate record from that inspection. Indeed, HiringCafe, Glassdoor and ZipRecruiter stay on manual entry.
+
+### Added
+
+- Adapters for Wellfound, Y Combinator Jobs, Himalayas, We Work Remotely, Unstop and Cutshort. Each one fills the existing editable preview. Missing fields stay missing. Nothing is saved until you press Save.
+- A deadline is stored only when the page evidence starts with Apply by, Apply before, Application deadline, Registration deadline, Last date to apply, or Deadline. "Posted on", a date in a sentence, and JSON-LD `validThrough` are still ignored. A month-first date such as "Dec 10, 2026" or "Dec 2th, 2026" is accepted only after one of those labels.
+- A structured country list is used as eligibility evidence. India in the list still wins. A recognised country list that does not include India is Remote — restricted region. "Anywhere in the World" is worldwide. "NA" and an unrecognised token are not countries. A bare Remote or "Work from home" label, with no India evidence, stays Unknown.
+- Placeholder pay is ignored: a JSON-LD salary of "Unpaid" or "Not Disclosed", and a USD salary whose minimum and maximum are both 1. Skills can be read from a JSON-LD string or a list of names.
+- Canonical links for the six new sites, so the same listing with a tracking parameter or a company-prefixed Wellfound path matches an existing save.
+- Parser fixtures for every new adapter: missing fields, a page that is not a listing, an empty heading, URL ids, eligibility, and a deadline that must not be invented. Indeed, HiringCafe, Glassdoor and ZipRecruiter stay unsupported in those tests.
+
+### Changed
+
+- Extension version is 0.7.0. No permission was added.
+
+### Not in this version
+
+- An installed-extension check of any Phase 7 adapter. The Phase 7 checklist in the README is not recorded.
+- Indeed. `in.indeed.com` returned a Cloudflare challenge on 2026-11-22 and again on 2026-11-23. It was not bypassed.
+- HiringCafe, Glassdoor and ZipRecruiter. The inspection was time-boxed. HiringCafe did not show a job detail, Glassdoor's direct listing returned a "Humans only" block, and ZipRecruiter did not show an India job detail. None of those blocks were bypassed.
+- `workatastartup.com`. It returned HTTP 406 and is not part of the Y Combinator adapter.
+- Phase 8.
 
 ## [0.6.0] — 2026-11-23 — Phase 6: CSV export and data management
 
@@ -33,7 +65,7 @@ Automated checks pass (301 tests). That session did not install the extension an
 - Google Sheets, LibreOffice and Excel. Apple Numbers was later confirmed in the installed extension: the CSV opened, and the data and columns displayed correctly. The test date, Chrome version and macOS version were not recorded.
 - A reported manual check of backup, restore or delete-all. Those controls are implemented. The manual report confirmed the Settings and data-management interface and did not include those actions.
 - `zod`. Backup checks are written in this project. Schema version is still 1, so an older backup shape does not exist to import. An older-schema migration is not supported and was not verified.
-- Phase 7 job sites.
+- Phase 7 job sites. Those adapters were added in 0.7.0. This 0.6.0 release did not include them.
 
 ## [0.5.0] — 2026-11-22 — Phase 5: deadline reminders and calendar
 

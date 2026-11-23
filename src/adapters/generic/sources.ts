@@ -63,16 +63,40 @@ function locationText(value: unknown): string | undefined {
   return unique.length > 0 ? unique.join(", ") : undefined;
 }
 
+function usableName(value: string): string | undefined {
+  const text = value.trim();
+  if (!text || /^(na|n\/a|not disclosed|unknown|null)$/i.test(text)) return undefined;
+  return text;
+}
+
 function namesFrom(value: unknown): string[] {
   const items = Array.isArray(value) ? value : value ? [value] : [];
   const names: string[] = [];
   for (const item of items) {
-    if (typeof item === "string" && item.trim()) names.push(item.trim());
-    else if (isRecord(item) && typeof item.name === "string" && item.name.trim()) {
-      names.push(item.name.trim());
+    if (typeof item === "string") {
+      const name = usableName(item);
+      if (name) names.push(name);
+    } else if (isRecord(item) && typeof item.name === "string") {
+      const name = usableName(item.name);
+      if (name) names.push(name);
     }
   }
   return names;
+}
+
+function skillsFrom(value: unknown): string[] {
+  const items = Array.isArray(value)
+    ? value
+    : typeof value === "string"
+      ? value.split(/[,;|]/)
+      : [];
+  return items
+    .map((item) => {
+      if (typeof item === "string") return item.trim();
+      if (isRecord(item) && typeof item.name === "string") return item.name.trim();
+      return "";
+    })
+    .filter((item) => item.length > 1 && item.length <= 60);
 }
 
 function salaryText(value: unknown): string | undefined {
@@ -81,13 +105,14 @@ function salaryText(value: unknown): string | undefined {
   const inner = isRecord(value.value) ? value.value : value;
   if (typeof inner.value === "string") {
     const text = inner.value.trim();
-    if (!text || /^not disclosed$/i.test(text)) return undefined;
+    if (!text || /^(not disclosed|undisclosed|unpaid|n\/a|na|nan|-)$/i.test(text)) return undefined;
     return text;
   }
   const min = typeof inner.minValue === "number" ? inner.minValue : undefined;
   const max = typeof inner.maxValue === "number" ? inner.maxValue : undefined;
   if (min === undefined && max === undefined) return undefined;
   if ((min ?? 0) === 0 && (max ?? 0) === 0) return undefined;
+  if (min === 1 && max === 1 && currency.toUpperCase() === "USD") return undefined;
   const unit = typeof inner.unitText === "string" ? inner.unitText.trim() : "";
   const amount =
     min !== undefined && max !== undefined && min !== max ? `${min}-${max}` : `${min ?? max}`;
@@ -146,6 +171,8 @@ export function readJsonLd(doc: Document): AdapterFields {
   if (salary) fields.compensationRaw = salary;
   const applicants = namesFrom(posting.applicantLocationRequirements);
   if (applicants.length > 0) fields.applicantLocations = applicants;
+  const skills = skillsFrom(posting.skills);
+  if (skills.length > 0) fields.skills = skills;
   return fields;
 }
 
@@ -162,6 +189,16 @@ export function readHeuristics(doc: Document): AdapterFields {
   if (title) return { title };
   const documentTitle = doc.title?.split("|")[0]?.trim();
   return documentTitle ? { title: documentTitle } : {};
+}
+
+/** The label is the start of the evidence. A month name may sit before the first digit. */
+function deadlineLabel(evidence: string): string {
+  const normalized = evidence.trim().replace(/\s+/g, " ");
+  const leading = normalized.match(
+    /^(apply by|apply before|application deadline|registration deadline|last date to apply|deadline)\b/i,
+  );
+  if (leading?.[1]) return leading[1];
+  return normalized.split(/\s+\d/)[0]?.trim() ?? normalized;
 }
 
 /** Drops a deadline that did not come from an explicit label, then caps every string. */
@@ -204,7 +241,7 @@ export function sanitizeAdapterFields(fields: AdapterFields): AdapterFields {
   if (fields.workFromHome) next.workFromHome = true;
 
   const evidence = fields.deadline?.evidence ?? "";
-  const label = evidence.split(/\s+\d/)[0]?.trim() ?? evidence;
+  const label = deadlineLabel(evidence);
   const parsed = fields.deadline ? parseExplicitDate(fields.deadline.date) : null;
   if (fields.deadline && parsed && isExplicitDeadlineLabel(label)) {
     next.deadline = { date: parsed, evidence: cleanText(evidence, 160) };

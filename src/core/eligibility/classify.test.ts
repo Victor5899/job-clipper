@@ -279,6 +279,31 @@ const cases: Case[] = [
     confidence: "high",
   },
   {
+    name: "a country list without India",
+    input: { workArrangement: "remote", applicantLocations: ["Denmark", "Germany"] },
+    value: "remote_restricted",
+    confidence: "high",
+  },
+  {
+    name: "United States as the only applicant country",
+    input: { workArrangement: "remote", applicantLocations: ["US"] },
+    value: "remote_restricted",
+    confidence: "high",
+  },
+  {
+    name: "an empty NA applicant location is not a country",
+    input: { workArrangement: "remote", applicantLocations: ["NA"], locationRaw: "Remote only" },
+    value: "unknown",
+    confidence: "low",
+  },
+  {
+    name: "US citizen/visa only",
+    input: { workArrangement: "remote", text: "Visa: US citizen/visa only" },
+    value: "remote_restricted",
+    confidence: "high",
+    visa: "no",
+  },
+  {
     name: "India plus a US-only line",
     input: { workArrangement: "remote", text: "Remote, India. US only." },
     value: "unknown",

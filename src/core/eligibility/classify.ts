@@ -1,6 +1,7 @@
 import type { IndiaEligibility, SourceId, WorkArrangement } from "../model/enums";
 import type { StudentEligibility, VisaSponsorship } from "../model/enums";
 import { parseLocation } from "../normalize/location";
+import { countrySignal } from "./countries";
 import {
   graduationYearsIn,
   mentionsIndiaRemote,
@@ -85,11 +86,17 @@ export function classify(input: ClassifyInput): Classification {
     location.outsideIndia || (Boolean(input.countryCode) && input.countryCode !== "IN" && !inIndia);
   const countries = input.eligibleCountries ?? [];
   const applicants = input.applicantLocations ?? [];
-  const indiaEligible =
-    includesIndia(countries) || includesIndia(applicants) || mentionsIndiaRemote(text);
+  const signals = [...countries, ...applicants].map((entry) => countrySignal(entry));
+  const indiaFromList =
+    signals.includes("india") || includesIndia(countries) || includesIndia(applicants);
+  const worldwideFromList = signals.includes("worldwide");
+  const indiaEligible = indiaFromList || mentionsIndiaRemote(text);
   const worldwide =
-    mentionsWorldwide(text) || countries.some((entry) => /worldwide|anywhere/i.test(entry));
-  const restricted = mentionsRestriction(text);
+    mentionsWorldwide(text) ||
+    worldwideFromList ||
+    countries.some((entry) => /worldwide|anywhere/i.test(entry));
+  const restricted =
+    mentionsRestriction(text) || (signals.includes("restricted") && !indiaFromList);
   const workFromHome = input.workFromHome || mentionsWorkFromHome(input.locationRaw ?? "");
   const arrangement = input.workArrangement;
   const visaYes = mentionsVisaYes(text);

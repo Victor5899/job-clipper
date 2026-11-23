@@ -1,7 +1,8 @@
 # Job Clipper — Phase 0 Specification
 
 > BSERC GenAI Internship — Week 2, Project 10.
-> Status: **Phase 0 (planning) complete. No application code has been written yet.** Everything below describes planned behaviour; nothing in this document is a claim of implemented or tested functionality.
+> Status: **Phases 1–7 are implemented and were manually tested in Chrome by the project owner. Phase 8 is the remaining phase.**
+> The sections below are the Phase 0 specification of intended behaviour. The live record of what shipped, what was tested, and what is still manual entry is in [`README.md`](README.md). No integration is marked Verified: the formal criteria in section 12 need a recorded date, a Chrome version, and at least three live listings, and those details were not supplied.
 
 ## 0. Project state
 
@@ -18,6 +19,18 @@
 - Manual clipping is guaranteed on every website.
 
 Architecture, eligibility approach and visual direction are unchanged.
+
+**Current progress (reported by the project owner):**
+- Phases 1–7 are implemented. The project owner manually tested them in Chrome and confirmed that the implemented functionality works. The test date, Chrome version, macOS version and listing counts were not supplied.
+- Phase 1: foundation, dashboard and manual entry.
+- Phase 2: job management (create, read, update, delete).
+- Phase 3: four-stage Kanban board.
+- Phase 4: Internshala, LinkedIn and Naukri integrations.
+- Phase 5: deadline management, reminders and calendar.
+- Phase 6: search, filters, sorting, CSV export and data management.
+- Phase 7: Wellfound, Y Combinator Jobs, Himalayas, We Work Remotely, Unstop and Cutshort integrations.
+- Indeed, HiringCafe, Glassdoor and ZipRecruiter have no adapter. They stay manual-entry only because of access restrictions or unsupported pages. They are not part of the manually tested integrations.
+- Phase 8 (hardening, security review, documentation and packaging) has not started.
 
 ---
 
@@ -852,6 +865,8 @@ flowchart TD
 
 ## 21. Implementation roadmap
 
+**Progress:** Phases 1–7 are implemented and were manually tested in Chrome by the project owner, at the level listed in section 0. Phase 8 is the remaining phase. The acceptance criteria below are the original plan. A phase-level confirmation does not by itself satisfy a criterion that asks for a date, a Chrome version, a listing count, a screenshot, or a named spreadsheet. Those details were not supplied, so no site is Verified.
+
 One deliberate change from the originally suggested sequence: **reminders and CSV export move ahead of the remaining integrations**.
 - Phase 4 delivers only the first integration milestone (three genuinely tested sites).
 - Sites 4–13 move to Phase 7, in priority order.
@@ -880,6 +895,7 @@ flowchart LR
 
 ### Phase 1 — Foundation, design system, dashboard shell, manual entry
 
+- **Progress:** Implemented. Manually tested in Chrome by the project owner: foundation, dashboard and manual entry. Test date, Chrome version and macOS version were not supplied.
 - **Objective:** a loadable MV3 extension with the full visual identity and a working manual clip that persists.
 - **Files:** configs (`package.json`, `vite.config.ts`, `vite.content.config.ts`, `tsconfig.json`, ESLint, Prettier, `.gitignore`), `public/manifest.json`, icons, `popup.html`, `dashboard.html`, `src/ui/styles/*`, base `ui/components`, `dashboard/layout/*`, `dashboard/overview/*` (Hero, StatsRail, three panels driven by stored jobs), `popup/*` (manual ClipForm), `storage/chromeStorage.ts` + minimal `jobRepository` (create, list, subscribe), `background/index.ts` + `lifecycle.ts` (initialize settings on install, open dashboard on first install), `tests/fakes/chrome.ts`; `git init`.
 - **Features:** tokens and fonts; TopNav with four routes (Applications, Calendar and Settings show real empty states, not fake features); manual save of title, company, URL and an optional deadline (empty deadline saves fine and displays "No deadline provided") with the active tab's URL and title prefilled; manual entry works on every page, including restricted ones; popup draft saved to session storage; reduced motion; focus styles.
@@ -897,6 +913,7 @@ flowchart LR
 
 ### Phase 2 — Data model, storage, full editing, duplicates
 
+- **Progress:** Implemented. Manually tested in Chrome by the project owner: job management (create, read, update, delete). Test date, Chrome version and macOS version were not supplied.
 - **Objective:** the complete normalized model with every field editable and safe persistence.
 - **Files:** `core/model/*`, `core/normalize/url.ts`, `text.ts`, `core/duplicates.ts`, `storage/jobRepository.ts` (full CRUD), `settingsRepository.ts`, `migrations.ts`, `dashboard/job/*` (drawer and form sections), `applications/` read-only four-column layout with MoveMenu, `ConfirmDialog`, `Toast`, popup `DuplicateNotice`.
 - **Features:** zod schemas (including the deadline policy: nullable deadline, `origin`, `evidence`); migration runner; all fields editable, grouped into sections; add, edit or clear the deadline at any time; delete with confirmation; generic URL canonicalization; duplicate warnings (exact and probable) with Save anyway; status history; manual eligibility select (no auto-classification yet).
@@ -913,6 +930,7 @@ flowchart LR
 
 ### Phase 3 — Kanban, drag-and-drop, search, filters
 
+- **Progress:** Implemented. Manually tested in Chrome by the project owner: the four-stage Kanban board. Test date, Chrome version and macOS version were not supplied.
 - **Objective:** a fully functional board with fast search.
 - **Files:** `applications/*` (KanbanBoard, KanbanColumn, JobCard, OutcomePicker, Toolbar, SearchBox, FilterBar, SortSelect, MobileColumnSwitcher), `core/search/*`, `hooks/useHashState.ts`.
 - **Features:** drag-and-drop with mouse, touch and keyboard; screen-reader announcements; side effects of moves; result outcomes; search over six fields; all filters and sorts; URL-persisted state; responsive board.
@@ -929,6 +947,7 @@ flowchart LR
 
 ### Phase 4 — Extraction framework, first integration milestone (three sites), eligibility v1
 
+- **Progress:** Implemented. Manually tested in Chrome by the project owner: Internshala, LinkedIn and Naukri. The test date, Chrome version and listing count were not supplied, so these sites are not Verified.
 - **Objective:** one-click auto-detection genuinely tested on three websites, with honest fallbacks everywhere else.
 - **Files:** `content/*`, `adapters/types.ts`, `registry.ts` (with the `enabled` flag), `merge.ts`, `adapters/generic/*`, `adapters/sites/{internshala,linkedin,naukri}.ts` (plus the next substitute in priority order only if needed), `core/eligibility/*`, `core/normalize/{salary,experience,location,category,dates}.ts`, popup `DetectionSummary`, `overview/ExploreDialog`, `tests/fixtures/sites/*`.
 - **Features:**
@@ -953,6 +972,7 @@ flowchart LR
 
 ### Phase 5 — Deadline reminders, notifications, calendar
 
+- **Progress:** Implemented. Manually tested in Chrome by the project owner: deadline management, reminders and calendar. Test date, Chrome version and macOS version were not supplied. No notification screenshot was supplied with this confirmation.
 - **Objective:** real, reliable reminders, plus the calendar view.
 - **Files:** `core/reminders/*`, `background/reminders.ts`, `reconcile.ts`, `notifications.ts`, `settings/ReminderSettings.tsx`, `dashboard/calendar/*`, notification icon.
 - **Features:**
@@ -976,6 +996,7 @@ flowchart LR
 
 ### Phase 6 — CSV export and data management
 
+- **Progress:** Implemented. Manually tested in Chrome by the project owner: search, filters, sorting, CSV export and data management. Test date, Chrome version and macOS version were not supplied. An earlier report confirmed a CSV in Apple Numbers. This confirmation does not add Google Sheets, LibreOffice or Excel, and it does not record each backup, restore or delete-all step.
 - **Objective:** spreadsheet-safe export and backups.
 - **Files:** `core/csv/*`, `storage/backup.ts`, `settings/DataManagement.tsx`, Export actions in TopNav and Toolbar.
 - **Features:** export all or filtered; optional description column; JSON backup and import with preview; storage usage meter; "Delete all data" with typed confirmation.
@@ -988,6 +1009,7 @@ flowchart LR
 
 ### Phase 7 — Remaining integrations (priorities 4–13), eligibility refinements
 
+- **Progress:** Implemented for the sites that could be read. Manually tested in Chrome by the project owner: Wellfound, Y Combinator Jobs, Himalayas, We Work Remotely, Unstop and Cutshort. Indeed, HiringCafe, Glassdoor and ZipRecruiter remain manual-entry only. The test date, Chrome version and listing count were not supplied, so none of these sites are Verified.
 - **Objective:** broaden coverage in the fixed priority order without destabilizing the core. This phase starts only after the MVP gate.
 - **Order and files** (skipping any site already used as a Phase 4 substitute):
   - **Tier 1:** 4 `wellfound.ts`, 5 `indeed.ts`, 6 `ycombinator.ts`;
@@ -1008,6 +1030,7 @@ flowchart LR
 
 ### Phase 8 — Hardening, security review, documentation, packaging
 
+- **Progress:** Remaining. Not started.
 - **Objective:** a portfolio-ready v1.0.0.
 - **Work:**
   - Playwright end-to-end suite;
@@ -1023,13 +1046,13 @@ flowchart LR
 ## 22. Honest limitations
 
 - Explicitly labelled deadlines are expected only on Internshala and Unstop. Most jobs will show "No deadline provided" until the user enters one, and those jobs get no reminder. This is deliberate: Job Clipper never invents a deadline.
-- Only three sites are guaranteed to be tested by the MVP gate; the other ten depend on Phase 7 results.
+- Nine integrations were manually tested in Chrome: Internshala, LinkedIn, Naukri, Wellfound, Y Combinator Jobs, Himalayas, We Work Remotely, Unstop and Cutshort. None are Verified, because a date, a Chrome version and a listing count were not supplied. Indeed, HiringCafe, Glassdoor and ZipRecruiter stay manual-entry only.
 - Reminders need Chrome to be running (in the background is enough); missed ones surface on the next launch.
 - Site adapters will break when sites change; fixtures catch logic regressions, but live re-verification is needed.
 - Logged-in-only content is readable only when the user is already logged in; login is never automated.
 - 10 MB local quota; no cross-device sync (JSON backup instead).
 - Eligibility is heuristic and defaults to Unknown; the user's override wins.
-- Glassdoor and ZipRecruiter may end up manual-only.
+- Indeed, HiringCafe, Glassdoor and ZipRecruiter are manual-entry only. Their access limits are recorded in the README integration table.
 
 ## 23. Documentation plan
 
